@@ -1,0 +1,18 @@
+import ApiResponse from "../../Utils/ApiResponse.js";
+
+const LogoutUser = async (req, res) => {
+  try {
+    const options = {
+      httpOnly: true,
+      secure: true,
+    };
+
+    res.clearCookie("Authorization", options);
+
+    return ApiResponse(res, true, "User is succesfully Logout", 200);
+  } catch (error) {
+    return ApiResponse(res, false, error.message, 500);
+  }
+};
+
+export default LogoutUser;
