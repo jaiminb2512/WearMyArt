@@ -10,7 +10,12 @@ const RegisterUser = async (req, res) => {
     const existedUser = await User.findOne({ email });
 
     if (existedUser) {
-      return ApiResponse(res, false, null, "User already exists", 401);
+      return ApiResponse(
+        res,
+        false,
+        "User already exists with this email",
+        401
+      );
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -24,18 +29,26 @@ const RegisterUser = async (req, res) => {
 
     await newUser.save();
 
-    // Generate JWT token
     const token = jwt.sign(
       { userId: newUser._id, email: newUser.email, isAdmin: newUser.isAdmin },
       process.env.JWT_SECRET,
       { expiresIn: "1h" }
     );
 
-    // Return only the fields you need in the response with the token
+    const options = {
+      httpOnly: true,
+      secure: true,
+    };
+
+    res.cookie("Authorization", token, options);
+
+    const userResponse = newUser.toObject();
+    delete userResponse.password;
+
     return ApiResponse(
       res,
       true,
-      { name: newUser.name, email: newUser.email, token },
+      { user: userResponse },
       "User created successfully",
       200
     );

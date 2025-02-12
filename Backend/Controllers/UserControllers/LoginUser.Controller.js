@@ -29,8 +29,17 @@ const LoginUser = async (req, res) => {
       secure: true,
     };
 
+    const userResponse = user.toObject();
+    delete userResponse.password;
+
     res.cookie("Authorization", token, options);
-    return ApiResponse(res, true, { user }, "User successfully logged in", 200);
+    return ApiResponse(
+      res,
+      true,
+      { user: userResponse },
+      "User successfully logged in",
+      200
+    );
   } catch (error) {
     return ApiResponse(res, false, error.message, 500);
   }

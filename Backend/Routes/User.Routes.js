@@ -4,19 +4,17 @@ import UpdateUser from "../Controllers/UserControllers/UpdateUser.Controller.js"
 import LoginUser from "../Controllers/UserControllers/LoginUser.Controller.js";
 import DeleteUser from "../Controllers/UserControllers/DeleteUser.Controller.js";
 import GetAllUsers from "../Controllers/UserControllers/GetAllUsers.Controller.js";
-import auth from "../middleware/auth.js";
+import VerifyJWT from "../middleware/VerifyJWT.js";
 import LogoutUser from "../Controllers/UserControllers/LogoutUser.Controller.js";
 
 const router = Router();
 
-// Open routes
 router.post("/register", RegisterUser);
 router.post("/login", LoginUser);
 
-// Protected routes (auth middleware added)
-router.post("/update-user", auth, UpdateUser);
-router.delete("/delete/:id", auth, DeleteUser);
-router.get("/get-all-user", auth, GetAllUsers);
-router.post("/logout", auth, LogoutUser);
+router.post("/update-user", VerifyJWT, UpdateUser);
+router.delete("/delete/:id", VerifyJWT, DeleteUser);
+router.get("/get-all-user", VerifyJWT, GetAllUsers);
+router.post("/logout", VerifyJWT, LogoutUser);
 
 export default router;

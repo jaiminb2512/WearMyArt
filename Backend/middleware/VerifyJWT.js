@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import ApiResponse from "../Utils/ApiResponse.js";
 
-const auth = function (req, res, next) {
+const VerifyJWT = function (req, res, next) {
   const token = req.cookies?.Authorization || req.header("Authorization");
 
   if (!token) {
@@ -22,4 +22,4 @@ const auth = function (req, res, next) {
   }
 };
 
-export default auth;
+export default VerifyJWT;
