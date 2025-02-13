@@ -19,16 +19,21 @@ const ProductSchema = new Schema({
     enum: ["full sleeve", "half sleeve", "sleeveless"],
     required: true,
   },
-  Gender: {
-    type: String,
-    enum: ["Man", "Woman", "Kid"],
+  Quantity: {
+    type: Number,
     required: true,
   },
   Color: {
     type: String,
     required: true,
   },
+  CustomizeOption: {
+    type: String,
+    enum: ["Photo", "Text", "Both"],
+    required: true,
+  },
 });
 
 const Product = model("Product", ProductSchema);
+
 export default Product;

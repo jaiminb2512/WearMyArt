@@ -3,18 +3,26 @@ import RegisterUser from "../Controllers/UserControllers/RegisterUser.Controller
 import UpdateUser from "../Controllers/UserControllers/UpdateUser.Controller.js";
 import LoginUser from "../Controllers/UserControllers/LoginUser.Controller.js";
 import DeleteUser from "../Controllers/UserControllers/DeleteUser.Controller.js";
-import GetAllUsers from "../Controllers/UserControllers/GetAllUsers.Controller.js";
 import VerifyJWT from "../middleware/VerifyJWT.js";
 import LogoutUser from "../Controllers/UserControllers/LogoutUser.Controller.js";
+import VerifyUser from "../Controllers/UserControllers/VerifyUser.Controller.js";
+import SendingMailForLoginUser from "../Controllers/UserControllers/SendingMailForLoginUser.Controller.js";
+import MakeAdmin from "../Controllers/UserControllers/MakeAdmin.Controller.js";
 
 const router = Router();
 
+// Registration
 router.post("/register", RegisterUser);
+router.post("/verify-user", VerifyUser);
+
+// Login
+router.post("/sending-mail-for-login", SendingMailForLoginUser);
 router.post("/login", LoginUser);
+
+router.post("/make-admin", MakeAdmin);
 
 router.post("/update-user", VerifyJWT, UpdateUser);
 router.delete("/delete/:id", VerifyJWT, DeleteUser);
-router.get("/get-all-user", VerifyJWT, GetAllUsers);
 router.post("/logout", VerifyJWT, LogoutUser);
 
 export default router;

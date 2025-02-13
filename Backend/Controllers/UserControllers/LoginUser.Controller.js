@@ -1,25 +1,26 @@
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
 import ApiResponse from "../../Utils/ApiResponse.js";
 import User from "../../models/User.model.js";
+import jwt from "jsonwebtoken";
 
 const LoginUser = async (req, res) => {
   try {
-    const { email, password } = req.body;
-    const user = await User.findOne({ email });
+    const { Email, OTP } = req.body;
+    const user = await User.findOne({ Email });
 
     if (!user) {
-      return ApiResponse(res, false, "Invalid credentials", 400);
+      return ApiResponse(res, false, "Invalid Email", 400);
     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
+    if (!user.isVerified) {
+      return ApiResponse(res, false, "User is not verified", 400);
+    }
 
-    if (!isMatch) {
-      return ApiResponse(res, false, "Invalid credentials", 400);
+    if (OTP !== user.OTP) {
+      return ApiResponse(res, false, "Invalid OTP", 400);
     }
 
     const token = jwt.sign(
-      { userId: user._id, email: user.email, isAdmin: user.isAdmin },
+      { userId: user._id, Email: user.Email, isAdmin: user.isAdmin },
       process.env.JWT_SECRET,
       { expiresIn: "1h" }
     );
@@ -29,17 +30,14 @@ const LoginUser = async (req, res) => {
       secure: true,
     };
 
-    const userResponse = user.toObject();
-    delete userResponse.password;
-
     res.cookie("Authorization", token, options);
-    return ApiResponse(
-      res,
-      true,
-      { user: userResponse },
-      "User successfully logged in",
-      200
-    );
+
+    const userResponse = user.toObject();
+    delete userResponse.isAdmin;
+    delete userResponse.OTP;
+    delete userResponse.OTPExpiry;
+
+    return ApiResponse(res, true, userResponse, "User Successfully Login", 200);
   } catch (error) {
     return ApiResponse(res, false, error.message, 500);
   }

@@ -5,12 +5,18 @@ import Typography from "@mui/material/Typography";
 import { createTheme } from "@mui/material/styles";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
-import { AppProvider } from "@toolpad/core";
-import { DashboardLayout } from "@toolpad/core";
+import BarChartIcon from "@mui/icons-material/BarChart";
+import DescriptionIcon from "@mui/icons-material/Description";
+import LayersIcon from "@mui/icons-material/Layers";
+import { AppProvider } from "@toolpad/core/AppProvider";
+import { DashboardLayout } from "@toolpad/core/DashboardLayout";
 import { useDemoRouter } from "@toolpad/core/internal";
-import { IoIosLogOut } from "react-icons/io";
 
 const NAVIGATION = [
+  {
+    kind: "header",
+    title: "Main items",
+  },
   {
     segment: "dashboard",
     title: "Dashboard",
@@ -22,9 +28,33 @@ const NAVIGATION = [
     icon: <ShoppingCartIcon />,
   },
   {
-    segment: "Logout",
-    title: "Logout",
-    icon: <IoIosLogOut className="text-xl" />,
+    kind: "divider",
+  },
+  {
+    kind: "header",
+    title: "Analytics",
+  },
+  {
+    segment: "reports",
+    title: "Reports",
+    icon: <BarChartIcon />,
+    children: [
+      {
+        segment: "sales",
+        title: "Sales",
+        icon: <DescriptionIcon />,
+      },
+      {
+        segment: "traffic",
+        title: "Traffic",
+        icon: <DescriptionIcon />,
+      },
+    ],
+  },
+  {
+    segment: "integrations",
+    title: "Integrations",
+    icon: <LayersIcon />,
   },
 ];
 
@@ -64,7 +94,7 @@ DemoPageContent.propTypes = {
   pathname: PropTypes.string.isRequired,
 };
 
-function DashboardLayoutBranding(props) {
+function DashboardLayoutBasic(props) {
   const { window } = props;
 
   const router = useDemoRouter("/dashboard");
@@ -76,17 +106,24 @@ function DashboardLayoutBranding(props) {
     // preview-start
     <AppProvider
       navigation={NAVIGATION}
+      branding={{
+        logo: <img src="https://mui.com/static/logo.png" alt="MUI logo" />,
+        title: "JAIMIN",
+        homeUrl: "/toolpad/core/introduction",
+      }}
       router={router}
       theme={demoTheme}
       window={demoWindow}
     >
-      <DashboardLayout></DashboardLayout>
+      <DashboardLayout>
+        <DemoPageContent pathname={router.pathname} />
+      </DashboardLayout>
     </AppProvider>
     // preview-end
   );
 }
 
-DashboardLayoutBranding.propTypes = {
+DashboardLayoutBasic.propTypes = {
   /**
    * Injected by the documentation to work in an iframe.
    * Remove this when copying and pasting into your project.
@@ -94,4 +131,4 @@ DashboardLayoutBranding.propTypes = {
   window: PropTypes.func,
 };
 
-export default DashboardLayoutBranding;
+export default DashboardLayoutBasic;

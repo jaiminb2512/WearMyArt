@@ -1,154 +1,46 @@
-import * as React from "react";
-import PropTypes from "prop-types";
-import AppBar from "@mui/material/AppBar";
-import Box from "@mui/material/Box";
-import CssBaseline from "@mui/material/CssBaseline";
-import Divider from "@mui/material/Divider";
-import Drawer from "@mui/material/Drawer";
-import IconButton from "@mui/material/IconButton";
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemText from "@mui/material/ListItemText";
-import MenuIcon from "@mui/icons-material/Menu";
-import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
-import Button from "@mui/material/Button";
-import { useNavigate } from "react-router-dom";
+import { FaHome, FaUsers, FaCogs, FaChartBar, FaBars } from "react-icons/fa";
+import React, { useState } from "react";
+import { useSelector } from "react-redux";
 
-const drawerWidth = 240;
-const navItems = ["Home", "About", "Contact", "Products"];
-
-function DrawerAppBar(props) {
-  const { window } = props;
-  const [mobileOpen, setMobileOpen] = React.useState(false);
-  const navigate = useNavigate(); // Use navigate from react-router-dom
-
-  const handleDrawerToggle = () => {
-    setMobileOpen((prevState) => !prevState);
+const Navbar = () => {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
   };
 
-  // Redirection functions
-  const redirectToHome = () => {
-    navigate("/");
-  };
-  const redirectToAbout = () => {
-    navigate("/about");
-  };
-  const redirectToContact = () => {
-    navigate("/contact");
-  };
-  const redirectToProducts = () => {
-    navigate("/products");
-  };
-
-  const drawer = (
-    <Box onClick={handleDrawerToggle} sx={{ textAlign: "center" }}>
-      <Typography variant="h6" sx={{ my: 2 }}>
-        MUI
-      </Typography>
-      <Divider />
-      <List>
-        {navItems.map((item) => (
-          <ListItem key={item} disablePadding>
-            <ListItemButton
-              sx={{ textAlign: "center" }}
-              onClick={() => handleNavigation(item)}
-            >
-              <ListItemText primary={item} />
-            </ListItemButton>
-          </ListItem>
-        ))}
-      </List>
-    </Box>
-  );
-
-  const handleNavigation = (item) => {
-    switch (item) {
-      case "Home":
-        redirectToHome();
-        break;
-      case "About":
-        redirectToAbout();
-        break;
-      case "Contact":
-        redirectToContact();
-        break;
-      case "Products":
-        redirectToProducts();
-        break;
-      default:
-        break;
-    }
-  };
-
-  const container =
-    window !== undefined ? () => window().document.body : undefined;
+  const { user } = useSelector((state) => state.user);
+  console.log(user);
 
   return (
-    <Box sx={{ display: "flex" }}>
-      <CssBaseline />
-      <AppBar component="nav">
-        <Toolbar>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            edge="start"
-            onClick={handleDrawerToggle}
-            sx={{ mr: 2, display: { sm: "none" } }}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Typography
-            variant="h6"
-            component="div"
-            sx={{ flexGrow: 1, display: { xs: "none", sm: "block" } }}
-          >
-            MUI
-          </Typography>
-          <Box sx={{ display: { xs: "none", sm: "block" } }}>
-            {navItems.map((item) => (
-              <Button
-                key={item}
-                sx={{ color: "#fff" }}
-                onClick={() => handleNavigation(item)}
-              >
-                {item}
-              </Button>
-            ))}
-          </Box>
-        </Toolbar>
-      </AppBar>
-      <nav>
-        <Drawer
-          container={container}
-          variant="temporary"
-          open={mobileOpen}
-          onClose={handleDrawerToggle}
-          ModalProps={{
-            keepMounted: true, // Better open performance on mobile.
-          }}
-          sx={{
-            display: { xs: "block", sm: "none" },
-            "& .MuiDrawer-paper": {
-              boxSizing: "border-box",
-              width: drawerWidth,
-            },
-          }}
-        >
-          {drawer}
-        </Drawer>
-      </nav>
-    </Box>
-  );
-}
+    <div
+      className={`w-${isSidebarOpen ? "64" : "20"} h-screen flex  flex-col bg-gray-800 text-white p-4 transition-all duration-300`}
+    >
+      <div className="flex justify-between items-center mb-4">
+        <button onClick={toggleSidebar} className="text-xl pt-[3.5] p-2">
+          <FaBars />
+        </button>
+      </div>
 
-DrawerAppBar.propTypes = {
-  /**
-   * Injected by the documentation to work in an iframe.
-   * You won't need it on your project.
-   */
-  window: PropTypes.func,
+      <ul className="flex flex-col space-y-4">
+        <li className="flex items-center py-2 hover:bg-gray-700 px-2 rounded">
+          <FaHome className="text-xl mr-4" />
+          {isSidebarOpen && <span className="text-lg">Dashboard</span>}
+        </li>
+        <li className="flex items-center py-2 hover:bg-gray-700 px-2 rounded">
+          <FaUsers className="text-xl mr-4" />
+          {isSidebarOpen && <span className="text-lg">Users</span>}
+        </li>
+        <li className="flex items-center py-2 hover:bg-gray-700 px-2 rounded">
+          <FaCogs className="text-xl mr-4" />
+          {isSidebarOpen && <span className="text-lg">Settings</span>}
+        </li>
+        <li className="flex items-center py-2 hover:bg-gray-700 px-2 rounded">
+          <FaChartBar className="text-xl mr-4" />
+          {isSidebarOpen && <span className="text-lg">Analytics</span>}
+        </li>
+      </ul>
+    </div>
+  );
 };
 
-export default DrawerAppBar;
+export default Navbar;

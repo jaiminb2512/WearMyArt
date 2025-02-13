@@ -1,15 +1,17 @@
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
 import ApiResponse from "../../Utils/ApiResponse.js";
 import User from "../../models/User.model.js";
 
+const generateOTP = () => {
+  return Math.floor(1000 + Math.random() * 9000);
+};
+
 const RegisterUser = async (req, res) => {
   try {
-    const { name, email, password, isAdmin } = req.body;
+    const { FullName, Email, isAdmin } = req.body;
 
-    const existedUser = await User.findOne({ email });
+    const existedUser = await User.findOne({ Email });
 
-    if (existedUser) {
+    if (existedUser && existedUser.isVerified) {
       return ApiResponse(
         res,
         false,
@@ -18,32 +20,23 @@ const RegisterUser = async (req, res) => {
       );
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const OTP = generateOTP();
+    const OTPExpiry = new Date(Date.now() + 10 * 60 * 1000);
 
     const newUser = new User({
-      name,
-      email,
-      password: hashedPassword,
+      FullName,
+      Email,
+      OTP,
       isAdmin,
+      OTPExpiry,
     });
 
     await newUser.save();
 
-    const token = jwt.sign(
-      { userId: newUser._id, email: newUser.email, isAdmin: newUser.isAdmin },
-      process.env.JWT_SECRET,
-      { expiresIn: "1h" }
-    );
-
-    const options = {
-      httpOnly: true,
-      secure: true,
-    };
-
-    res.cookie("Authorization", token, options);
-
     const userResponse = newUser.toObject();
-    delete userResponse.password;
+    delete userResponse.isAdmin;
+    delete userResponse.OTP;
+    delete userResponse.OTPExpiry;
 
     return ApiResponse(
       res,
