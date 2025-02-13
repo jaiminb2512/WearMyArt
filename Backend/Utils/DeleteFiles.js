@@ -11,8 +11,6 @@ const deleteFiles = (filePaths) => {
   filePaths.forEach((filePath) => {
     const fileToDelete = path.join(baseUploadPath, filePath);
 
-    // console.log("Deleting file:", fileToDelete);
-
     if (fs.existsSync(fileToDelete)) {
       fs.unlinkSync(fileToDelete);
       console.log(`File deleted: ${fileToDelete}`);
