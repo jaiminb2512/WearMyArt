@@ -19,7 +19,7 @@ const ProductSchema = new Schema({
     enum: ["full sleeve", "half sleeve", "sleeveless"],
     required: true,
   },
-  Quantity: {
+  Stock: {
     type: Number,
     required: true,
   },

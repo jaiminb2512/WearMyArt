@@ -1,3 +1,4 @@
+import jwt from "jsonwebtoken";
 import User from "../../models/User.model.js";
 import ApiResponse from "../../Utils/ApiResponse.js";
 
@@ -24,7 +25,22 @@ const MakeAdmin = async (req, res) => {
 
     await existedUser.save();
 
-    console.log(existedUser);
+    const token = jwt.sign(
+      {
+        userId: existedUser._id,
+        Email: existedUser.Email,
+        isAdmin: existedUser.isAdmin,
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" }
+    );
+
+    const options = {
+      httpOnly: true,
+      secure: true,
+    };
+
+    res.cookie("Authorization", token, options);
 
     return ApiResponse(res, true, "User is now an admin", 200);
   } catch (error) {

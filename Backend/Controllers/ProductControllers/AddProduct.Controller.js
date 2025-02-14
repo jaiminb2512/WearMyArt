@@ -3,7 +3,7 @@ import ApiResponse from "../../Utils/ApiResponse.js";
 
 const AddProduct = async (req, res) => {
   try {
-    const { Size, Cost, Sleeve, Quantity, Color, CustomizeOption } = req.body;
+    const { Size, Cost, Sleeve, Stock, Color, CustomizeOption } = req.body;
 
     if (!req.files || req.files.length === 0) {
       return ApiResponse(res, false, null, "No images uploaded", 400);
@@ -16,7 +16,7 @@ const AddProduct = async (req, res) => {
       Size,
       Cost,
       Sleeve,
-      Quantity,
+      Stock,
       Color,
       CustomizeOption,
     });

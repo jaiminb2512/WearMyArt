@@ -20,16 +20,27 @@ const OrderSchema = Schema({
   Text: {
     type: String,
   },
-  color: {
+  Color: {
     type: String,
   },
   FinalProductImg: {
     type: String,
   },
+  Quantity: {
+    type: Number,
+    default: 1,
+  },
   FinalCost: {
     type: Number,
     require: true,
   },
+  State: {
+    type: String,
+    enum: ["Process", "Ready", "Shipped", "Completed"],
+    default: "Process",
+  },
 });
 
-export default Order = model("Order", OrderSchema);
+const Order = model("Order", OrderSchema);
+
+export default Order;

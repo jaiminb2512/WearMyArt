@@ -8,6 +8,8 @@ import LogoutUser from "../Controllers/UserControllers/LogoutUser.Controller.js"
 import VerifyUser from "../Controllers/UserControllers/VerifyUser.Controller.js";
 import SendingMailForLoginUser from "../Controllers/UserControllers/SendingMailForLoginUser.Controller.js";
 import MakeAdmin from "../Controllers/UserControllers/MakeAdmin.Controller.js";
+import VerifyAdmin from "../middleware/VerifyAdmin.js";
+import GetSingleUser from "../Controllers/UserControllers/GetSingleUser.Controller.js";
 
 const router = Router();
 
@@ -20,6 +22,8 @@ router.post("/sending-mail-for-login", SendingMailForLoginUser);
 router.post("/login", LoginUser);
 
 router.post("/make-admin", MakeAdmin);
+
+router.get("/single-user/:id", VerifyAdmin, GetSingleUser);
 
 router.post("/update-user", VerifyJWT, UpdateUser);
 router.delete("/delete/:id", VerifyJWT, DeleteUser);

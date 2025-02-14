@@ -4,7 +4,7 @@ import deleteFiles from "../../Utils/deleteFiles.js";
 
 const UpdateProduct = async (req, res) => {
   try {
-    const { id, Size, Cost, Sleeve, Gender, Color } = req.body;
+    const { id, Size, Cost, Stock, Sleeve, Gender, Color } = req.body;
 
     const FoundProduct = await Product.findById(id);
 
@@ -27,6 +27,7 @@ const UpdateProduct = async (req, res) => {
         Size,
         Cost,
         Sleeve,
+        Stock,
         Gender,
         Color,
         ImgURL: FoundProduct.ImgURL,

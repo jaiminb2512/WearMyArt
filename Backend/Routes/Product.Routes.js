@@ -21,5 +21,4 @@ router.post(
 router.delete("/delete/:id", VerifyAdmin, DeleteProduct);
 router.get("/single-product/:id", VerifyJWT, GetSingleProduct);
 router.get("/get-all-products", VerifyJWT, GetAllProduct);
-
 export default router;

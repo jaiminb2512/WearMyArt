@@ -3,6 +3,7 @@ import dbConnect from "./db.js";
 import express from "express";
 import UserRoute from "./Routes/User.Routes.js";
 import ProductRoute from "./Routes/Product.Routes.js";
+import OrderRoute from "./Routes/Order.Routes.js";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 
@@ -22,6 +23,7 @@ app.get("/", (req, res) => {
 
 app.use("/api/user", UserRoute);
 app.use("/api/product", ProductRoute);
+app.use("/api/order", OrderRoute);
 
 app.listen(port, () => {
   console.log(`App is running on port ${port}`);
