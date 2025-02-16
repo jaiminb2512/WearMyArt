@@ -11,7 +11,7 @@ const GetSingleOrder = async (req, res) => {
       res,
       true,
       SingleOrder,
-      "Product added successfully",
+      "Product Fetched successfully",
       200
     );
   } catch (error) {

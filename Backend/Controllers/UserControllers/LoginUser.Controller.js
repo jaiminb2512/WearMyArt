@@ -1,6 +1,6 @@
-import ApiResponse from "../../Utils/ApiResponse.js";
 import User from "../../models/User.model.js";
-import jwt from "jsonwebtoken";
+import ApiResponse from "../../Utils/ApiResponse.js";
+import { GenerateAndSetTokens } from "../../Utils/GenerateAndSetTokens.js";
 
 const LoginUser = async (req, res) => {
   try {
@@ -19,20 +19,11 @@ const LoginUser = async (req, res) => {
       return ApiResponse(res, false, "Invalid OTP", 400);
     }
 
-    const token = jwt.sign(
-      { userId: user._id, Email: user.Email, isAdmin: user.isAdmin },
-      process.env.JWT_SECRET,
-      { expiresIn: "1h" }
-    );
-
-    const options = {
-      httpOnly: true,
-      secure: true,
-    };
-
-    res.cookie("Authorization", token, options);
+    const { AccessToken, RefreshToken } = GenerateAndSetTokens(user._id, res);
 
     const userResponse = user.toObject();
+    userResponse.AccessToken = AccessToken;
+    userResponse.RefreshToken = RefreshToken;
     delete userResponse.isAdmin;
     delete userResponse.OTP;
     delete userResponse.OTPExpiry;

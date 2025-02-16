@@ -2,15 +2,9 @@ import ApiResponse from "../../Utils/ApiResponse.js";
 import SendOTP from "../../Utils/SendOTP.js";
 import User from "../../models/User.model.js";
 
-// const generateOTP = () => {
-//   return Math.floor(1000 + Math.random() * 9000);
-// };
-
 const RegisterUser = async (req, res) => {
   try {
     const { FullName, Email, isAdmin } = req.body;
-
-    // Check if the user already exists and is verified
     const existedUser = await User.findOne({ Email });
 
     if (existedUser && existedUser.isVerified) {
@@ -23,9 +17,8 @@ const RegisterUser = async (req, res) => {
     }
 
     const OTP = Math.floor(1000 + Math.random() * 9000);
-    const OTPExpiry = new Date(Date.now() + 10 * 60 * 1000); // OTP expiry set to 10 minutes
+    const OTPExpiry = new Date(Date.now() + 10 * 60 * 1000);
 
-    // Create the new user object
     const newUser = new User({
       FullName,
       Email,
@@ -34,18 +27,17 @@ const RegisterUser = async (req, res) => {
       OTPExpiry,
     });
 
-    // Send OTP via email
     const textContent = `Your OTP code is ${OTP}. It will expire in 10 minutes.`;
-    const otpResponse = await SendOTP(Email, OTP, textContent); // Send OTP to the user email
+    const name = "WearMyArt Registration";
+    const subject = "Registration code of WearMyArt";
+    const otpResponse = await SendOTP(Email, name, subject, textContent);
 
     if (!otpResponse.success) {
-      return ApiResponse(res, false, otpResponse.message, 500); // Handle failure in OTP sending
+      return ApiResponse(res, false, otpResponse.message, 500);
     }
 
-    // Save the new user to the database
     await newUser.save();
 
-    // Clean up the response data before returning
     const userResponse = newUser.toObject();
     delete userResponse.isAdmin;
     delete userResponse.OTP;

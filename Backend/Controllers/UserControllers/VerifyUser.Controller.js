@@ -1,6 +1,6 @@
 import User from "../../models/User.model.js";
 import ApiResponse from "../../Utils/ApiResponse.js";
-import jwt from "jsonwebtoken";
+import { GenerateAndSetTokens } from "../../Utils/GenerateAndSetTokens.js";
 
 const VerifyUser = async (req, res) => {
   try {
@@ -17,30 +17,7 @@ const VerifyUser = async (req, res) => {
       );
     }
 
-    if (OTP === existedUser.OTP && existedUser.OTPExpiry > Date.now()) {
-      existedUser.isVerified = true;
-
-      await existedUser.save();
-
-      const token = jwt.sign(
-        {
-          userId: existedUser._id,
-          Email: existedUser.Email,
-          isAdmin: existedUser.isAdmin,
-        },
-        process.env.JWT_SECRET,
-        { expiresIn: "1h" }
-      );
-
-      const options = {
-        httpOnly: true,
-        secure: true,
-      };
-
-      res.cookie("Authorization", token, options);
-
-      return ApiResponse(res, true, "User verified successfully", 200);
-    } else {
+    if (OTP !== existedUser.OTP || existedUser.OTPExpiry < Date.now()) {
       return ApiResponse(
         res,
         false,
@@ -48,6 +25,29 @@ const VerifyUser = async (req, res) => {
         401
       );
     }
+
+    existedUser.isVerified = true;
+
+    const { AccessToken, RefreshToken } = GenerateAndSetTokens(
+      existedUser._id,
+      res
+    );
+
+    await existedUser.save();
+    const userResponse = existedUser.toObject();
+    userResponse.AccessToken = AccessToken;
+    userResponse.RefreshToken = RefreshToken;
+    delete userResponse.isAdmin;
+    delete userResponse.OTP;
+    delete userResponse.OTPExpiry;
+
+    return ApiResponse(
+      res,
+      true,
+      userResponse,
+      "User verified successfully",
+      200
+    );
   } catch (error) {
     return ApiResponse(res, false, error.message, 500);
   }

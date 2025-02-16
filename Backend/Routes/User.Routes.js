@@ -10,6 +10,7 @@ import SendingMailForLoginUser from "../Controllers/UserControllers/SendingMailF
 import MakeAdmin from "../Controllers/UserControllers/MakeAdmin.Controller.js";
 import VerifyAdmin from "../middleware/VerifyAdmin.js";
 import GetSingleUser from "../Controllers/UserControllers/GetSingleUser.Controller.js";
+import RefreshAccessToken from "../Controllers/UserControllers/RefreshAccessToken.controller.js";
 
 const router = Router();
 
@@ -21,8 +22,10 @@ router.post("/verify-user", VerifyUser);
 router.post("/sending-mail-for-login", SendingMailForLoginUser);
 router.post("/login", LoginUser);
 
-router.post("/make-admin", MakeAdmin);
+router.post("/refresh-tokens", RefreshAccessToken);
 
+// Admin Requests
+router.post("/make-admin", VerifyAdmin, MakeAdmin);
 router.get("/single-user/:id", VerifyAdmin, GetSingleUser);
 
 router.post("/update-user", VerifyJWT, UpdateUser);

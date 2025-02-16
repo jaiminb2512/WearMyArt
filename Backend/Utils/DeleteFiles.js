@@ -13,7 +13,6 @@ const deleteFiles = (filePaths) => {
 
     if (fs.existsSync(fileToDelete)) {
       fs.unlinkSync(fileToDelete);
-      console.log(`File deleted: ${fileToDelete}`);
     } else {
       console.log(`File not found: ${fileToDelete}`);
     }

@@ -10,10 +10,6 @@ const UserSchema = new Schema({
     required: true,
     unique: true,
   },
-  OTP: {
-    type: Number,
-    required: true,
-  },
   isVerified: {
     type: Boolean,
     default: false,
@@ -21,6 +17,10 @@ const UserSchema = new Schema({
   isAdmin: {
     type: Boolean,
     default: false,
+  },
+  OTP: {
+    type: Number,
+    required: true,
   },
   OTPExpiry: {
     type: Date,

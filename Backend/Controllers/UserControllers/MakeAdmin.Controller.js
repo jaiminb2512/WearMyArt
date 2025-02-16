@@ -45,12 +45,7 @@ const MakeAdmin = async (req, res) => {
     return ApiResponse(res, true, "User is now an admin", 200);
   } catch (error) {
     console.error(error);
-    return ApiResponse(
-      res,
-      false,
-      "An error occurred while making the user an admin",
-      500
-    );
+    return ApiResponse(res, false, error.message, 500);
   }
 };
 

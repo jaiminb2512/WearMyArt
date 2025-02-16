@@ -1,23 +1,29 @@
-import jwt from "jsonwebtoken";
+import jwt, { decode } from "jsonwebtoken";
 import ApiResponse from "../Utils/ApiResponse.js";
+import User from "../models/User.model.js";
 
-const VerifyJWT = function (req, res, next) {
-  const token = req.cookies?.Authorization || req.header("Authorization");
+const VerifyJWT = async (req, res, next) => {
+  const token = req.cookies?.RefreshToken || req.header("RefreshToken");
 
   if (!token) {
     return ApiResponse(res, false, null, "No token, authorization denied", 401);
   }
 
   try {
-    const decoded = jwt.verify(
+    const decodedUser = jwt.verify(
       token.replace("Bearer ", ""),
       process.env.JWT_SECRET
     );
 
-    req.user = decoded;
+    const user = await User.findById(decodedUser?._id);
+
+    if (!user) {
+      return ApiResponse(res, false, null, "Token is not valid", 401);
+    }
+
+    req.user = user;
     next();
   } catch (err) {
-    console.error("Token verification failed:", err);
     return ApiResponse(res, false, null, "Token is not valid", 401);
   }
 };

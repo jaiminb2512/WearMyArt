@@ -1,4 +1,5 @@
 import ApiResponse from "../../Utils/ApiResponse.js";
+import SendOTP from "../../Utils/SendOTP.js";
 import User from "../../models/User.model.js";
 
 const generateOTP = () => {
@@ -23,6 +24,11 @@ const SendingMailForLoginUser = async (req, res) => {
 
     user.OTP = OTP;
     user.OTPExpiry = OTPExpiry;
+
+    const textContent = `Your OTP code is ${OTP}. It will expire in 10 minutes.`;
+    const name = "WearMyArt Login";
+    const subject = "Login code of WearMyArt";
+    const otpResponse = await SendOTP(Email, name, subject, textContent);
 
     await user.save();
 

@@ -1,32 +1,46 @@
 import axios from "axios";
-import ApiResponse from "./ApiResponse.js";
 
-const SendOTP = async (email, OTP, textContent) => {
+const SendOTP = async (email, name, subject, textContent) => {
   const brevoApiKey = process.env.BREVO_API_KEY;
   const senderEmail = process.env.SENDER_EMAIL;
 
+  // console.log( "email", email)
+  // console.log("name",name)
+  // console.log( "subject", subject)
+  // console.log("textcontent" ,textContent)
+
+  if (!brevoApiKey || !senderEmail) {
+    console.error("❌ Missing API Key or Sender Email");
+    return {
+      success: false,
+      message: "Server error: Missing email configuration",
+    };
+  }
+
   const data = {
-    sender: { email: senderEmail, name: "MERN App" },
+    sender: { email: senderEmail, name },
     to: [{ email }],
-    subject: "Your OTP Code",
+    subject,
     textContent,
   };
 
   try {
-    await axios.post("https://api.brevo.com/v3/smtp/email", data, {
-      headers: {
-        "api-key": brevoApiKey,
-        "Content-Type": "application/json",
-      },
-    });
-
+    const response = await axios.post(
+      "https://api.brevo.com/v3/smtp/email",
+      data,
+      {
+        headers: {
+          "api-key": brevoApiKey,
+          "Content-Type": "application/json",
+        },
+      }
+    );
     return { success: true, message: "OTP sent successfully" };
   } catch (error) {
-    console.error(
-      "❌ Error sending OTP:",
-      error.response?.data || error.message
-    );
-    return { success: false, message: "OTP sending failed" };
+    return {
+      success: false,
+      message: error.message || "OTP sending failed",
+    };
   }
 };
 
