@@ -1,54 +1,41 @@
-import { Button, TextField, IconButton } from "@mui/material";
 import React, { useState } from "react";
-import ApiURLS from "../Data/ApiURLS";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import { useDispatch } from "react-redux";
 import { login } from "../Redux/UserSlice";
+import { showToast } from "../Redux/toastSlice";
 import { IoEyeOutline } from "react-icons/io5";
 import { FaEyeSlash } from "react-icons/fa6";
-import { showToast } from "../Redux/toastSlice";
+import ApiURLS from "../Data/ApiURLS";
+import { apiRequest } from "../utils/apiRequest"; // Import utility function
 
 const Login = () => {
-  const [loginData, setLoginData] = useState({
-    email: "",
-    password: "",
-  });
-
-  const [errors, setErrors] = useState({
-    email: "",
-    password: "",
-  });
+  const [loginData, setLoginData] = useState({ Email: "", Password: "" });
+  const [errors, setErrors] = useState({ Email: "", Password: "" });
+  const [showPassword, setShowPassword] = useState(false);
+  const [isOtpSent, setIsOtpSent] = useState(false);
+  const [isOtpButtonDisabled, setIsOtpButtonDisabled] = useState(false);
 
   const dispatch = useDispatch();
-  const Navigate = useNavigate();
+  const navigate = useNavigate();
 
-  const triggerToast = (message, variant) => {
-    dispatch(showToast({ message, variant }));
-  };
-
-  const [showPassword, setShowPassword] = useState(false);
-  const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  const EmailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
   const onChange = (e) => {
     const { name, value } = e.target;
-    setLoginData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
+    setLoginData((prevData) => ({ ...prevData, [name]: value }));
   };
 
   const validateForm = () => {
     let formValid = true;
-    const newErrors = { email: "", password: "" };
+    const newErrors = { Email: "", Password: "" };
 
-    if (!emailRegex.test(loginData.email)) {
-      newErrors.email = "Invalid email format";
+    if (!EmailRegex.test(loginData.Email)) {
+      newErrors.Email = "Invalid Email format";
       formValid = false;
     }
 
-    if (loginData.password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters long";
+    if (!isOtpSent && loginData.Password.length < 6) {
+      newErrors.Password = "Password must be at least 6 characters long";
       formValid = false;
     }
 
@@ -58,33 +45,43 @@ const Login = () => {
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    if (!validateForm()) {
-      return false;
+    if (!validateForm()) return;
+
+    const url = isOtpSent ? ApiURLS.VerifyOtpLogin : ApiURLS.Login; // Choose API
+    const response = await apiRequest(url, "POST", loginData, dispatch);
+
+    if (response.success) {
+      dispatch(login(response.data.user));
+      dispatch(showToast({ message: response.message, variant: "success" }));
+      navigate("/");
     }
-    try {
-      const res = await axios.post(
-        `${import.meta.env.VITE_BASE_URL}${ApiURLS.Login}`,
-        loginData
+  };
+
+  const handleLoginWithOtp = async () => {
+    if (!EmailRegex.test(loginData.Email)) {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        Email: "Enter a valid email",
+      }));
+      return;
+    }
+
+    setIsOtpButtonDisabled(true);
+    const response = await apiRequest(
+      ApiURLS.SendingMailForLogin,
+      "POST",
+      { Email: loginData.Email },
+      dispatch
+    );
+
+    if (response.success) {
+      setIsOtpSent(true);
+      dispatch(
+        showToast({ message: "OTP sent to your email", variant: "success" })
       );
-      if (res.data.success) {
-        dispatch(login(res.data.data.user));
-        triggerToast(res.data.message, "success");
-        Navigate("/");
-      } else if (!res.data.success) {
-        triggerToast(res.data.data, "error");
-      }
-    } catch (error) {
-      console.log("Error during registration:", error.message);
-      triggerToast(error.message, "error");
+    } else {
+      setIsOtpButtonDisabled(false);
     }
-  };
-
-  const NavigateToRegister = () => {
-    Navigate("/register");
-  };
-
-  const handleClickShowPassword = () => {
-    setShowPassword((prevState) => !prevState);
   };
 
   return (
@@ -98,63 +95,73 @@ const Login = () => {
         </h2>
 
         <div className="flex flex-col gap-4">
-          <TextField
-            id="email"
-            label="Enter Email"
-            variant="outlined"
-            name="email"
+          <input
             type="email"
-            value={loginData.email}
+            name="Email"
+            placeholder="Enter Email"
+            value={loginData.Email}
             onChange={onChange}
-            fullWidth
-            className="input-field"
-            error={!!errors.email}
-            helperText={errors.email}
+            className="w-full p-2 border border-gray-300 rounded"
           />
-          <TextField
-            id="password"
-            label="Password"
-            variant="outlined"
-            name="password"
-            type={showPassword ? "text" : "password"}
-            value={loginData.password}
-            onChange={onChange}
-            fullWidth
-            className="input-field"
-            error={!!errors.password}
-            helperText={errors.password}
-            InputProps={{
-              endAdornment: (
-                <IconButton
-                  position="end"
-                  onClick={handleClickShowPassword}
-                  edge="end"
-                >
-                  {showPassword ? <IoEyeOutline /> : <FaEyeSlash />}
-                </IconButton>
-              ),
-            }}
-          />
+          {errors.Email && (
+            <p className="text-red-500 text-sm">{errors.Email}</p>
+          )}
+
+          <div className="relative">
+            <input
+              type={showPassword && !isOtpSent ? "text" : "password"}
+              name="Password"
+              placeholder={isOtpSent ? "Enter OTP" : "Enter Password"}
+              value={loginData.Password}
+              onChange={onChange}
+              className="w-full p-2 border border-gray-300 rounded"
+            />
+            {!isOtpSent && (
+              <button
+                type="button"
+                onClick={() => setShowPassword((prev) => !prev)}
+                className="absolute right-2 top-3"
+              >
+                {showPassword ? <IoEyeOutline /> : <FaEyeSlash />}
+              </button>
+            )}
+          </div>
+          {errors.Password && (
+            <p className="text-red-500 text-sm">{errors.Password}</p>
+          )}
         </div>
 
-        <div className="mt-4">
-          <Button
+        <div className="mt-4 flex flex-col gap-4">
+          <button
             type="submit"
-            variant="contained"
-            color="primary"
-            fullWidth
-            className="mt-6 py-2 text-white font-semibold bg-blue-500 hover:bg-blue-600 rounded-lg"
+            className="w-full py-2 text-white font-semibold bg-blue-500 hover:bg-blue-600 rounded-lg"
           >
-            Login
-          </Button>
+            {isOtpSent ? "Verify OTP" : "Login"}
+          </button>
+
+          {!isOtpSent && (
+            <button
+              type="button"
+              onClick={handleLoginWithOtp}
+              className={`w-full py-2 text-white font-semibold ${
+                isOtpButtonDisabled
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-blue-500 hover:bg-blue-600"
+              } rounded-lg`}
+              disabled={isOtpButtonDisabled}
+            >
+              Login Using OTP
+            </button>
+          )}
         </div>
 
         <p className="text-center text-md mt-5">
-          Don't have an account?{" "}
+          Don't have an account?
           <span
-            onClick={NavigateToRegister}
+            onClick={() => navigate("/register")}
             className="cursor-pointer text-blue-500"
           >
+            {" "}
             Register Here
           </span>
         </p>

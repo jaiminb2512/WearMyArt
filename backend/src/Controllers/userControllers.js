@@ -58,7 +58,7 @@ const registerUser = async (req, res) => {
       return apiResponse(res, false, null, otpResponse.message, 500);
     }
 
-    await newUser.save();
+    await newUser.save({ validateBeforeSave: false });
     return apiResponse(
       res,
       true,
@@ -94,7 +94,7 @@ const activateUser = async (req, res) => {
     }
 
     existedUser.isActive = true;
-    await existedUser.save();
+    await existedUser.save({ validateBeforeSave: false });
 
     const htmlContent = `
       <p>Hello, ${existedUser.FullName}</p>
@@ -123,6 +123,7 @@ const activateUser = async (req, res) => {
   }
 };
 
+// Login user
 const sendingMailForLoginUser = async (req, res) => {
   try {
     const { Email } = req.body;
@@ -153,7 +154,7 @@ const sendingMailForLoginUser = async (req, res) => {
     const subject = "Login code of WearMyArt";
     const otpResponse = await sendMail(Email, name, subject, htmlContent);
 
-    await user.save();
+    await user.save({ validateBeforeSave: false });
 
     return apiResponse(res, true, null, "OTP Sent Successfully", 200);
   } catch (error) {
@@ -165,6 +166,8 @@ const loginUser = async (req, res) => {
   try {
     const { Email, OTP, Password } = req.body;
     const user = await User.findOne({ Email });
+
+    console.log(user);
 
     if (!user) {
       return apiResponse(res, false, null, "Invalid Email", 400);
@@ -253,6 +256,7 @@ const makeAdmin = async (req, res) => {
   }
 };
 
+//  Forgot Password
 const sendingMailForForgotPassword = async (req, res) => {
   try {
     const { Email } = req.body;
@@ -279,7 +283,7 @@ const sendingMailForForgotPassword = async (req, res) => {
     const subject = "Forgot Password code of WearMyArt";
     const otpResponse = await sendMail(Email, name, subject, htmlContent);
 
-    await user.save();
+    await user.save({ validateBeforeSave: false });
 
     return apiResponse(res, true, null, "OTP Sent Successfully", 200);
   } catch (error) {
@@ -295,7 +299,7 @@ const forgotPassword = async (req, res) => {
     if (!user) {
       return apiResponse(res, false, null, "Invalid Email", 400);
     }
-    if (OTP != user.OTP) {
+    if (OTP !== user.OTP) {
       return apiResponse(res, false, null, "Invalid OTP", 400);
     }
     if (user.OTPExpiry < Date.now()) {
@@ -303,19 +307,27 @@ const forgotPassword = async (req, res) => {
     }
 
     const saltRounds = 10;
-    const hashedPassword = bcrypt.hash(Password, saltRounds, (err) => {
-      if (err) {
-        return apiResponse(res, false, err.message, 500);
-      }
-    });
+    const hashedPassword = await bcrypt.hash(Password, saltRounds);
 
     user.Password = hashedPassword;
-    await user.save();
+    await user.save({ validateBeforeSave: false });
 
     const userResponse = {
-      FullName: existedUser.FullName,
-      Email,
+      FullName: user.FullName,
+      Email: user.Email,
     };
+
+    const htmlContent = `
+  <p>Hello, ${FullName}</p>
+  <p>Your password has been changed successfully for WearMyArt.</p>
+  <p>If you did not request this change, please contact our support team immediately.</p>
+  <p>For security reasons, we recommend using a strong and unique password.</p>
+  <p>Thank you for choosing WearMyArt!</p>
+`;
+
+    const name = "WearMyArt Security";
+    const subject = "Your Password Has Been Changed Successfully";
+    const otpResponse = await sendMail(Email, name, subject, htmlContent);
 
     return apiResponse(
       res,
@@ -447,7 +459,7 @@ const deleteUser = async (req, res) => {
 
     DeleteUser.isActive = false;
 
-    await DeleteUser.save();
+    await DeleteUser.save({ validateBeforeSave: false });
 
     return apiResponse(res, true, "User is succesfully Deleted", 200);
   } catch (error) {
@@ -455,6 +467,7 @@ const deleteUser = async (req, res) => {
   }
 };
 
+// Block user
 const blockUsers = async (req, res) => {
   try {
     const { userIds } = req.body;
