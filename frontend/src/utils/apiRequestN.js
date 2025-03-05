@@ -1,7 +1,5 @@
 import axios from "axios";
 import { showToast } from "../Redux/toastSlice";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { useDispatch } from "react-redux";
 
 export const apiRequest = async (url, method, data = {}, dispatch) => {
   console.log(`${import.meta.env.VITE_BASE_URL}${url}`);
@@ -22,7 +20,7 @@ export const apiRequest = async (url, method, data = {}, dispatch) => {
           variant: "success",
         })
       );
-      return response.data.data;
+      return { success: true, data: response.data.data };
     } else {
       throw new Error(response.data.message || "Something went wrong");
     }
@@ -41,33 +39,6 @@ export const apiRequest = async (url, method, data = {}, dispatch) => {
       );
     }
 
-    throw error;
+    return { success: false, data: null, message: errorMessage };
   }
-};
-
-export const useFetchData = (Key, url, method, options = {}) => {
-  const dispatch = useDispatch();
-  const {
-    enabled = true,
-    staleTime = 1 * 60 * 1000,
-    cacheTime = 10 * 60 * 1000,
-  } = options;
-
-  return useQuery({
-    queryKey: [Key],
-    queryFn: () => apiRequest(url, method, {}, dispatch),
-    enabled,
-    staleTime,
-    cacheTime,
-    refetchOnWindowFocus: false,
-    refetchOnReconnect: false,
-  });
-};
-
-export const useApiMutation = (url, method) => {
-  const dispatch = useDispatch();
-
-  return useMutation({
-    mutationFn: (data) => apiRequest(url, method, data, dispatch),
-  });
 };

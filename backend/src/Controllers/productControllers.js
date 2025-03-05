@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import Product from "../models/productModel.js";
 import apiResponse from "../Utils/apiResponse.js";
 import deleteFiles from "../Utils/deleteFiles.js";
+import path from "path";
 
 const addProduct = async (req, res) => {
   try {
@@ -19,7 +20,9 @@ const addProduct = async (req, res) => {
       return apiResponse(res, false, null, "No images uploaded", 400);
     }
 
-    const ImgURL = req.files.map((file) => file.path);
+    const ImgURL = req.files.map(
+      (file) => `/uploads/${path.basename(file.path)}`
+    );
 
     const newProduct = new Product({
       ImgURL,
@@ -46,6 +49,55 @@ const addProduct = async (req, res) => {
   }
 };
 
+const updateProduct = async (req, res) => {
+  try {
+    const { id, Size, Price, DiscountedPrice, Stock, Sleeve, Gender, Color } =
+      req.body;
+
+    const FoundProduct = await Product.findById(id);
+
+    if (!FoundProduct) {
+      return apiResponse(res, false, null, "Product not found", 400);
+    }
+
+    if (req.files && req.files.length > 0) {
+      if (FoundProduct.ImgURL && FoundProduct.ImgURL.length > 0) {
+        deleteFiles(FoundProduct.ImgURL);
+      }
+
+      const ImgURL = req.files.map(
+        (file) => `/uploads/${path.basename(file.path)}`
+      );
+      FoundProduct.ImgURL = ImgURL;
+    }
+
+    const UpdatedProduct = await Product.findByIdAndUpdate(
+      id,
+      {
+        Size,
+        Price,
+        DiscountedPrice,
+        Sleeve,
+        Stock,
+        Gender,
+        Color,
+        ImgURL: FoundProduct.ImgURL,
+      },
+      { new: true }
+    );
+
+    return apiResponse(
+      res,
+      true,
+      UpdatedProduct,
+      "Product Updated successfully",
+      200
+    );
+  } catch (error) {
+    return apiResponse(res, false, null, error.message, 500);
+  }
+};
+
 const getAllCustomers = async (req, res) => {
   try {
     const { ProductId } = req.body;
@@ -54,7 +106,6 @@ const getAllCustomers = async (req, res) => {
       return apiResponse(res, false, null, "ProductId is required", 400);
     }
 
-    // Ensure ProductId is correctly converted to an ObjectId using 'new'
     const productObjectId = new mongoose.Types.ObjectId(ProductId);
 
     const pipeline = [
@@ -133,54 +184,6 @@ const getSingleProduct = async (req, res) => {
       true,
       singleProduct,
       "Product fetched successfully",
-      200
-    );
-  } catch (error) {
-    // Handle any unexpected errors
-    return apiResponse(res, false, null, error.message, 500);
-  }
-};
-
-const updateProduct = async (req, res) => {
-  try {
-    const { id, Size, Price, DiscountedPrice, Stock, Sleeve, Gender, Color } =
-      req.body;
-
-    const FoundProduct = await Product.findById(id);
-
-    if (!FoundProduct) {
-      return apiResponse(res, false, null, "Product not found", 400);
-    }
-
-    if (req.files && req.files.length > 0) {
-      if (FoundProduct.ImgURL && FoundProduct.ImgURL.length > 0) {
-        deleteFiles(FoundProduct.ImgURL);
-      }
-
-      const ImgURL = req.files.map((file) => file.path);
-      FoundProduct.ImgURL = ImgURL;
-    }
-
-    const UpdatedProduct = await Product.findByIdAndUpdate(
-      id,
-      {
-        Size,
-        Price,
-        DiscountedPrice,
-        Sleeve,
-        Stock,
-        Gender,
-        Color,
-        ImgURL: FoundProduct.ImgURL,
-      },
-      { new: true }
-    );
-
-    return apiResponse(
-      res,
-      true,
-      UpdatedProduct,
-      "Product Updated successfully",
       200
     );
   } catch (error) {

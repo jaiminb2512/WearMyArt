@@ -10,7 +10,8 @@ dotenv.config();
 
 const app = express();
 app.use(express.json());
-app.use(cors());
+app.use(cors({ origin: "*" }));
+
 app.use(cookieParser());
 
 dbConnect();
@@ -22,6 +23,7 @@ app.get("/", (req, res) => {
   res.send("Hello Jaimin");
 });
 
+app.use("/uploads", express.static("uploads"));
 app.use("/api", Routes);
 
 app.listen(port, () => {

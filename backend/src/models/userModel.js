@@ -23,6 +23,10 @@ const UserSchema = new Schema(
       type: Boolean,
       default: false,
     },
+    isBlocked: {
+      type: Boolean,
+      default: false,
+    },
     OTP: {
       type: Number,
       required: true,

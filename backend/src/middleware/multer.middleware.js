@@ -1,9 +1,13 @@
 import multer from "multer";
 import path from "path";
 import fs from "fs";
+import { fileURLToPath } from "url";
+import { dirname } from "path";
 
-const uploadDir =
-  "D:\\eq-jaimin-p-mern-stack-internship-2025\\backend\\src\\uploads";
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+const uploadDir = path.join(__dirname, "../../", "uploads");
 
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
@@ -15,15 +19,16 @@ const storage = multer.diskStorage({
   },
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(
-      null,
-      file.fieldname + "-" + uniqueSuffix + path.extname(file.originalname)
-    );
+    const fileName =
+      file.fieldname.trim() +
+      "-" +
+      uniqueSuffix +
+      path.extname(file.originalname);
+    cb(null, fileName);
   },
 });
 
 export const upload = multer({
   storage,
-  // Max limit of 5 images, each with a file size of max 5MB
   limits: { files: 5, fileSize: 5 * 1024 * 1024 },
 });

@@ -1,16 +1,29 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { login } from "../Redux/UserSlice";
-import { showToast } from "../Redux/toastSlice";
 import { IoEyeOutline } from "react-icons/io5";
 import { FaEyeSlash } from "react-icons/fa6";
 import ApiURLS from "../Data/ApiURLS";
-import { apiRequest } from "../utils/apiRequest"; // Import utility function
+import {
+  TextField,
+  Button,
+  Typography,
+  Paper,
+  IconButton,
+  InputAdornment,
+  Container,
+  Box,
+} from "@mui/material";
+import { login } from "../Redux/UserSlice";
+import { useApiMutation } from "../utils/apiRequest.js";
 
 const Login = () => {
-  const [loginData, setLoginData] = useState({ Email: "", Password: "" });
-  const [errors, setErrors] = useState({ Email: "", Password: "" });
+  const [loginData, setLoginData] = useState({
+    Email: "",
+    Password: "",
+    OTP: "",
+  });
+  const [errors, setErrors] = useState({ Email: "", Password: "", OTP: "" });
   const [showPassword, setShowPassword] = useState(false);
   const [isOtpSent, setIsOtpSent] = useState(false);
   const [isOtpButtonDisabled, setIsOtpButtonDisabled] = useState(false);
@@ -18,16 +31,24 @@ const Login = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  const loginMutation = useApiMutation(ApiURLS.Login.url, ApiURLS.Login.method);
+
+  const sendOtpMutation = useApiMutation(
+    ApiURLS.SendingMailForLogin.url,
+    ApiURLS.SendingMailForLogin.method
+  );
+
   const EmailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
   const onChange = (e) => {
     const { name, value } = e.target;
+    setErrors((prevData) => ({ ...prevData, [name]: "" }));
     setLoginData((prevData) => ({ ...prevData, [name]: value }));
   };
 
   const validateForm = () => {
     let formValid = true;
-    const newErrors = { Email: "", Password: "" };
+    const newErrors = { Email: "", Password: "", OTP: "" };
 
     if (!EmailRegex.test(loginData.Email)) {
       newErrors.Email = "Invalid Email format";
@@ -39,25 +60,36 @@ const Login = () => {
       formValid = false;
     }
 
+    if (isOtpSent && !loginData.OTP) {
+      newErrors.OTP = "Enter the OTP sent to your email";
+      formValid = false;
+    }
+
     setErrors(newErrors);
     return formValid;
   };
 
-  const onSubmit = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
 
-    const url = isOtpSent ? ApiURLS.VerifyOtpLogin : ApiURLS.Login; // Choose API
-    const response = await apiRequest(url, "POST", loginData, dispatch);
+    let requestData = { Email: loginData.Email };
 
-    if (response.success) {
-      dispatch(login(response.data.user));
-      dispatch(showToast({ message: response.message, variant: "success" }));
+    if (isOtpSent) {
+      requestData.OTP = loginData.OTP;
+    } else {
+      requestData.Password = loginData.Password;
+    }
+
+    const userData = await loginMutation.mutateAsync(requestData);
+
+    if (userData) {
+      dispatch(login(userData.user));
       navigate("/");
     }
   };
 
-  const handleLoginWithOtp = async () => {
+  const handleSendOtp = async () => {
     if (!EmailRegex.test(loginData.Email)) {
       setErrors((prevErrors) => ({
         ...prevErrors,
@@ -67,106 +99,115 @@ const Login = () => {
     }
 
     setIsOtpButtonDisabled(true);
-    const response = await apiRequest(
-      ApiURLS.SendingMailForLogin,
-      "POST",
-      { Email: loginData.Email },
-      dispatch
-    );
 
-    if (response.success) {
+    try {
+      await sendOtpMutation.mutateAsync({ Email: loginData.Email });
       setIsOtpSent(true);
-      dispatch(
-        showToast({ message: "OTP sent to your email", variant: "success" })
-      );
-    } else {
       setIsOtpButtonDisabled(false);
+    } catch (error) {
+      setIsOtpButtonDisabled(false);
+
+      console.error("Send OTP failed", error);
     }
   };
 
   return (
-    <form
-      onSubmit={onSubmit}
-      className="flex justify-center items-center h-screen bg-gray-100"
-    >
-      <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
-        <h2 className="text-3xl font-semibold text-center mb-6 text-gray-700">
+    <Container component="main" maxWidth="xs">
+      <Paper elevation={6} sx={{ padding: 4, marginTop: 8 }}>
+        <Typography variant="h4" align="center" gutterBottom>
           Login
-        </h2>
+        </Typography>
 
-        <div className="flex flex-col gap-4">
-          <input
+        <Box
+          component="form"
+          onSubmit={handleLogin}
+          sx={{ display: "flex", flexDirection: "column", gap: 2 }}
+        >
+          <TextField
+            label="Email"
             type="email"
             name="Email"
-            placeholder="Enter Email"
             value={loginData.Email}
             onChange={onChange}
-            className="w-full p-2 border border-gray-300 rounded"
+            fullWidth
+            error={!!errors.Email}
+            helperText={errors.Email}
+            variant="outlined"
           />
-          {errors.Email && (
-            <p className="text-red-500 text-sm">{errors.Email}</p>
-          )}
 
-          <div className="relative">
-            <input
-              type={showPassword && !isOtpSent ? "text" : "password"}
+          {!isOtpSent ? (
+            <TextField
+              label="Password"
+              type={showPassword ? "text" : "password"}
               name="Password"
-              placeholder={isOtpSent ? "Enter OTP" : "Enter Password"}
               value={loginData.Password}
               onChange={onChange}
-              className="w-full p-2 border border-gray-300 rounded"
+              fullWidth
+              error={!!errors.Password}
+              helperText={errors.Password}
+              variant="outlined"
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={() => setShowPassword((prev) => !prev)}
+                    >
+                      {showPassword ? <IoEyeOutline /> : <FaEyeSlash />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
             />
-            {!isOtpSent && (
-              <button
-                type="button"
-                onClick={() => setShowPassword((prev) => !prev)}
-                className="absolute right-2 top-3"
-              >
-                {showPassword ? <IoEyeOutline /> : <FaEyeSlash />}
-              </button>
-            )}
-          </div>
-          {errors.Password && (
-            <p className="text-red-500 text-sm">{errors.Password}</p>
+          ) : (
+            <TextField
+              label="OTP"
+              type="text"
+              name="OTP"
+              value={loginData.OTP}
+              onChange={onChange}
+              fullWidth
+              error={!!errors.OTP}
+              helperText={errors.OTP}
+              variant="outlined"
+            />
           )}
-        </div>
 
-        <div className="mt-4 flex flex-col gap-4">
-          <button
+          <Button
             type="submit"
-            className="w-full py-2 text-white font-semibold bg-blue-500 hover:bg-blue-600 rounded-lg"
+            variant="contained"
+            color="primary"
+            fullWidth
+            sx={{ mt: 2 }}
+            disabled={loginMutation.isLoading}
           >
-            {isOtpSent ? "Verify OTP" : "Login"}
-          </button>
+            {isOtpSent ? "Verify OTP & Login" : "Login"}
+          </Button>
 
           {!isOtpSent && (
-            <button
-              type="button"
-              onClick={handleLoginWithOtp}
-              className={`w-full py-2 text-white font-semibold ${
-                isOtpButtonDisabled
-                  ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-blue-500 hover:bg-blue-600"
-              } rounded-lg`}
-              disabled={isOtpButtonDisabled}
+            <Button
+              variant="outlined"
+              color="primary"
+              fullWidth
+              onClick={handleSendOtp}
+              disabled={isOtpButtonDisabled || sendOtpMutation.isLoading}
+              sx={{ mt: 2 }}
             >
               Login Using OTP
-            </button>
+            </Button>
           )}
-        </div>
+        </Box>
 
-        <p className="text-center text-md mt-5">
-          Don't have an account?
+        <Typography variant="body2" align="center" sx={{ mt: 3 }}>
+          Don't have an account?{" "}
           <span
             onClick={() => navigate("/register")}
-            className="cursor-pointer text-blue-500"
+            style={{ cursor: "pointer", color: "#1976d2" }}
           >
-            {" "}
             Register Here
           </span>
-        </p>
-      </div>
-    </form>
+        </Typography>
+      </Paper>
+    </Container>
   );
 };
 

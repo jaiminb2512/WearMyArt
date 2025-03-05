@@ -1,4 +1,14 @@
+import path from "path";
 import fs from "fs";
+import { fileURLToPath } from "url";
+import { dirname } from "path";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+const resolveFilePath = (filePath) => {
+  return path.join(__dirname, "../..", filePath);
+};
 
 const deleteFiles = (filePaths) => {
   if (!Array.isArray(filePaths) || filePaths.length === 0) {
@@ -6,12 +16,13 @@ const deleteFiles = (filePaths) => {
   }
 
   filePaths.forEach((filePath) => {
-    const fileToDelete = filePath;
+    const resolvedPath = resolveFilePath(filePath);
 
-    if (fs.existsSync(fileToDelete)) {
-      fs.unlinkSync(fileToDelete);
+    if (fs.existsSync(resolvedPath)) {
+      fs.unlinkSync(resolvedPath);
+      console.log(`Deleted file: ${resolvedPath}`);
     } else {
-      console.log(`File not found: ${fileToDelete}`);
+      console.log(`File not found: ${resolvedPath}`);
     }
   });
 };

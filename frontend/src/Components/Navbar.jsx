@@ -1,44 +1,58 @@
-import { FaHome, FaUsers, FaCogs, FaChartBar, FaBars } from "react-icons/fa";
-import React, { useState } from "react";
-import { useSelector } from "react-redux";
+import Avatar from "@mui/material/Avatar";
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import ThemeToggle from "../Theme/ThemeToggle";
+
+function stringToColor(string) {
+  let hash = 0;
+  let i;
+  for (i = 0; i < string.length; i += 1) {
+    hash = string.charCodeAt(i) + ((hash << 5) - hash);
+  }
+
+  let color = "#";
+
+  for (i = 0; i < 3; i += 1) {
+    const value = (hash >> (i * 8)) & 0xff;
+    color += `00${value.toString(16)}`.slice(-2);
+  }
+
+  return color;
+}
+
+function stringAvatar(name) {
+  return {
+    sx: {
+      bgcolor: stringToColor(name),
+    },
+    children: `${name.split(" ")[0][0]}${name.split(" ")[1][0]}`,
+  };
+}
 
 const Navbar = () => {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
-
-  const { user } = useSelector((state) => state.user);
-  console.log(user);
+  const navigate = useNavigate();
 
   return (
-    <div
-      className={`w-${isSidebarOpen ? "64" : "20"} h-screen flex  flex-col bg-gray-800 text-white p-4 transition-all duration-300`}
-    >
-      <div className="flex justify-between items-center mb-4">
-        <button onClick={toggleSidebar} className="text-xl pt-[3.5] p-2">
-          <FaBars />
-        </button>
+    <div className="fixed top-0 left-0 w-full shadow-md z-50 backdrop-blur-3xl">
+      <div className="px-[5vw] flex justify-between items-center py-4">
+        <div className="flex items-center gap-5 cursor-pointer">
+          <div>logo</div>
+          <div>WearMyArt</div>
+        </div>
+        <div className="flex items-center gap-5 cursor-pointer">
+          <div onClick={() => navigate("/register")} className="cursor-pointer">
+            Register
+          </div>
+          <div onClick={() => navigate("/login")} className="cursor-pointer">
+            Login
+          </div>
+          <div onClick={() => navigate("/products")} className="cursor-pointer">
+            Products
+          </div>
+          <Avatar {...stringAvatar("Jaimin Prajapati")} />
+          <ThemeToggle />
+        </div>
       </div>
-
-      <ul className="flex flex-col space-y-4">
-        <li className="flex items-center py-2 hover:bg-gray-700 px-2 rounded">
-          <FaHome className="text-xl mr-4" />
-          {isSidebarOpen && <span className="text-lg">Dashboard</span>}
-        </li>
-        <li className="flex items-center py-2 hover:bg-gray-700 px-2 rounded">
-          <FaUsers className="text-xl mr-4" />
-          {isSidebarOpen && <span className="text-lg">Users</span>}
-        </li>
-        <li className="flex items-center py-2 hover:bg-gray-700 px-2 rounded">
-          <FaCogs className="text-xl mr-4" />
-          {isSidebarOpen && <span className="text-lg">Settings</span>}
-        </li>
-        <li className="flex items-center py-2 hover:bg-gray-700 px-2 rounded">
-          <FaChartBar className="text-xl mr-4" />
-          {isSidebarOpen && <span className="text-lg">Analytics</span>}
-        </li>
-      </ul>
     </div>
   );
 };

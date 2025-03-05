@@ -1,14 +1,14 @@
 import express from "express";
-import UserRoutes from "./userRoutes.js";
-import ProductRoutes from "./productRoutes.js";
-import OrderRoutes from "./orderRoutes.js";
-import CustomizationOptionsRoutes from "./customizationOptionsRoute.js";
+import userRoutes from "./userRoutes.js";
+import productRoutes from "./productRoutes.js";
+import orderRoutes from "./orderRoutes.js";
+import customizationOptionsRoutes from "./customizationOptionsRoute.js";
 
 const router = express.Router();
 
-router.use("/user", UserRoutes);
-router.use("/product", ProductRoutes);
-router.use("/order", OrderRoutes);
-router.use("/customization-options", CustomizationOptionsRoutes);
+router.use("/user", userRoutes);
+router.use("/product", productRoutes);
+router.use("/order", orderRoutes);
+router.use("/customization-options", customizationOptionsRoutes);
 
 export default router;
