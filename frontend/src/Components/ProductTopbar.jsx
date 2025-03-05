@@ -1,10 +1,9 @@
 import React from "react";
 import { MenuItem, Select } from "@mui/material";
-import { ListAlt } from "@mui/icons-material";
 
 const ProductTopbar = ({ sortOrder, setSortOrder, count }) => {
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-2 hidden sm:block">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-5 w-full px-[5vw] sm:px-0 ">
         <div className="flex items-center px-3 py-1 border rounded-lg gap-3">
           <svg

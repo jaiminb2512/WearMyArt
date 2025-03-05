@@ -48,18 +48,26 @@ const Products = () => {
   }, [filterOptions, products, sortOrder]);
 
   return (
-    <div className="flex gap-5 px-[5vw]">
-      <ProductSidebar
-        setFilterOptions={setFilterOptions}
-        filterOptions={filterOptions}
-      />
-      <div className="flex-1 flex flex-col">
-        <ProductTopbar
-          sortOrder={sortOrder}
-          setSortOrder={setSortOrder}
-          count={filteredProducts.length}
+    <div className="flex gap-5 px-[5vw] h-screen">
+      <div className="w-[250px] sticky top-0 h-screen overflow-hidden hidden sm:block">
+        <ProductSidebar
+          setFilterOptions={setFilterOptions}
+          filterOptions={filterOptions}
         />
-        <ProductList products={filteredProducts} loading={isLoading} />
+      </div>
+
+      <div className="flex-1 flex flex-col">
+        <div className="sticky top-0 z-10  w-full">
+          <ProductTopbar
+            sortOrder={sortOrder}
+            setSortOrder={setSortOrder}
+            count={filteredProducts.length}
+          />
+        </div>
+
+        <div className="flex-1 overflow-y-auto h-[calc(100vh-70px)] scrollbar-hide top-30">
+          <ProductList products={filteredProducts} loading={isLoading} />
+        </div>
       </div>
     </div>
   );
