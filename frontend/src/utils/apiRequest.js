@@ -11,6 +11,7 @@ export const apiRequest = async (url, method, data = {}, dispatch) => {
       url: `${import.meta.env.VITE_BASE_URL}${url}`,
       method,
       data: Object.keys(data).length ? data : undefined,
+      withCredentials: true,
     });
 
     console.log("API Response:", response);

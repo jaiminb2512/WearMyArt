@@ -20,6 +20,7 @@ const ApiURLS = {
   DeleteUser: { url: "/api/user/delete", method: "DELETE" },
   Logout: { url: "/api/user/logout", method: "POST" },
   GetAllOwnOrders: { url: "/api/user/get-all-own-orders", method: "GET" },
+  GetAllUser: { url: "/api/user/get-all-users", method: "GET" },
 
   // Product
   AddProduct: { url: "/api/product/add-product", method: "POST" },
@@ -43,7 +44,10 @@ const ApiURLS = {
     url: "/api/product/get-all-active-products",
     method: "GET",
   },
-  GetAllCustomers: { url: "/api/product/get-all-customers", method: "GET" },
+  GetAllCustomersOfProducts: {
+    url: "/api/product/get-all-customers-of-products",
+    method: "GET",
+  },
 
   // Order
   InitiateOrder: { url: "/api/order/initiate-order", method: "POST" },

@@ -48,15 +48,13 @@ const ProductList = ({ products, loading }) => {
                     </p>
                   )}
                 </div>
-                <div className="flex flex-wrap justify-center items-center gap-2">
-                  <Button
-                    variant="outlined"
-                    onClick={redirectToOrder}
-                    className="w-full btn btn-primary z-10"
-                  >
-                    Customize
-                  </Button>
-                </div>
+                <Button
+                  variant="outlined"
+                  onClick={redirectToOrder}
+                  className="w-full btn btn-primary z-50"
+                >
+                  Customize
+                </Button>
               </div>
             </div>
           ))}

@@ -1,17 +1,12 @@
-import React, { useState } from "react";
+import React from "react";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import Typography from "@mui/material/Typography";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import SidebarData from "../Data/SidebarData";
-import { Button, IconButton } from "@mui/material";
-import MenuIcon from "@mui/icons-material/Menu";
-import CloseIcon from "@mui/icons-material/Close";
+import { Button, Radio, RadioGroup, FormControlLabel } from "@mui/material";
 
-const ProductSidebar = ({ setFilterOptions, filterOptions }) => {
-  const [isOpen, setIsOpen] = useState(false);
-
+const ProductSidebar = ({ setFilterOptions, filterOptions, FilterData }) => {
   const handleCheckboxChange = (category, option) => {
     const updatedFilterOptions = { ...filterOptions };
     const options = updatedFilterOptions[category];
@@ -25,52 +20,62 @@ const ProductSidebar = ({ setFilterOptions, filterOptions }) => {
     setFilterOptions(updatedFilterOptions);
   };
 
+  const handleRadioChange = (category, option) => {
+    const updatedFilterOptions = { ...filterOptions };
+    updatedFilterOptions[category] = [option];
+    setFilterOptions(updatedFilterOptions);
+  };
+
   const ClearFilter = () => {
-    setFilterOptions({
+    const initialFilterOptions = {
       Size: [],
       Sleeve: [],
       CustomizeOption: [],
       Color: [],
-    });
+      Price: [],
+    };
+    setFilterOptions(initialFilterOptions);
   };
 
   return (
-    <div>
-      <h1 className="text-xl font-bold">Filter</h1>
-      {/* Mobile Sidebar Toggle Button */}
-      <div className="sm:hidden fixed top-4 left-4 z-20">
-        <IconButton
-          onClick={() => setIsOpen(true)}
-          className="text-white bg-gray-900"
-        >
-          <MenuIcon />
-        </IconButton>
-      </div>
-
-      {/* Sidebar (Responsive) */}
-      <div
-        className={`fixed sm:relative top-0 left-0 h-screen w-[250px] bg-white dark:bg-gray-900 shadow-lg p-4 border-r transform transition-transform ${
-          isOpen ? "translate-x-0" : "-translate-x-full"
-        } sm:translate-x-0 z-30`}
-      >
-        {/* Close Button (Only for mobile) */}
-        <div className="sm:hidden flex justify-between items-center mb-4">
-          <h1 className="text-xl font-bold">Filters</h1>
-          <IconButton
-            onClick={() => setIsOpen(false)}
-            className="text-white bg-gray-900"
+    <div className="w-[15vw] h-[100vh] hidden sm:block p-4 border-r">
+      <div className="flex justify-between">
+        <h1 className="text-xl font-bold mt-2 mb-4">Filters</h1>
+        <div className="mt-2">
+          <div
+            variant="contained"
+            onClick={ClearFilter}
+            className="w-full cursor-pointer text-[#339D9C]"
           >
-            <CloseIcon />
-          </IconButton>
+            Clear Filter
+          </div>
         </div>
-
-        {/* Sidebar Content */}
-        {SidebarData.map((data) => (
-          <Accordion defaultExpanded key={data.title}>
-            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-              <Typography component="span">{data.title}</Typography>
-            </AccordionSummary>
-            <AccordionDetails>
+      </div>
+      {FilterData.map((data) => (
+        <Accordion defaultExpanded key={data.title}>
+          <AccordionSummary
+            expandIcon={<ExpandMoreIcon />}
+            aria-controls={`${data.title}-content`}
+            id={`${data.title}-header`}
+          >
+            <Typography component="span">{data.title}</Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            {data.type === "radio" ? (
+              <RadioGroup
+                value={filterOptions[data.title]?.[0] || ""}
+                onChange={(e) => handleRadioChange(data.title, e.target.value)}
+              >
+                {data.Options.map((option, idx) => (
+                  <FormControlLabel
+                    key={idx}
+                    value={option}
+                    control={<Radio size="small" />}
+                    label={<span className="text-sm">{option}</span>}
+                  />
+                ))}
+              </RadioGroup>
+            ) : (
               <div className="flex flex-col gap-2">
                 {data.Options.map((option, idx) => (
                   <label key={idx} className="flex items-center space-x-2">
@@ -84,24 +89,10 @@ const ProductSidebar = ({ setFilterOptions, filterOptions }) => {
                   </label>
                 ))}
               </div>
-            </AccordionDetails>
-          </Accordion>
-        ))}
-
-        <div className="mt-2">
-          <Button variant="contained" onClick={ClearFilter} fullWidth>
-            Clear Filter
-          </Button>
-        </div>
-      </div>
-
-      {/* Overlay (For Mobile) */}
-      {isOpen && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-50 sm:hidden z-20"
-          onClick={() => setIsOpen(false)}
-        ></div>
-      )}
+            )}
+          </AccordionDetails>
+        </Accordion>
+      ))}
     </div>
   );
 };

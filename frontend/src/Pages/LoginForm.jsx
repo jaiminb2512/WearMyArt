@@ -3,21 +3,19 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { IoEyeOutline } from "react-icons/io5";
 import { FaEyeSlash } from "react-icons/fa6";
-import ApiURLS from "../Data/ApiURLS";
+import ApiURLS from "../Data/ApiURLS.js";
 import {
   TextField,
   Button,
   Typography,
-  Paper,
   IconButton,
   InputAdornment,
   Container,
-  Box,
 } from "@mui/material";
-import { login } from "../Redux/UserSlice";
+import { login } from "../Redux/UserSlice.js";
 import { useApiMutation } from "../utils/apiRequest.js";
 
-const Login = () => {
+const LoginForm = () => {
   const [loginData, setLoginData] = useState({
     Email: "",
     Password: "",
@@ -32,7 +30,6 @@ const Login = () => {
   const navigate = useNavigate();
 
   const loginMutation = useApiMutation(ApiURLS.Login.url, ApiURLS.Login.method);
-
   const sendOtpMutation = useApiMutation(
     ApiURLS.SendingMailForLogin.url,
     ApiURLS.SendingMailForLogin.method
@@ -74,7 +71,6 @@ const Login = () => {
     if (!validateForm()) return;
 
     let requestData = { Email: loginData.Email };
-
     if (isOtpSent) {
       requestData.OTP = loginData.OTP;
     } else {
@@ -82,7 +78,6 @@ const Login = () => {
     }
 
     const userData = await loginMutation.mutateAsync(requestData);
-
     if (userData) {
       dispatch(login(userData.user));
       navigate("/");
@@ -99,30 +94,24 @@ const Login = () => {
     }
 
     setIsOtpButtonDisabled(true);
-
     try {
       await sendOtpMutation.mutateAsync({ Email: loginData.Email });
       setIsOtpSent(true);
       setIsOtpButtonDisabled(false);
     } catch (error) {
       setIsOtpButtonDisabled(false);
-
       console.error("Send OTP failed", error);
     }
   };
 
   return (
-    <Container component="main" maxWidth="xs">
-      <Paper elevation={6} sx={{ padding: 4, marginTop: 8 }}>
+    <Container component="main">
+      <div className="w-full">
         <Typography variant="h4" align="center" gutterBottom>
           Login
         </Typography>
 
-        <Box
-          component="form"
-          onSubmit={handleLogin}
-          sx={{ display: "flex", flexDirection: "column", gap: 2 }}
-        >
+        <form onSubmit={handleLogin} className="w-full flex flex-col gap-2">
           <TextField
             label="Email"
             type="email"
@@ -132,32 +121,39 @@ const Login = () => {
             fullWidth
             error={!!errors.Email}
             helperText={errors.Email}
-            variant="outlined"
+            variant="standard"
           />
 
           {!isOtpSent ? (
-            <TextField
-              label="Password"
-              type={showPassword ? "text" : "password"}
-              name="Password"
-              value={loginData.Password}
-              onChange={onChange}
-              fullWidth
-              error={!!errors.Password}
-              helperText={errors.Password}
-              variant="outlined"
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      onClick={() => setShowPassword((prev) => !prev)}
-                    >
-                      {showPassword ? <IoEyeOutline /> : <FaEyeSlash />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-            />
+            <div>
+              <TextField
+                label="Password"
+                type={showPassword ? "text" : "password"}
+                name="Password"
+                value={loginData.Password}
+                onChange={onChange}
+                fullWidth
+                error={!!errors.Password}
+                helperText={errors.Password}
+                variant="standard"
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        onClick={() => setShowPassword((prev) => !prev)}
+                      >
+                        {showPassword ? <IoEyeOutline /> : <FaEyeSlash />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+              />
+              <Typography variant="body2" align="right">
+                <span style={{ cursor: "pointer", color: "#1976d2" }}>
+                  Forgot Password ?
+                </span>
+              </Typography>
+            </div>
           ) : (
             <TextField
               label="OTP"
@@ -168,7 +164,7 @@ const Login = () => {
               fullWidth
               error={!!errors.OTP}
               helperText={errors.OTP}
-              variant="outlined"
+              variant="filled"
             />
           )}
 
@@ -195,20 +191,10 @@ const Login = () => {
               Login Using OTP
             </Button>
           )}
-        </Box>
-
-        <Typography variant="body2" align="center" sx={{ mt: 3 }}>
-          Don't have an account?{" "}
-          <span
-            onClick={() => navigate("/register")}
-            style={{ cursor: "pointer", color: "#1976d2" }}
-          >
-            Register Here
-          </span>
-        </Typography>
-      </Paper>
+        </form>
+      </div>
     </Container>
   );
 };
 
-export default Login;
+export default LoginForm;

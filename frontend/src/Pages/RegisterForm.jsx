@@ -22,7 +22,7 @@ import { FaEyeSlash } from "react-icons/fa6";
 
 const steps = ["Register", "OTP Verification"];
 
-const Register = () => {
+const RegisterForm = () => {
   const [activeStep, setActiveStep] = useState(0);
   const [registerData, setRegisterData] = useState({
     FullName: "",
@@ -117,95 +117,97 @@ const Register = () => {
   };
 
   return (
-    <Container component="main" maxWidth="xs">
-      <Paper elevation={6} sx={{ padding: 4, marginTop: 8 }}>
-        <Stepper activeStep={activeStep} alternativeLabel>
-          {steps.map((label) => (
-            <Step key={label}>
-              <StepLabel>{label}</StepLabel>
-            </Step>
-          ))}
-        </Stepper>
+    <div>
+      <Container component="main" maxWidth="xs">
+        <Paper elevation={6} sx={{ padding: 4, marginTop: 8 }}>
+          <Stepper activeStep={activeStep} alternativeLabel>
+            {steps.map((label) => (
+              <Step key={label}>
+                <StepLabel>{label}</StepLabel>
+              </Step>
+            ))}
+          </Stepper>
 
-        <Box
-          component="form"
-          className="mt-[25px]"
-          sx={{ display: "flex", flexDirection: "column", gap: 2 }}
-        >
-          {activeStep === 0 ? (
-            <>
-              <TextField
-                label="FullName"
-                variant="outlined"
-                name="FullName"
-                value={registerData.FullName}
-                onChange={onChange}
-                fullWidth
-                error={!!errors.FullName}
-                helperText={errors.FullName}
-              />
-              <TextField
-                label="Email"
-                variant="outlined"
-                name="Email"
-                type="Email"
-                value={registerData.Email}
-                onChange={onChange}
-                fullWidth
-                error={!!errors.Email}
-                helperText={errors.Email}
-              />
-              <TextField
-                label="Password"
-                variant="outlined"
-                name="Password"
-                type={showPassword ? "text" : "Password"}
-                value={registerData.Password}
-                onChange={onChange}
-                fullWidth
-                error={!!errors.Password}
-                helperText={errors.Password}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton
-                        onClick={() => setShowPassword((prev) => !prev)}
-                      >
-                        {showPassword ? <IoEyeOutline /> : <FaEyeSlash />}
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
-              />
-            </>
-          ) : (
-            <TextField
-              label="Enter OTP"
-              variant="outlined"
-              name="OTP"
-              value={registerData.OTP}
-              onChange={onChange}
-              fullWidth
-              error={!!errors.OTP}
-              helperText={errors.OTP}
-            />
-          )}
-
-          <Button
-            onClick={handleNext}
-            variant="contained"
-            color="primary"
-            fullWidth
-            disabled={
-              registerMutation.isLoading || activateUserMutation.isLoading
-            }
+          <Box
+            component="form"
+            className="mt-[25px]"
+            sx={{ display: "flex", flexDirection: "column", gap: 2 }}
           >
-            {activeStep === 0 ? "Next" : "Verify & Register"}
-          </Button>
-        </Box>
-      </Paper>
-    </Container>
+            {activeStep === 0 ? (
+              <>
+                <TextField
+                  label="FullName"
+                  variant="standard"
+                  name="FullName"
+                  value={registerData.FullName}
+                  onChange={onChange}
+                  fullWidth
+                  error={!!errors.FullName}
+                  helperText={errors.FullName}
+                />
+                <TextField
+                  label="Email"
+                  variant="standard"
+                  name="Email"
+                  type="Email"
+                  value={registerData.Email}
+                  onChange={onChange}
+                  fullWidth
+                  error={!!errors.Email}
+                  helperText={errors.Email}
+                />
+                <TextField
+                  label="Password"
+                  variant="standard"
+                  name="Password"
+                  type={showPassword ? "text" : "Password"}
+                  value={registerData.Password}
+                  onChange={onChange}
+                  fullWidth
+                  error={!!errors.Password}
+                  helperText={errors.Password}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          onClick={() => setShowPassword((prev) => !prev)}
+                        >
+                          {showPassword ? <IoEyeOutline /> : <FaEyeSlash />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              </>
+            ) : (
+              <TextField
+                label="Enter OTP"
+                variant="standard"
+                name="OTP"
+                value={registerData.OTP}
+                onChange={onChange}
+                fullWidth
+                error={!!errors.OTP}
+                helperText={errors.OTP}
+              />
+            )}
+
+            <Button
+              onClick={handleNext}
+              variant="contained"
+              color="primary"
+              fullWidth
+              disabled={
+                registerMutation.isLoading || activateUserMutation.isLoading
+              }
+            >
+              {activeStep === 0 ? "Next" : "Verify & Register"}
+            </Button>
+          </Box>
+        </Paper>
+      </Container>
+    </div>
   );
 };
 
-export default Register;
+export default RegisterForm;

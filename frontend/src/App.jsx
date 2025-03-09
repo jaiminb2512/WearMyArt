@@ -1,32 +1,81 @@
-import React, { useMemo } from "react";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
-import Login from "./Pages/Login";
-import ToastNotification from "./Components/ToastNotification.jsx";
-import Register from "./Pages/Register.jsx";
-import Home from "./Pages/Home.jsx";
-import { ThemeProvider, createTheme } from "@mui/material/styles";
-import { CssBaseline } from "@mui/material";
+import React, { useState, useMemo } from "react";
+import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
-import Navbar from "./Components/Navbar.jsx";
-import Products from "./Pages/Products.jsx";
-import OrderForm from "./Pages/OrderForm.jsx";
-import Product from "./Pages/Product.jsx";
-import Errorpage from "./Pages/Errorpage.jsx";
+import { ThemeProvider, createTheme } from "@mui/material/styles";
+import { darkTheme, lightTheme } from "./Theme/theme";
+import { CssBaseline, Box } from "@mui/material";
+
+import Navbar from "./Components/Navbar";
+import Sidebar from "./Components/Sidebar";
+import UserAvatar from "./Components/UserAvtar";
+import ToastNotification from "./Components/ToastNotification";
+
+import Home from "./Pages/Home";
+import Products from "./Pages/Products";
+import OrderForm from "./Pages/OrderForm";
+import Product from "./Pages/Product";
+import Profile from "./Pages/Profile";
+import AllProducts from "./Pages/AllProducts";
+import Errorpage from "./Pages/Errorpage";
+
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import AllOrders from "./Pages/AllOrders";
+import AllUsers from "./Pages/AllUsers";
+import Auth from "./Pages/Auth";
 
 const queryClient = new QueryClient();
+
+const AppLayout = () => {
+  const location = useLocation();
+  const showSidebar = location.pathname.includes("/dashboard");
+
+  const [hideText, setHideText] = useState(false);
+  const sidebarWidth = showSidebar ? (hideText ? 60 : 240) : 0;
+
+  return (
+    <>
+      <Navbar />
+      <Box sx={{ display: "flex" }}>
+        {showSidebar && (
+          <Sidebar hideText={hideText} setHideText={setHideText} />
+        )}
+        <Box
+          component="main"
+          sx={{
+            flexGrow: 1,
+            transition: "margin 0.3s ease",
+            marginLeft: `${sidebarWidth}px`,
+          }}
+          className="mt-15"
+        >
+          <Routes>
+            <Route path="/login" element={<Auth />} />
+            <Route path="/register" element={<Auth />} />
+            <Route path="/" element={<Home />} />
+            <Route path="/products" element={<Products />} />
+            <Route path="/product/:id" element={<Product />} />
+            <Route path="/orderform" element={<OrderForm />} />
+            <Route path="/dashboard/Profile" element={<Profile />} />
+            <Route path="/dashboard/all-products" element={<AllProducts />} />
+            <Route path="/dashboard/all-orders" element={<AllOrders />} />
+            <Route path="/dashboard/all-users" element={<AllUsers />} />
+            <Route path="*" element={<Errorpage />} />
+          </Routes>
+        </Box>
+      </Box>
+      <ToastNotification />
+      <UserAvatar />
+    </>
+  );
+};
 
 function App() {
   const mode = useSelector((state) => state.theme.mode);
 
+  // Use predefined themes from Theme/theme.js
   const theme = useMemo(
-    () =>
-      createTheme({
-        palette: {
-          mode,
-        },
-      }),
+    () => (mode === "dark" ? darkTheme : lightTheme),
     [mode]
   );
 
@@ -35,19 +84,7 @@ function App() {
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <BrowserRouter>
-          <Navbar />
-          <div className="mt-25">
-            <Routes>
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/" element={<Home />} />
-              <Route path="/products" element={<Products />} />
-              <Route path="/product/:id" element={<Product />} />
-              <Route path="/orderform" element={<OrderForm />} />
-              <Route path="*" element={<Errorpage />} />
-            </Routes>
-          </div>
-          <ToastNotification />
+          <AppLayout />
           <ReactQueryDevtools />
         </BrowserRouter>
       </ThemeProvider>

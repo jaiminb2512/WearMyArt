@@ -19,7 +19,7 @@ const ToastNotification = () => {
   return (
     <Snackbar
       open={open}
-      anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+      anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
       autoHideDuration={3000}
       onClose={() => dispatch(hideToast())}
     >

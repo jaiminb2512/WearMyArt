@@ -1,4 +1,4 @@
-const SidebarData = [
+export const FilterData = [
   {
     title: "Size",
     Options: ["XXL", "XL", "L", "M", "S"],
@@ -15,6 +15,9 @@ const SidebarData = [
     title: "Color",
     Options: ["Black", "White", "Green", "Yellow", "Blue"],
   },
+  {
+    title: "Price",
+    Options: ["0-499", "499-999", "999-1999", "1999+"],
+    type: "radio",
+  },
 ];
-
-export default SidebarData;

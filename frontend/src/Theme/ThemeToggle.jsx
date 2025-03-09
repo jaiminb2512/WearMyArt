@@ -1,22 +1,20 @@
 import React from "react";
+import { IconButton } from "@mui/material";
+import {
+  DarkMode as MoonIcon,
+  LightMode as SunIcon,
+} from "@mui/icons-material";
 import { useDispatch, useSelector } from "react-redux";
-import { toggleTheme } from "../Redux/themeSlice";
-import { Switch } from "@mui/material";
-import { DarkMode, LightMode } from "@mui/icons-material";
+import { toggleTheme } from "../redux/themeSlice";
 
 const ThemeToggle = () => {
   const dispatch = useDispatch();
-  const theme = useSelector((state) => state.theme.mode);
+  const darkMode = useSelector((state) => state.theme.darkMode);
 
   return (
-    <div className="flex items-center gap-2">
-      <LightMode className="text-yellow-500" />
-      <Switch
-        checked={theme === "dark"}
-        onChange={() => dispatch(toggleTheme())}
-      />
-      <DarkMode className="text-gray-900" />
-    </div>
+    <IconButton onClick={() => dispatch(toggleTheme())} color="inherit">
+      {darkMode ? <SunIcon /> : <MoonIcon />}
+    </IconButton>
   );
 };
 

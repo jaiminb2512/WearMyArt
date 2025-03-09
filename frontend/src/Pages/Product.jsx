@@ -70,7 +70,7 @@ const Product = () => {
   };
 
   return (
-    <div className="container mx-auto mt-12 p-4">
+    <div className="product-page-container mx-auto mt-12 p-4">
       <div className="flex flex-col sm:flex-row gap-10 justify-center">
         <ProductImages imgs={product.ImgURL} />
         <div className="product-data space-y-4">
