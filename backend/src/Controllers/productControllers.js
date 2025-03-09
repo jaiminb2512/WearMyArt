@@ -98,7 +98,7 @@ const updateProduct = async (req, res) => {
   }
 };
 
-const getAllCustomers = async (req, res) => {
+const getAllCustomersOfProduct = async (req, res) => {
   try {
     const { ProductId } = req.body;
 
@@ -292,7 +292,7 @@ const getLowStockProducts = async (req, res) => {
 
 export {
   addProduct,
-  getAllCustomers,
+  getAllCustomersOfProduct,
   getAllProducts,
   getAllActiveProducts,
   getSingleProduct,

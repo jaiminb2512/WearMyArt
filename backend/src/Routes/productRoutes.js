@@ -3,7 +3,7 @@ import {
   addProduct,
   disContinueProducts,
   reContinueProducts,
-  getAllCustomers,
+  getAllCustomersOfProduct,
   getAllProducts,
   getSingleProduct,
   updateProduct,
@@ -42,19 +42,17 @@ router.get(
   (req, res, next) => tokenVerification(req, res, next, true),
   getLowStockProducts
 );
-// router.get("/single-product/:id", tokenVerification, getSingleProduct);
-router.get("/single-product/:id", getSingleProduct);
+router.get("/single-product/:id", tokenVerification, getSingleProduct);
 router.get(
   "/get-all-products",
   (req, res, next) => tokenVerification(req, res, next, true),
   getAllProducts
 );
-// router.get("/get-all-active-products", tokenVerification, getAllActiveProducts);
 router.get("/get-all-active-products", getAllActiveProducts);
 router.get(
-  "/get-all-customers",
-  // (req, res, next) => tokenVerification(req, res, next, true),
-  getAllCustomers
+  "/get-all-customers-of-products",
+  (req, res, next) => tokenVerification(req, res, next, true),
+  getAllCustomersOfProduct
 );
 
 export default router;
