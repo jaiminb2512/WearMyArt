@@ -8,6 +8,7 @@ export const generateAndSetTokens = (_id, res) => {
   const Options = {
     httpOnly: true,
     secure: true,
+    sameSite: "Strict",
   };
 
   res.cookie("RefreshToken", RefreshToken, Options);

@@ -152,18 +152,12 @@ const activateUser = async (req, res) => {
     const subject = "Email verification successfully completed on WearMyArt";
     const otpResponse = await sendMail(Email, name, subject, htmlContent);
 
-    const { RefreshToken } = generateAndSetTokens(existedUser._id, res);
-
-    const userResponse = {
-      FullName: existedUser.FullName,
-      Email,
-      isAdmin: existedUser.isAdmin,
-    };
+    const { AccessToken } = generateAndSetTokens(existedUser._id, res);
 
     return apiResponse(
       res,
       true,
-      { user: userResponse, RefreshToken },
+      { user: { FullName: existedUser.FullName, Email }, AccessToken },
       "User activated successfully",
       200
     );
@@ -215,7 +209,6 @@ const sendingMailForLoginUser = async (req, res) => {
     return apiResponse(res, false, null, error.message, 500);
   }
 };
-
 const loginUser = async (req, res) => {
   try {
     const { Email, OTP, Password } = req.body;
@@ -251,18 +244,17 @@ const loginUser = async (req, res) => {
       }
     }
 
-    const { RefreshToken } = generateAndSetTokens(user._id, res);
+    const { AccessToken } = generateAndSetTokens(user._id, res);
 
     const userResponse = {
       FullName: user.FullName,
       Email,
-      isAdmin: user.isAdmin,
     };
 
     return apiResponse(
       res,
       true,
-      { user: userResponse, RefreshToken },
+      { user: userResponse, AccessToken },
       "User Successfully Login",
       200
     );
@@ -457,17 +449,6 @@ const getAllOwnOrder = async (req, res) => {
     }
   } catch (error) {
     apiResponse(res, false, null, `Error: ${error.message}`, 500);
-  }
-};
-const getAllUsers = async (req, res) => {
-  try {
-    const AllUser = await User.find({}).select(
-      "_id FullName Email isAdmin isBlocked"
-    );
-
-    return apiResponse(res, true, AllUser, "Users Fetched Successfully", 200);
-  } catch (error) {
-    return apiResponse(res, false, null, error.message, 500);
   }
 };
 const getSingleUser = async (req, res) => {
@@ -707,5 +688,4 @@ export {
   makeAdmin,
   blockUsers,
   unblockUsers,
-  getAllUsers,
 };
