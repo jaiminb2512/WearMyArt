@@ -3,7 +3,7 @@ import { useFetchData } from "../utils/apiRequest";
 import ApiURLS from "../Data/ApiURLS";
 import { TextField } from "@mui/material";
 import MTable from "../Components/MTable";
-import ListView from "../Components/ListView";
+// import ListView from "../Components/ListView";
 
 const AllProducts = () => {
   const { data: products = [], isLoading } = useFetchData(
@@ -35,20 +35,39 @@ const AllProducts = () => {
           style={{ width: 50, height: 50, borderRadius: 5 }}
         />
       ),
+      flex: 3,
     },
-    { field: "color", headerName: "Color", width: 100 },
-    { field: "size", headerName: "Size", width: 100 },
-    { field: "sleeve", headerName: "Sleeve", width: 100 },
-    { field: "price", headerName: "Price", type: "number", width: 100 },
+    { field: "color", headerName: "Color", width: 100, flex: 1 },
+    { field: "size", headerName: "Size", width: 100, flex: 1 },
+    { field: "sleeve", headerName: "Sleeve", width: 100, flex: 1 },
+    {
+      field: "price",
+      headerName: "Price",
+      type: "number",
+      width: 100,
+      flex: 1,
+    },
     {
       field: "discountedPrice",
       headerName: "Discounted Price",
       type: "number",
       width: 140,
+      flex: 1,
     },
-    { field: "stock", headerName: "Stock", type: "number", width: 100 },
-    { field: "customizeOption", headerName: "Customization", width: 140 },
-    { field: "discontinued", headerName: "Discontinue", width: 120 },
+    {
+      field: "stock",
+      headerName: "Stock",
+      type: "number",
+      width: 100,
+      flex: 1,
+    },
+    {
+      field: "customizeOption",
+      headerName: "Customization",
+      width: 140,
+      flex: 1,
+    },
+    { field: "discontinued", headerName: "Discontinue", width: 120, flex: 1 },
   ];
 
   // Map products data from API

@@ -8,7 +8,7 @@ import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
-import ListView from "../Components/ListView";
+// import ListView from "../Components/ListView";
 
 const AllOrders = () => {
   const {
@@ -41,8 +41,9 @@ const AllOrders = () => {
           style={{ width: 50, height: 50, borderRadius: 5 }}
         />
       ),
+      flex: 1,
     },
-    { field: "quantity", headerName: "Quantity", width: 100 },
+    { field: "quantity", headerName: "Quantity", width: 100, flex: 1 },
     {
       field: "status",
       headerName: "Status",
@@ -61,12 +62,13 @@ const AllOrders = () => {
           </Select>
         </FormControl>
       ),
+      flex: 1,
     },
-    { field: "finalCost", headerName: "Final Cost", width: 120 },
-    { field: "font", headerName: "Font", width: 100 },
-    { field: "fontSize", headerName: "Font Size", width: 100 },
-    { field: "text", headerName: "Text", width: 150 },
-    { field: "color", headerName: "Color", width: 100 },
+    { field: "finalCost", headerName: "Final Cost", flex: 1 },
+    { field: "font", headerName: "Font", flex: 1 },
+    { field: "fontSize", headerName: "Font Size", flex: 1 },
+    { field: "text", headerName: "Text", flex: 1 },
+    { field: "color", headerName: "Color", flex: 1 },
   ];
 
   const rows = allOrders.map((order, index) => ({

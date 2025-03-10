@@ -22,13 +22,13 @@ const AllUsers = () => {
   };
 
   const columns = [
-    { field: "FullName", headerName: "FullName", width: 250 },
-    { field: "Email", headerName: "Email", width: 350 },
-    { field: "role", headerName: "Role", width: 250 },
+    { field: "FullName", headerName: "FullName", flex: 1 },
+    { field: "Email", headerName: "Email", flex: 1 },
+    { field: "role", headerName: "Role", flex: 1 },
     {
       field: "Actions",
       headerName: "Actions",
-      width: 250,
+      flex: 1,
       renderCell: (params) => (
         <Button
           variant="contained"
