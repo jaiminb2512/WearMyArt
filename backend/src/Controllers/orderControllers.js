@@ -27,7 +27,7 @@ const addOrder = async (req, res) => {
     const { Email, FullName } = req.user;
 
     if (!OrderKey) {
-      const { ProductId, Font, FontSize, Text, Color } = req.body;
+      const { ProductId, Font, FontSize, Text, Color, TextStyle } = req.body;
 
       const { Size } = productValidate(ProductId, res, Quantity);
 
@@ -35,6 +35,7 @@ const addOrder = async (req, res) => {
         ProductId,
         CustomerId,
         Font,
+        TextStyle,
         FontSize,
         Text,
         Color,
@@ -119,9 +120,9 @@ const addToCartOrder = async (req, res) => {
 
     if (!OrderKey) {
       // OrderKey is not given means the product's customization is text type
-      const { ProductId, Font, FontSize, Text, Color } = req.body;
+      const { ProductId, Font, TextStyle, FontSize, Text, Color } = req.body;
 
-      if (!(ProductId || Font || FontSize || Text || Color)) {
+      if (!(ProductId || Font || TextStyle || FontSize || Text || Color)) {
         return apiResponse(res, false, null, "All fields are required", 400);
       }
 
@@ -132,6 +133,7 @@ const addToCartOrder = async (req, res) => {
         ProductId: String(ProductId),
         CustomerId: String(CustomerId),
         Font: String(Font || ""),
+        TextStyle: String(TextStyle || ""),
         FontSize: Number(FontSize) || 0,
         Text: String(Text || ""),
         Color: String(Color || ""),
@@ -146,6 +148,7 @@ const addToCartOrder = async (req, res) => {
         {
           ProductId,
           Font,
+          TextStyle,
           FontSize,
           Text,
           Color,
@@ -191,7 +194,6 @@ const addToCartOrder = async (req, res) => {
       );
     }
   } catch (error) {
-    console.log(error);
     return apiResponse(res, false, null, error.message, 500);
   }
 };
@@ -216,6 +218,7 @@ const cartToOrder = async (req, res) => {
         ProductId,
         CustomerImg = "",
         Font = "",
+        TextStyle = "",
         FontSize = 0,
         Text = "",
         Color = "",
@@ -229,6 +232,7 @@ const cartToOrder = async (req, res) => {
         CustomerId,
         CustomerImg,
         Font,
+        TextStyle,
         FontSize: Number(FontSize),
         Text,
         Color,
@@ -286,7 +290,6 @@ const getAllCartOrder = async (req, res) => {
       200
     );
   } catch (error) {
-    console.error(error);
     return apiResponse(res, false, null, error.message, 500);
   }
 };
@@ -339,7 +342,7 @@ const initiateOrder = async (req, res) => {
       return apiResponse(res, false, null, "CustomerImg is missing", 400);
     }
 
-    const CustomerImg = req.file.path;
+    const CustomerImg = `/uploads/${req.file.filename}`;
     const CustomerId = req.user._id;
     const { ProductId } = req.body;
 
@@ -373,14 +376,12 @@ const initiateOrder = async (req, res) => {
       {
         OrderKey,
         ProductId,
-        CustomerId,
         CustomerImg,
       },
-      "Your order has been successfully initiated",
+      "Your photo saved Successfully",
       200
     );
   } catch (error) {
-    console.error(error);
     return apiResponse(res, false, null, error.message, 500);
   }
 };

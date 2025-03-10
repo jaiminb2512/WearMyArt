@@ -17,6 +17,9 @@ const OrderSchema = Schema({
   Font: {
     type: String,
   },
+  TextStyle: {
+    type: String,
+  },
   FontSize: {
     type: Number,
   },

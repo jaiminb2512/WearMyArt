@@ -15,6 +15,7 @@ import {
   makeAdmin,
   blockUsers,
   unblockUsers,
+  getAllUsers,
 } from "../Controllers/userControllers.js";
 
 const router = Router();
@@ -50,6 +51,11 @@ router.patch(
   "/unblock-users",
   (req, res, next) => tokenVerification(req, res, next, true),
   unblockUsers
+);
+router.get(
+  "/get-all-users",
+  (req, res, next) => tokenVerification(req, res, next, true),
+  getAllUsers
 );
 
 router.put("/update-user", tokenVerification, updateUser);

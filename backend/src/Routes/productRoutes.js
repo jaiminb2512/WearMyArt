@@ -3,7 +3,7 @@ import {
   addProduct,
   disContinueProducts,
   reContinueProducts,
-  getAllCustomers,
+  getAllCustomersOfProduct,
   getAllProducts,
   getSingleProduct,
   updateProduct,
@@ -48,11 +48,11 @@ router.get(
   (req, res, next) => tokenVerification(req, res, next, true),
   getAllProducts
 );
-router.get("/get-all-active-products", tokenVerification, getAllActiveProducts);
+router.get("/get-all-active-products", getAllActiveProducts);
 router.get(
-  "/get-all-customers",
+  "/get-all-customers-of-products",
   (req, res, next) => tokenVerification(req, res, next, true),
-  getAllCustomers
+  getAllCustomersOfProduct
 );
 
 export default router;
