@@ -17,10 +17,8 @@ const AllUsers = () => {
 
   console.log(AllUsers);
 
-  // Function to handle block/unblock button click
   const handleBlockClick = (id, currentBlockStatus) => {
     console.log("User ID:", id, "Current Block Status:", currentBlockStatus);
-    // Here you would implement the API call to toggle the block status
   };
 
   const columns = [
@@ -43,13 +41,12 @@ const AllUsers = () => {
     },
   ];
 
-  // Map products data from API
   const rows = AllUsers.map((user, index) => ({
     id: user._id || index + 1,
     FullName: user.FullName,
     Email: user.Email,
     role: user.isAdmin ? "Admin" : "Customer",
-    isBlocked: user.isBlocked || false, // Use the isBlock property from the user data
+    isBlocked: user.isBlocked || false,
   }));
 
   return (

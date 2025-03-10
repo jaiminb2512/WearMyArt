@@ -3,10 +3,11 @@ import { useFetchData } from "../utils/apiRequest";
 import ApiURLS from "../Data/ApiURLS";
 import { TextField } from "@mui/material";
 import MTable from "../Components/MTable";
+import ListView from "../Components/ListView";
 
 const AllProducts = () => {
   const { data: products = [], isLoading } = useFetchData(
-    "Products",
+    "all-products",
     ApiURLS.GetAllProduct.url,
     ApiURLS.GetAllProduct.method,
     {
@@ -15,7 +16,7 @@ const AllProducts = () => {
     }
   );
 
-  const [userStock, setUserStock] = useState(10); // Default threshold
+  const [userStock, setUserStock] = useState(10);
 
   const handleStockChange = (event) => {
     const value = parseInt(event.target.value, 10);
@@ -23,7 +24,6 @@ const AllProducts = () => {
   };
 
   const columns = [
-    { field: "id", headerName: "ID", width: 90 },
     {
       field: "image",
       headerName: "Image",
@@ -65,6 +65,8 @@ const AllProducts = () => {
     discontinued: product.isDiscontinued ? "Yes" : "No",
   }));
 
+  console.log(columns);
+
   return (
     <div>
       <TextField
@@ -76,6 +78,7 @@ const AllProducts = () => {
       />
 
       <MTable rows={rows} columns={columns} isLoading={isLoading} />
+      {/* <ListView rows={rows} columns={columns} isLoading={isLoading} /> */}
     </div>
   );
 };

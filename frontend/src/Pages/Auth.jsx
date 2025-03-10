@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import "./style.css";
 import { useLocation, useNavigate } from "react-router-dom";
-import LoginForm from "./LoginForm";
-import RegisterForm from "./RegisterForm";
+import LoginForm from "../Components/Auth/LoginForm";
+import RegisterForm from "../Components/Auth/RegisterForm";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import LockOpenIcon from "@mui/icons-material/LockOpen";
 

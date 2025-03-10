@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import ApiURLS from "../Data/ApiURLS";
-import { apiRequest } from "../utils/apiRequestN";
-import { showToast } from "../Redux/toastSlice";
+import ApiURLS from "../../Data/ApiURLS";
+import { apiRequest } from "../../utils/apiRequestN";
+import { showToast } from "../../Redux/toastSlice";
 
 const AddProductForm = () => {
   const [formData, setFormData] = useState({

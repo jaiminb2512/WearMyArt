@@ -1,17 +1,39 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button, Stepper, Step, StepLabel } from "@mui/material";
 import { CloudUpload, DesignServices, CheckCircle } from "@mui/icons-material";
+import { useLocation } from "react-router-dom";
+import ImageUploadStep from "../Components/Editor/ImageUploadStep";
+import ImageEditeStep from "../Components/Editor/ImageEditeStep";
+import { useDispatch, useSelector } from "react-redux";
+import { clearProductData, setProductData } from "../Redux/TempProductSlice";
 
-const steps = [
+const allSteps = [
   { label: "Upload Image", icon: <CloudUpload /> },
   { label: "Customize Design", icon: <DesignServices /> },
   { label: "Review & Confirm", icon: <CheckCircle /> },
 ];
 
-const MultiStepForm = () => {
-  const [activeStep, setActiveStep] = useState(0);
-  const [image, setImage] = useState(null);
+const OrderForm = () => {
+  const location = useLocation();
+  const product = location.state?.product;
+  const dispatch = useDispatch();
+  const tempProduct = useSelector((state) => state.tempProduct);
 
+  const [activeStep, setActiveStep] = useState(0);
+  useEffect(() => {
+    dispatch(clearProductData());
+    if (product) {
+      dispatch(setProductData(product));
+    }
+  }, [dispatch, product]);
+
+  // Filter steps if the product customization is "Text"
+  const steps =
+    product?.CustomizeOption === "Text"
+      ? allSteps.filter((step) => step.label !== "Upload Image")
+      : allSteps;
+
+  // Step Navigation
   const handleNext = () => {
     setActiveStep((prevStep) => prevStep + 1);
   };
@@ -20,13 +42,13 @@ const MultiStepForm = () => {
     setActiveStep((prevStep) => prevStep - 1);
   };
 
-  const handleImageUpload = (event) => {
-    setImage(URL.createObjectURL(event.target.files[0]));
-  };
-
   return (
-    <div className="w-full max-w-3xl mx-auto p-5">
-      <Stepper activeStep={activeStep} alternativeLabel>
+    <div className="w-full p-5">
+      <Stepper
+        activeStep={activeStep}
+        alternativeLabel
+        className="w-full max-w-3xl mx-auto p-5"
+      >
         {steps.map((step, index) => (
           <Step key={index}>
             <StepLabel icon={step.icon}>
@@ -45,42 +67,33 @@ const MultiStepForm = () => {
           </Step>
         ))}
       </Stepper>
-
-      <div className="mt-5 border rounded-lg p-5 text-center bg-gray-100">
-        {activeStep === 0 && (
-          <div className="flex flex-col items-center">
-            <input
-              type="file"
-              onChange={handleImageUpload}
-              accept="image/png, image/jpeg"
-            />
-            {image && (
-              <img
-                src={image}
-                alt="Uploaded"
-                className="mt-4 w-64 h-64 object-cover"
-              />
-            )}
-          </div>
+      <div className="mt-5 rounded-lg text-center flex flex-col justify-center items-center">
+        {steps[activeStep]?.label === "Upload Image" && (
+          <ImageUploadStep setActiveStep={setActiveStep} />
         )}
-        {activeStep === 1 && <p>Customize your design here...</p>}
-        {activeStep === 2 && <p>Review your design before confirming...</p>}
-      </div>
+        {steps[activeStep]?.label === "Customize Design" && (
+          <ImageEditeStep setActiveStep={setActiveStep} />
+        )}
+        {steps[activeStep]?.label === "Review & Confirm" && (
+          <p>Review your design before confirming...</p>
+        )}
 
-      <div className="mt-4 flex justify-between">
-        <Button
-          disabled={activeStep === 0}
-          onClick={handleBack}
-          variant="contained"
-        >
-          Back
-        </Button>
-        <Button onClick={handleNext} variant="contained" color="primary">
-          {activeStep === steps.length - 1 ? "Finish" : "Next"}
-        </Button>
+        <div className="mt-4 flex justify-between w-full max-w-5xl mx-auto p-5">
+          <Button
+            disabled={activeStep === 0}
+            onClick={handleBack}
+            variant="contained"
+          >
+            Back
+          </Button>
+
+          {steps[activeStep]?.label === "Review & Confirm" && (
+            <Button>Finish</Button>
+          )}
+        </div>
       </div>
     </div>
   );
 };
 
-export default MultiStepForm;
+export default OrderForm;

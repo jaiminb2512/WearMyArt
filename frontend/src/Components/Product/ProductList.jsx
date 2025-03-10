@@ -10,8 +10,8 @@ const ProductList = ({ products, loading }) => {
     navigate(`/product/${id}`);
   };
 
-  const redirectToOrder = () => {
-    navigate("/orderform");
+  const redirectToOrder = (product) => {
+    navigate("/orderform", { state: { product } });
   };
 
   return (
@@ -50,7 +50,7 @@ const ProductList = ({ products, loading }) => {
                 </div>
                 <Button
                   variant="outlined"
-                  onClick={redirectToOrder}
+                  onClick={() => redirectToOrder(product)}
                   className="w-full btn btn-primary z-50"
                 >
                   Customize

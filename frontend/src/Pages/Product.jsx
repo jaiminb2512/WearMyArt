@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useFetchData } from "../utils/apiRequest";
 import ApiURLS from "../Data/ApiURLS";
-import ProductImages from "../Components/ProductImages";
+import ProductImages from "../Components/Product/ProductImages";
 import { TbReplace } from "react-icons/tb";
 import { Button, CircularProgress } from "@mui/material";
 
