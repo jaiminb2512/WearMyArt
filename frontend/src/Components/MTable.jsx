@@ -2,7 +2,7 @@ import { Box, CircularProgress, Paper } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import React from "react";
 
-const MTable = ({ rows, columns, isLoading, ...otherProps }) => {
+const MTable = ({ rows, columns, isLoading }) => {
   const paginationModel = { page: 0, pageSize: 5 };
   return (
     <div className="flex flex-col items-center gap-4 my-4">
@@ -38,7 +38,6 @@ const MTable = ({ rows, columns, isLoading, ...otherProps }) => {
             }}
             isRowSelectable={(params) => true}
             onRowClick={(params, event) => {
-              // Prevent row selection when clicking anywhere except checkbox
               if (!event.target.type || event.target.type !== "checkbox") {
                 event.defaultMuiPrevented = true;
               }

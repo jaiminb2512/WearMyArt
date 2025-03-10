@@ -1,10 +1,10 @@
 import React, { useState, useMemo } from "react";
 import { useFetchData } from "../utils/apiRequest";
 import ApiURLS from "../Data/ApiURLS";
-import ProductList from "../Components/ProductList";
-import ProductSidebar from "../Components/ProductSidebar";
-import ProductTopbar from "../Components/ProductTopbar";
-import ProductBottomBar from "../Components/ProductBottomBar";
+import ProductList from "../Components/Product/ProductList";
+import ProductSidebar from "../Components/Product/ProductSidebar";
+import ProductTopbar from "../Components/Product/ProductTopbar";
+import ProductBottomBar from "../Components/Product/ProductBottomBar";
 import { FilterData } from "../Data/FilterData";
 
 const Products = () => {

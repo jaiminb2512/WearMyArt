@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { login } from "../Redux/UserSlice";
-import ApiURLS from "../Data/ApiURLS";
-import { useApiMutation } from "../utils/apiRequest";
+import { login } from "../../Redux/UserSlice";
+import ApiURLS from "../../Data/ApiURLS";
+import { useApiMutation } from "../../utils/apiRequest";
 import {
   Button,
   TextField,

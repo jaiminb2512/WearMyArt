@@ -1,6 +1,5 @@
 import React from "react";
 import { MenuItem, Select } from "@mui/material";
-import { ListAlt } from "@mui/icons-material";
 import { BsSortDown } from "react-icons/bs";
 
 const ProductTopbar = ({ sortOrder, setSortOrder, count }) => {
