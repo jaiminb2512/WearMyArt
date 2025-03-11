@@ -44,7 +44,7 @@ const Sidebar = ({ hideText, setHideText }) => {
         height: "100vh",
         position: "fixed",
         boxShadow: 3,
-        zIndex: 10,
+        zIndex: 1000,
         transition: "all 0.3s ease",
         bgcolor: theme.palette.primary.main,
         color: theme.palette.primary.contrastText,
@@ -61,7 +61,13 @@ const Sidebar = ({ hideText, setHideText }) => {
         }}
       >
         {/* Logo area */}
-        <Box sx={{ display: "flex", alignItems: "center", mt: 2, mb: 4 }}>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyItems: "center",
+          }}
+        >
           <Typography variant="h6" fontWeight="bold">
             {hideText ? "WA" : "WearMyArt"}
           </Typography>

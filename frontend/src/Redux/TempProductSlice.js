@@ -1,15 +1,24 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-const initialState = null;
+const initialState = {
+  _id: null,
+  CustomerImg: null,
+};
 
 const tempProductSlice = createSlice({
   name: "tempProduct",
   initialState,
   reducers: {
-    setProductData: (state, action) => action.payload,
-    clearProductData: () => null,
+    clearProductData: () => initialState,
+    setProductData: (state, action) => {
+      return { ...state, ...action.payload };
+    },
+    updateProductData: (state, action) => {
+      return { ...state, ...action.payload };
+    },
   },
 });
 
-export const { setProductData, clearProductData } = tempProductSlice.actions;
+export const { clearProductData, setProductData, updateProductData } =
+  tempProductSlice.actions;
 export default tempProductSlice.reducer;

@@ -1,8 +1,9 @@
 import { configureStore } from "@reduxjs/toolkit";
-import userSlice from "./UserSlice";
+import userSlice from "./userSlice";
 import toastReducer from "./toastSlice";
 import themeReducer from "./ThemeSlice";
-import tempProductReducer from "./TempProductSlice";
+import tempProductReducer from "./tempProductSlice";
+import customizaionOptionsSlice from "./customizaionOptionsSlice";
 
 const store = configureStore({
   reducer: {
@@ -10,6 +11,7 @@ const store = configureStore({
     toast: toastReducer,
     theme: themeReducer,
     tempProduct: tempProductReducer,
+    updateCustomizaionOptions: customizaionOptionsSlice,
   },
 });
 

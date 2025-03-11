@@ -23,6 +23,9 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import AllOrders from "./Pages/AllOrders";
 import AllUsers from "./Pages/AllUsers";
 import Auth from "./Pages/Auth";
+import ProductForm from "./Components/Product/ProductForm";
+import Orders from "./Pages/Orders";
+import Cart from "./Pages/Cart";
 
 const queryClient = new QueryClient();
 
@@ -50,13 +53,15 @@ const AppLayout = () => {
           className="mt-15"
         >
           <Routes>
+            <Route path="/" element={<Home />} />
             <Route path="/login" element={<Auth />} />
             <Route path="/register" element={<Auth />} />
-            <Route path="/" element={<Home />} />
             <Route path="/products" element={<Products />} />
             <Route path="/product/:id" element={<Product />} />
             <Route path="/orderform" element={<OrderForm />} />
             <Route path="/dashboard/Profile" element={<Profile />} />
+            <Route path="/dashboard/orders" element={<Orders />} />
+            <Route path="/dashboard/cart" element={<Cart />} />
             <Route path="/dashboard/all-products" element={<AllProducts />} />
             <Route path="/dashboard/all-orders" element={<AllOrders />} />
             <Route path="/dashboard/all-users" element={<AllUsers />} />

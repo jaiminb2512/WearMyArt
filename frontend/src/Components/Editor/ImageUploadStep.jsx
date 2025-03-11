@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
-import { setProductData } from "../../Redux/TempProductSlice";
+import { updateProductData } from "../../Redux/tempProductSlice";
 import ApiURLS from "../../Data/ApiURLS";
 
-const ImageUploadStep = ({ setActiveStep }) => {
+const ImageUploadStep = ({ setNextAllowed }) => {
   const dispatch = useDispatch();
   const [image, setImage] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -42,9 +42,10 @@ const ImageUploadStep = ({ setActiveStep }) => {
 
       console.log("Upload Success:", response.data.success);
       if (response.data.success) {
-        setActiveStep(1);
+        setNextAllowed(true);
+        // Use updateProductData instead of setProductData to merge the new data
+        dispatch(updateProductData(response.data.data));
       }
-      dispatch(setProductData(response.data.data));
     } catch (error) {
       console.error("Upload failed:", error.response?.data || error.message);
     } finally {

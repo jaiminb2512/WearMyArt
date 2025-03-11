@@ -5,7 +5,7 @@ const Navbar = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="fixed top-0 left-0 w-full shadow-md z-10 backdrop-blur-3xl">
+    <div className="fixed top-0 left-0 w-full z-40 backdrop-blur-3xl h-15 shadow-2xl">
       <div className="px-[5vw] flex justify-end items-center py-4 gap-3">
         <div onClick={() => navigate("/")}>logo</div>
         <div onClick={() => navigate("/products")} className="cursor-pointer">

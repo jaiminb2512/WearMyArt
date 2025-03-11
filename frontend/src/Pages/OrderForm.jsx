@@ -4,8 +4,8 @@ import { CloudUpload, DesignServices, CheckCircle } from "@mui/icons-material";
 import { useLocation } from "react-router-dom";
 import ImageUploadStep from "../Components/Editor/ImageUploadStep";
 import ImageEditeStep from "../Components/Editor/ImageEditeStep";
-import { useDispatch, useSelector } from "react-redux";
-import { clearProductData, setProductData } from "../Redux/TempProductSlice";
+import { useDispatch } from "react-redux";
+import { setProductData } from "../Redux/tempProductSlice";
 
 const allSteps = [
   { label: "Upload Image", icon: <CloudUpload /> },
@@ -17,23 +17,29 @@ const OrderForm = () => {
   const location = useLocation();
   const product = location.state?.product;
   const dispatch = useDispatch();
-  const tempProduct = useSelector((state) => state.tempProduct);
 
   const [activeStep, setActiveStep] = useState(0);
+  const [nextAllowed, setNextAllowed] = useState(false);
+
   useEffect(() => {
-    dispatch(clearProductData());
     if (product) {
       dispatch(setProductData(product));
     }
   }, [dispatch, product]);
 
-  // Filter steps if the product customization is "Text"
+  useEffect(() => {
+    if (steps[activeStep]?.label === "Customize Design") {
+      setNextAllowed(true);
+    } else {
+      setNextAllowed(false);
+    }
+  }, [activeStep]);
+
   const steps =
     product?.CustomizeOption === "Text"
       ? allSteps.filter((step) => step.label !== "Upload Image")
       : allSteps;
 
-  // Step Navigation
   const handleNext = () => {
     setActiveStep((prevStep) => prevStep + 1);
   };
@@ -67,9 +73,10 @@ const OrderForm = () => {
           </Step>
         ))}
       </Stepper>
+
       <div className="mt-5 rounded-lg text-center flex flex-col justify-center items-center">
         {steps[activeStep]?.label === "Upload Image" && (
-          <ImageUploadStep setActiveStep={setActiveStep} />
+          <ImageUploadStep setNextAllowed={setNextAllowed} />
         )}
         {steps[activeStep]?.label === "Customize Design" && (
           <ImageEditeStep setActiveStep={setActiveStep} />
@@ -86,9 +93,18 @@ const OrderForm = () => {
           >
             Back
           </Button>
+          <Button
+            disabled={!nextAllowed}
+            onClick={handleNext}
+            variant="contained"
+          >
+            Next
+          </Button>
 
-          {steps[activeStep]?.label === "Review & Confirm" && (
-            <Button>Finish</Button>
+          {activeStep === steps.length - 1 && (
+            <Button variant="contained" color="success">
+              Finish
+            </Button>
           )}
         </div>
       </div>

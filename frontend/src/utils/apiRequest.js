@@ -53,7 +53,7 @@ export const useFetchData = (Key, url, method, options = {}) => {
     staleTime = 1 * 60 * 1000,
     cacheTime = 10 * 60 * 1000,
   } = options;
-
+  console.log("run");
   return useQuery({
     queryKey: [Key],
     queryFn: () => apiRequest(url, method, {}, dispatch),
