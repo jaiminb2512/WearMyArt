@@ -15,7 +15,6 @@ import { ProductData } from "../../Data/ProductData";
 import HighlightOffIcon from "@mui/icons-material/HighlightOff";
 
 const ProductForm = ({ product, title, handleCloseDialog }) => {
-  console.log(product);
   const [formData, setFormData] = useState({
     Size: product?.Size || "",
     Price: product?.Price || "",

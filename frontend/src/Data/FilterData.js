@@ -20,4 +20,9 @@ export const FilterData = [
     Options: ["0-499", "499-999", "999-1999", "1999+"],
     type: "radio",
   },
+  {
+    title: "Sort",
+    Options: ["Low to High", "High To Low"],
+    type: "radio",
+  },
 ];

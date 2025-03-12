@@ -3,14 +3,13 @@ import { NavLink } from "react-router-dom";
 import ProductImages from "./Product/ProductImages";
 
 const ListView = ({ rows, columns, isLoading }) => {
+  // console.log("rows", rows);
+  console.log("columns", columns);
+
   if (isLoading) {
     return (
-      <div className="">
-        <div className="container ">
-          <div className="flex justify-center items-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600"></div>
-          </div>
-        </div>
+      <div className="flex justify-center items-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600"></div>
       </div>
     );
   }
@@ -19,11 +18,7 @@ const ListView = ({ rows, columns, isLoading }) => {
   if (!rows || rows.length === 0) {
     return (
       <div className="">
-        <div className="container ">
-          <p className="text-center text-gray-500 text-lg">
-            No items to display
-          </p>
-        </div>
+        <p className="text-center text-gray-500 text-lg">No items to display</p>
       </div>
     );
   }
@@ -97,29 +92,6 @@ const ListView = ({ rows, columns, isLoading }) => {
                       {customizeOption}
                     </p>
                   )}
-                </div>
-
-                <div className="flex gap-3">
-                  {/* <NavLink to={`/product/${id}`} className="inline-block"> */}
-                  <button
-                    className="border border-indigo-600 text-indigo-600 py-2 px-6 rounded hover:bg-indigo-600 hover:text-white transition-colors duration-200"
-                    onClick={() => {
-                      console.log(
-                        id,
-                        image,
-                        color,
-                        size,
-                        sleeve,
-                        price,
-                        discountedPrice,
-                        stock,
-                        customizeOption
-                      );
-                    }}
-                  >
-                    View Details
-                  </button>
-                  {/* </NavLink> */}
                 </div>
               </div>
             </div>

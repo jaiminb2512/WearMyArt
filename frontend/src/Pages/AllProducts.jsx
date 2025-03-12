@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useFetchData } from "../utils/apiRequest";
 import ApiURLS from "../Data/ApiURLS";
 import { Button, Dialog, DialogContent } from "@mui/material";
@@ -8,9 +8,14 @@ import ModeEditIcon from "@mui/icons-material/ModeEdit";
 import ProductForm from "../Components/Product/ProductForm";
 import BlockIcon from "@mui/icons-material/Block";
 import ControlPointIcon from "@mui/icons-material/ControlPoint";
+import ProductFilter from "../Components/Product/ProductFilter";
+import { FilterData } from "../Data/FilterData";
+import ProductTopbar from "../Components/Product/ProductTopbar";
+import ProductList from "../Components/Product/ProductList";
+import ProductBottomBar from "../Components/Product/ProductBottomBar";
 
 const AllProducts = () => {
-  const { data: products = [], isLoading } = useFetchData(
+  const { data: AllPproducts = [], isLoading } = useFetchData(
     "all-products",
     ApiURLS.GetAllProduct.url,
     ApiURLS.GetAllProduct.method,
@@ -40,37 +45,88 @@ const AllProducts = () => {
     setSelectedProduct(null);
   };
 
-  const columns = [
+  const [sortOrder, setSortOrder] = useState("lowToHigh");
+  const [filterOptions, setFilterOptions] = useState({
+    Size: [],
+    Sleeve: [],
+    CustomizeOption: [],
+    Color: [],
+    Price: [],
+    Sort: ["Low to High"],
+    VisibleColumns: [
+      "image",
+      "color",
+      "size",
+      "sleeve",
+      "price",
+      "discountedPrice",
+      "stock",
+      "customizeOption",
+    ],
+  });
+  const [listView, setListView] = useState(true);
+
+  const isPriceInRange = (price, range) => {
+    if (!range) return true;
+    if (range === "0-499") return price >= 0 && price <= 499;
+    if (range === "499-999") return price >= 499 && price <= 999;
+    if (range === "999-1999") return price >= 999 && price <= 1999;
+    if (range === "1999+") return price >= 1999;
+    return true;
+  };
+
+  const filteredProducts = useMemo(() => {
+    return AllPproducts.filter((product) => {
+      const sizeMatch =
+        !filterOptions.Size.length || filterOptions.Size.includes(product.Size);
+      const sleeveMatch =
+        !filterOptions.Sleeve.length ||
+        filterOptions.Sleeve.includes(product.Sleeve);
+      const customizeMatch =
+        !filterOptions.CustomizeOption.length ||
+        filterOptions.CustomizeOption.includes(product.CustomizeOption);
+      const colorMatch =
+        !filterOptions.Color.length ||
+        filterOptions.Color.includes(product.Color);
+      const priceMatch =
+        !filterOptions.Price.length ||
+        isPriceInRange(product.Price, filterOptions.Price[0]);
+      return (
+        sizeMatch && sleeveMatch && customizeMatch && colorMatch && priceMatch
+      );
+    }).sort((a, b) =>
+      sortOrder === "lowToHigh" ? a.Price - b.Price : b.Price - a.Price
+    );
+  }, [filterOptions, AllPproducts, sortOrder]);
+
+  const allColumns = [
     {
       field: "image",
       headerName: "Image",
       width: 100,
+      height: 150,
       renderCell: (params) => (
         <img
           src={params.value}
           alt="Product"
-          style={{ width: 50, height: 50, borderRadius: 5 }}
+          style={{ width: 150, height: 150, borderRadius: 5 }}
         />
       ),
-      flex: 2,
     },
-    { field: "color", headerName: "Color", width: 100, flex: 1 },
-    { field: "size", headerName: "Size", width: 100, flex: 1 },
-    { field: "sleeve", headerName: "Sleeve", width: 100, flex: 1 },
+    { field: "color", headerName: "Color", width: 50 },
+    { field: "size", headerName: "Size", width: 50 },
+    { field: "sleeve", headerName: "Sleeve", width: 100 },
     {
       field: "price",
       headerName: "Price",
       type: "number",
-      width: 100,
-      flex: 1,
+      width: 50,
     },
     {
       field: "Actions",
       headerName: "Actions",
-      flex: 1,
-      width: 180,
       renderCell: (params) => {
-        const productData = products.find(
+        const productData = AllPproducts.find(
           (product) => product._id === params.id
         );
 
@@ -93,28 +149,25 @@ const AllProducts = () => {
       headerName: "Discounted Price",
       type: "number",
       width: 70,
-      flex: 1,
     },
     {
       field: "stock",
       headerName: "Stock",
       type: "number",
       width: 70,
-      flex: 1,
     },
     {
       field: "customizeOption",
       headerName: "Customization",
       width: 100,
-      flex: 1,
     },
     {
       field: "discontinued",
       headerName: "Discontinue",
       width: 120,
-      flex: 1,
+
       renderCell: (params) => {
-        const productData = products.find(
+        const productData = AllPproducts.find(
           (product) => product._id === params.id
         );
 
@@ -153,7 +206,11 @@ const AllProducts = () => {
     },
   ];
 
-  const rows = products.map((product, index) => ({
+  const columns = allColumns.filter((col) =>
+    (filterOptions.VisibleColumns || []).includes(col.field)
+  );
+
+  const rows = filteredProducts.map((product, index) => ({
     id: product._id || index + 1,
     image: product.ImgURL,
     color: product.Color || "N/A",
@@ -166,48 +223,52 @@ const AllProducts = () => {
   }));
 
   return (
-    <div className="flex-1 flex flex-col ">
-      <div className="sticky top-15 w-full z-10 hidden sm:block shadow-2xl">
-        <div className="hidden sm:flex gap-1 items-center w-full ml-2 px-[5vw] backdrop-blur-3xl pt-3 pb-2">
-          {/* <TextField
-            type="number"
-            label="Stock Threshold"
-            variant="outlined"
-            value={userStock}
-            onChange={handleStockChange}
-          /> */}
+    <div className="flex h-screen">
+      <div className="sticky top-0 pl-[2vw] pt-[5vh] h-screen overflow-y-auto scrollbar-hide hidden sm:block sm:w-[30vw] md:w-[30vw] lg:w-[20vw] pr-5 border-r">
+        <ProductFilter
+          FilterData={FilterData}
+          setFilterOptions={setFilterOptions}
+          filterOptions={filterOptions}
+          applySorting={true}
+          setSortOrder={setSortOrder}
+          allowColumnSelection={true}
+        />
+      </div>
 
-          <Button
-            variant="contained"
-            className="w-[fit-content]"
-            onClick={() => setTableView(!tableView)}
-          >
-            {tableView ? "Grid View" : "Table View"}
-          </Button>
+      <div className="flex-1 flex flex-col overflow-y-scroll scrollbar-hide">
+        <div className="sticky top-0 w-full z-20 bg-white shadow-2xl">
+          <div className="flex gap-1 items-center w-full ml-2 px-[5vw] backdrop-blur-3xl pt-3 pb-2">
+            <ProductTopbar
+              listView={listView}
+              setListView={setListView}
+              count={filteredProducts.length}
+              handleOpenDialog={handleOpenDialog}
+            />
+          </div>
+        </div>
 
-          <Button variant="contained" className="w-[fit-content]">
-            Show filter
-          </Button>
-          <Button
-            variant="contained"
-            className="w-[fit-content]"
-            onClick={() => {
-              console.log("Add Product button clicked");
-              handleOpenDialog();
-            }}
-          >
-            Add Product
-          </Button>
+        <div className="p-4 mt-4">
+          {listView ? (
+            <ProductList products={filteredProducts} loading={isLoading} />
+          ) : (
+            <ListView
+              rows={rows}
+              columns={columns}
+              setListView={setListView}
+              isLoading={isLoading}
+            />
+          )}
         </div>
       </div>
-      <div className="mt-2 ml-2">
-        {tableView ? (
-          <MTable rows={rows} columns={columns} isLoading={isLoading} />
-        ) : (
-          <div className="mx-[5vw] mt-[2vw]">
-            <ListView rows={rows} columns={columns} isLoading={isLoading} />
-          </div>
-        )}
+
+      <div className="fixed bottom-0 block sm:hidden h-[10vh] w-full">
+        <ProductBottomBar
+          FilterData={FilterData}
+          setFilterOptions={setFilterOptions}
+          filterOptions={filterOptions}
+          setSortOrder={setSortOrder}
+          sortOrder={sortOrder}
+        />
       </div>
 
       <Dialog

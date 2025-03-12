@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 
 const ProductImages = ({ imgs }) => {
   const [mainImage, setMainImage] = useState(imgs[0]);
-  console.log(imgs);
+  // console.log(imgs);
 
   return (
     <section className="flex gap-8 flex-col sm:flex-row">

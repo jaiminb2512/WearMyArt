@@ -49,7 +49,7 @@ const MTable = ({ rows, columns, isLoading }) => {
             rows={rows}
             columns={columns}
             initialState={{ pagination: { paginationModel } }}
-            slots={{ toolbar: CustomToolbar }} // Use the custom toolbar
+            slots={{ toolbar: CustomToolbar }}
             pageSizeOptions={[5, 10, 25, 50]}
             checkboxSelection
             sx={{

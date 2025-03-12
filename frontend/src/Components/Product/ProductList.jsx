@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { FaRupeeSign } from "react-icons/fa";
-import { Button } from "@mui/material";
+import CustomizeBtn from "./CustomizeBtn";
 
 const ProductList = ({ products, loading }) => {
   const navigate = useNavigate();
@@ -10,16 +10,12 @@ const ProductList = ({ products, loading }) => {
     navigate(`/product/${id}`);
   };
 
-  const redirectToOrder = (product) => {
-    navigate("/orderform", { state: { product } });
-  };
-
   return (
     <div className="flex-1 flex flex-col">
       {loading ? (
         <p>Loading products...</p>
       ) : products.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-4">
+        <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {products.map((product) => (
             <div
               key={product._id}
@@ -48,13 +44,8 @@ const ProductList = ({ products, loading }) => {
                     </p>
                   )}
                 </div>
-                <Button
-                  variant="outlined"
-                  onClick={() => redirectToOrder(product)}
-                  className="w-full btn btn-primary z-50"
-                >
-                  Customize
-                </Button>
+
+                <CustomizeBtn variant={"outlined"} product={product} />
               </div>
             </div>
           ))}

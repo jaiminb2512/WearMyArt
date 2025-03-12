@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Button, Stepper, Step, StepLabel } from "@mui/material";
 import { CloudUpload, DesignServices, CheckCircle } from "@mui/icons-material";
-import { useLocation } from "react-router-dom";
 import ImageUploadStep from "../Components/Editor/ImageUploadStep";
 import ImageEditeStep from "../Components/Editor/ImageEditeStep";
-import { useDispatch } from "react-redux";
-import { setProductData } from "../Redux/tempProductSlice";
+import { useSelector } from "react-redux";
 
 const allSteps = [
   { label: "Upload Image", icon: <CloudUpload /> },
@@ -13,19 +11,11 @@ const allSteps = [
   { label: "Review & Confirm", icon: <CheckCircle /> },
 ];
 
-const OrderForm = () => {
-  const location = useLocation();
-  const product = location.state?.product;
-  const dispatch = useDispatch();
-
-  const [activeStep, setActiveStep] = useState(0);
+const CustomizeProduct = () => {
+  const [activeStep, setActiveStep] = useState(1);
   const [nextAllowed, setNextAllowed] = useState(false);
 
-  useEffect(() => {
-    if (product) {
-      dispatch(setProductData(product));
-    }
-  }, [dispatch, product]);
+  const product = useSelector((state) => state.tempProduct);
 
   useEffect(() => {
     if (steps[activeStep]?.label === "Customize Design") {
@@ -112,4 +102,4 @@ const OrderForm = () => {
   );
 };
 
-export default OrderForm;
+export default CustomizeProduct;

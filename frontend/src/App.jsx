@@ -12,7 +12,7 @@ import ToastNotification from "./Components/ToastNotification";
 
 import Home from "./Pages/Home";
 import Products from "./Pages/Products";
-import OrderForm from "./Pages/OrderForm";
+import CustomizeProduct from "./Pages/CustomizeProduct";
 import Product from "./Pages/Product";
 import Profile from "./Pages/Profile";
 import AllProducts from "./Pages/AllProducts";
@@ -58,7 +58,7 @@ const AppLayout = () => {
             <Route path="/register" element={<Auth />} />
             <Route path="/products" element={<Products />} />
             <Route path="/product/:id" element={<Product />} />
-            <Route path="/orderform" element={<OrderForm />} />
+            <Route path="/customize-product" element={<CustomizeProduct />} />
             <Route path="/dashboard/Profile" element={<Profile />} />
             <Route path="/dashboard/orders" element={<Orders />} />
             <Route path="/dashboard/cart" element={<Cart />} />

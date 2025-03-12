@@ -5,6 +5,7 @@ import ApiURLS from "../Data/ApiURLS";
 import ProductImages from "../Components/Product/ProductImages";
 import { TbReplace } from "react-icons/tb";
 import { Button, CircularProgress } from "@mui/material";
+import CustomizeBtn from "../Components/Product/CustomizeBtn";
 
 const Product = () => {
   const { id } = useParams();
@@ -66,7 +67,7 @@ const Product = () => {
   const inStock = product.Stock > 0;
 
   const redirectToOrder = () => {
-    navigate("/orderform");
+    navigate("/customizeProduct");
   };
 
   return (
@@ -133,14 +134,8 @@ const Product = () => {
             </div>
           </div>
           {warning && <p className="text-red-500">{warning}</p>}
-          <div className="flex flex-wrap justify-center items-center gap-2">
-            <Button
-              variant="contained"
-              onClick={redirectToOrder}
-              className="w-full"
-            >
-              Customize
-            </Button>
+          <div className="w-full">
+            <CustomizeBtn variant={"contained"} product={product} />
           </div>
         </div>
       </div>
