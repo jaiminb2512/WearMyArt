@@ -3,7 +3,7 @@ import { useDispatch } from "react-redux";
 import { setCustomerImg } from "../../Redux/tempProductSlice";
 import { Button, CircularProgress } from "@mui/material";
 
-const ImageUploadStep = ({ onClose, addImage }) => {
+const ImageUploadStep = ({ onClose }) => {
   const dispatch = useDispatch();
   const [image, setImage] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -38,14 +38,10 @@ const ImageUploadStep = ({ onClose, addImage }) => {
     reader.readAsDataURL(file);
   };
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     if (image) {
       // First update Redux state
       dispatch(setCustomerImg(image));
-
-      // Then pass the image data directly to the addImage function
-      if (addImage) addImage(image);
-
       // Finally close the modal
       if (onClose) onClose();
     }

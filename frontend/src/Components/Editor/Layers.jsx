@@ -31,7 +31,7 @@ const Layers = ({ addText, deleteSelected, saveDesign, addImage }) => {
   const handleCloseModal = () => setOpenModal(false);
 
   return (
-    <div className="flex flex-col w-40 bg-gray-100 p-4 bg-white w-full border">
+    <div className="flex flex-col w-40 w-full">
       {CustomizeOption === "Both" && (
         <h2 className="font-bold text-lg">Layers</h2>
       )}
@@ -63,7 +63,7 @@ const Layers = ({ addText, deleteSelected, saveDesign, addImage }) => {
       )}
 
       {/* Action Buttons */}
-      <div className="flex gap-2 mt-6">
+      <div className="flex gap-2">
         {SelectedLayer === "Text" && (
           <>
             <button
@@ -82,21 +82,29 @@ const Layers = ({ addText, deleteSelected, saveDesign, addImage }) => {
         )}
 
         {SelectedLayer === "Photo" && (
-          <button
-            onClick={handleOpenModal}
-            className="bg-green-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-green-600 transition"
-          >
-            📷 Upload Image
-          </button>
+          <div>
+            <button
+              onClick={handleOpenModal}
+              className="bg-green-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-green-600 transition"
+            >
+              📷 Upload Image
+            </button>
+            <button
+              onClick={addImage}
+              className="bg-green-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-green-600 transition"
+            >
+              📷 Add to the canvas
+            </button>
+          </div>
         )}
       </div>
 
-      <button
+      {/* <button
         onClick={saveDesign}
         className="bg-gray-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-gray-600 transition mt-4"
       >
         Save Design
-      </button>
+      </button> */}
 
       {/* Modal for image upload */}
       <Modal open={openModal} onClose={handleCloseModal}>

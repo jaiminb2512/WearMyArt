@@ -12,7 +12,7 @@ const initialState = {
   Color: "#000000",
   Price: 0,
   TextStyle: [],
-  SelectedLayer: "Photo",
+  SelectedLayer: "Text",
   CustomizeOption: "",
   SelectedSize: "Original",
 };

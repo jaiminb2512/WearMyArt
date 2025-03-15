@@ -25,16 +25,14 @@ const ImageEditStep = () => {
       workspaceRef.current.saveDesign();
     }
   };
-
-  // Fixed: Added imageData parameter to pass to workspace component
-  const handleAddImage = (imageData) => {
-    if (workspaceRef.current && imageData) {
-      workspaceRef.current.addImage(imageData);
+  const handleAddImage = () => {
+    if (workspaceRef.current) {
+      workspaceRef.current.addImage();
     }
   };
 
   return (
-    <div className="flex min-h-[50vh] max-h-[fit-content] w-full gap-2 justify-center border">
+    <div className="flex min-h-[50vh] max-h-[70vh] w-full gap-2 justify-center border p-3">
       <div className="w-[30vw] border ">
         <Layers
           addText={handleAddText}

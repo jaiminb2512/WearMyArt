@@ -9,7 +9,7 @@ import * as fabric from "fabric";
 
 const Workspace = forwardRef((props, ref) => {
   const tempProduct = useSelector((state) => state.tempProduct);
-  const { Font, Text, Color, TextStyle, SelectedLayer } = tempProduct;
+  const { Font, Text, Color, CustomerImg } = tempProduct;
 
   const ProductImg = tempProduct?.ImgURL?.[0]
     ? `${import.meta.env.VITE_BASE_URL}${tempProduct.ImgURL[0]}`
@@ -19,11 +19,11 @@ const Workspace = forwardRef((props, ref) => {
   const fabricRef = useRef(null);
   const selectedObject = useRef(null);
 
-  // Expose functions to parent component through ref
   useImperativeHandle(ref, () => ({
     addText,
     deleteSelected,
     saveDesign,
+    addImage,
   }));
 
   useEffect(() => {
@@ -35,7 +35,6 @@ const Workspace = forwardRef((props, ref) => {
 
     fabricRef.current = canvas;
 
-    // Listen for object selection
     canvas.on("selection:created", (event) => {
       selectedObject.current = event.selected[0];
     });
@@ -53,49 +52,6 @@ const Workspace = forwardRef((props, ref) => {
     };
   }, []);
 
-  // Function to apply styles dynamically from TextStyles
-  const applyTextStyles = (textObj, styles) => {
-    if (!textObj) return;
-
-    textObj.set({
-      fontWeight: styles.includes("Bold") ? "bold" : "normal",
-      fontStyle: styles.includes("Italic") ? "italic" : "normal",
-      underline: styles.includes("Underline"),
-      linethrough: styles.includes("Strikethrough"),
-      shadow: styles.includes("Shadow") ? "2px 2px 5px rgba(0,0,0,0.5)" : null,
-      stroke: styles.includes("Outline") ? "#000000" : null,
-      strokeWidth: styles.includes("Outline") ? 2 : 0,
-    });
-
-    // Custom Effects
-    if (styles.includes("Embossed")) {
-      textObj.set({
-        shadow:
-          "1px 1px 2px rgba(255,255,255,0.5), -1px -1px 2px rgba(0,0,0,0.5)",
-      });
-    }
-
-    if (styles.includes("Engraved")) {
-      textObj.set({
-        shadow:
-          "-1px -1px 2px rgba(255,255,255,0.5), 1px 1px 2px rgba(0,0,0,0.5)",
-      });
-    }
-
-    if (styles.includes("3D Effect")) {
-      textObj.set({
-        shadow: "3px 3px 3px rgba(0,0,0,0.6)",
-      });
-    }
-
-    if (styles.includes("Glow")) {
-      textObj.set({
-        shadow: "0 0 10px rgba(255,255,255,0.8)",
-      });
-    }
-  };
-
-  // ✅ Add Text Element
   const addText = () => {
     if (!fabricRef.current || !Text) return;
 
@@ -107,30 +63,11 @@ const Workspace = forwardRef((props, ref) => {
       fill: Color,
     });
 
-    applyTextStyles(text, TextStyle); // Apply styles dynamically
     canvas.add(text);
     canvas.setActiveObject(text);
     canvas.renderAll();
   };
 
-  // ✅ Update Selected Text when styles change
-  useEffect(() => {
-    if (!selectedObject.current) return;
-
-    const obj = selectedObject.current;
-    if (obj.type === "text") {
-      obj.set({
-        fontFamily: Font,
-        fill: Color,
-        text: Text, // Update text content
-      });
-
-      applyTextStyles(obj, TextStyle); // Apply styles dynamically
-      fabricRef.current.renderAll();
-    }
-  }, [Font, Color, TextStyle, Text]);
-
-  // ✅ Delete Selected Object
   const deleteSelected = () => {
     if (!fabricRef.current || !selectedObject.current) return;
 
@@ -140,7 +77,6 @@ const Workspace = forwardRef((props, ref) => {
     selectedObject.current = null;
   };
 
-  // ✅ Save Final Design
   const saveDesign = () => {
     if (!fabricRef.current) return;
 
@@ -152,20 +88,17 @@ const Workspace = forwardRef((props, ref) => {
     finalCanvas.height = 300;
     const ctx = finalCanvas.getContext("2d");
 
-    // Load ProductImg onto the new canvas
     const bgImage = new Image();
-    bgImage.crossOrigin = "Anonymous"; // Fix CORS issues
+    bgImage.crossOrigin = "Anonymous";
     bgImage.src = ProductImg;
     bgImage.onload = () => {
       ctx.drawImage(bgImage, 0, 0, 300, 300);
 
-      // Load Fabric.js design on top
       const designImg = new Image();
       designImg.src = designImage;
       designImg.onload = () => {
         ctx.drawImage(designImg, 0, 0, 300, 300);
 
-        // Convert to PNG and download
         const finalImage = finalCanvas.toDataURL("image/png");
         const link = document.createElement("a");
         link.href = finalImage;
@@ -177,6 +110,31 @@ const Workspace = forwardRef((props, ref) => {
     };
   };
 
+  const addImage = () => {
+    if (!CustomerImg) {
+      console.log("img not found");
+      return;
+    }
+
+    const canvas = fabricRef.current;
+
+    const imgObj = new Image();
+    imgObj.src = CustomerImg; // Directly assign the data URL
+
+    imgObj.onload = () => {
+      const fabricImage = new fabric.Image(imgObj, {
+        left: 50,
+        top: 50,
+        scaleX: 0.5,
+        scaleY: 0.5,
+      });
+
+      canvas.add(fabricImage);
+      canvas.setActiveObject(fabricImage);
+      canvas.renderAll();
+    };
+  };
+
   return (
     <div className="flex flex-col items-center justify-center space-y-4 mt-4">
       {/* Canvas Area */}
@@ -184,10 +142,15 @@ const Workspace = forwardRef((props, ref) => {
         <img
           src={ProductImg}
           alt="T-shirt"
-          className="absolute w-[500px] h-[500px] object-cover rounded-md"
+          className="absolute w-[350px] h-[350px] object-cover rounded-md"
           style={{ zIndex: -1 }}
         />
-        <canvas width="500" height="500" ref={canvaRef}></canvas>
+        <canvas
+          width="350"
+          height="350"
+          ref={canvaRef}
+          className="border border-green"
+        ></canvas>
       </div>
     </div>
   );
