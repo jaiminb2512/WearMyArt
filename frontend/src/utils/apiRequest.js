@@ -1,5 +1,5 @@
 import axios from "axios";
-import { showToast } from "../Redux/toastSlice";
+import { showToast } from "../Redux/ToastSlice";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useDispatch } from "react-redux";
 
@@ -53,7 +53,6 @@ export const useFetchData = (Key, url, method, options = {}) => {
     staleTime = 1 * 60 * 1000,
     cacheTime = 10 * 60 * 1000,
   } = options;
-  console.log("run");
   return useQuery({
     queryKey: [Key],
     queryFn: () => apiRequest(url, method, {}, dispatch),

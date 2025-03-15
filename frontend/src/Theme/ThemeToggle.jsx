@@ -5,7 +5,7 @@ import {
   LightMode as SunIcon,
 } from "@mui/icons-material";
 import { useDispatch, useSelector } from "react-redux";
-import { toggleTheme } from "../redux/themeSlice";
+import { toggleTheme } from "../Redux/themeSlice";
 
 const ThemeToggle = () => {
   const dispatch = useDispatch();

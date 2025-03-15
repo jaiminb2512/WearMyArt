@@ -1,4 +1,4 @@
-export const FilterData = [
+export const ProductFilterData = [
   {
     title: "Size",
     Options: ["XXL", "XL", "L", "M", "S"],
@@ -25,4 +25,11 @@ export const FilterData = [
     Options: ["Low to High", "High To Low"],
     type: "radio",
   },
+  {
+    title: "Avalibility",
+    Options: ["All", "Discontinued", "Available"],
+    type: "radio",
+  },
 ];
+
+export const OrderFilterData = [];

@@ -16,7 +16,7 @@ import HighlightOffIcon from "@mui/icons-material/HighlightOff";
 const ProductFilter = ({
   setFilterOptions,
   filterOptions,
-  FilterData,
+  ProductFilterData,
   setSortOrder,
   BottomBar = false,
   setFilterOpen = null,
@@ -53,6 +53,7 @@ const ProductFilter = ({
       Color: [],
       Price: [],
       Sort: ["Low to High"],
+      Avalibility: ["All"],
     });
   };
 
@@ -73,7 +74,7 @@ const ProductFilter = ({
           </Button>
         </div>
       )}
-      {FilterData.map((data) => {
+      {ProductFilterData.map((data) => {
         const isActive = filterOptions[data.title]?.length > 0;
         return (
           <Accordion key={data.title} className="w-full">

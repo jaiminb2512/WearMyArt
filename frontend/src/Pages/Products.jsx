@@ -1,11 +1,11 @@
 import React, { useState, useMemo } from "react";
 import { useFetchData } from "../utils/apiRequest";
 import ApiURLS from "../Data/ApiURLS";
-import { FilterData } from "../Data/FilterData";
-import ListView from "../Components/ListView";
+import { ProductFilterData } from "../Data/FilterData";
+import ProductListView from "../Components/Product/ProductListView";
 import ProductFilter from "../Components/Product/ProductFilter";
 import ProductTopbar from "../Components/Product/ProductTopbar";
-import ProductList from "../Components/Product/ProductList";
+import ProductGridView from "../Components/Product/ProductGridView";
 import ProductBottomBar from "../Components/Product/ProductBottomBar";
 
 const Products = () => {
@@ -17,6 +17,7 @@ const Products = () => {
     Color: [],
     Price: [],
     Sort: ["Low to High"],
+    Avalibility: ["All"],
     VisibleColumns: [
       "image",
       "color",
@@ -28,7 +29,7 @@ const Products = () => {
       "customizeOption",
     ],
   });
-  const [listView, setListView] = useState(true);
+  const [listView, setListView] = useState(false);
 
   const { data: products = [], isLoading } = useFetchData(
     "Products",
@@ -76,43 +77,11 @@ const Products = () => {
       );
   }, [filterOptions, products, sortOrder]);
 
-  const allColumns = [
-    { field: "image", headerName: "Image", width: 100 },
-    { field: "color", headerName: "Color", width: 50 },
-    { field: "size", headerName: "Size", width: 50 },
-    { field: "sleeve", headerName: "Sleeve", width: 100 },
-    { field: "price", headerName: "Price", type: "number", width: 50 },
-    {
-      field: "discountedPrice",
-      headerName: "Discounted Price",
-      type: "number",
-      width: 70,
-    },
-    { field: "stock", headerName: "Stock", type: "number", width: 70 },
-    { field: "customizeOption", headerName: "Customization", width: 100 },
-  ];
-
-  const columns = allColumns.filter((col) =>
-    (filterOptions.VisibleColumns || []).includes(col.field)
-  );
-
-  const rows = filteredProducts.map((product, index) => ({
-    id: product._id || index + 1,
-    image: product.ImgURL,
-    color: product.Color || "N/A",
-    size: product.Size || "N/A",
-    sleeve: product.Sleeve || "N/A",
-    price: product.Price,
-    discountedPrice: product.DiscountedPrice || "N/A",
-    stock: product.Stock || 0,
-    customizeOption: product.CustomizeOption || "N/A",
-  }));
-
   return (
     <div className="flex h-screen">
-      <div className="sticky top-0 pl-5 pt-[5vh] h-screen overflow-y-auto scrollbar-hide hidden sm:block sm:w-[20vw] pr-5 border-r">
+      <div className="fixed pt-[5vh] pl-2 h-screen overflow-y-auto scrollbar-hide hidden sm:block sm:w-[20vw] pr-5 border-r top-17">
         <ProductFilter
-          FilterData={FilterData}
+          ProductFilterData={ProductFilterData}
           setFilterOptions={setFilterOptions}
           filterOptions={filterOptions}
           applySorting={true}
@@ -121,9 +90,9 @@ const Products = () => {
         />
       </div>
 
-      <div className="flex-1 flex flex-col overflow-y-scroll scrollbar-hide">
-        <div className="sticky top-0 w-full z-20 bg-white shadow-2xl">
-          <div className="flex gap-1 items-center w-full ml-2 px-[5vw] backdrop-blur-3xl pt-3 pb-2">
+      <div className="flex-1 flex flex-col overflow-y-scroll scrollbar-hide sm:ml-[20vw]">
+        <div className="fixed top-15 w-full z-20 bg-white shadow-2xl">
+          <div className="flex gap-1 items-center w-full sm:w-[80vw] ml-2 px-[5vw] backdrop-blur-3xl pt-3 pb-2 h-15 ">
             <ProductTopbar
               listView={listView}
               setListView={setListView}
@@ -132,14 +101,12 @@ const Products = () => {
           </div>
         </div>
 
-        <div className="p-4 mt-4">
+        <div className="p-4 mt-17 mb-10 sm:mb-0">
           {listView ? (
-            <ProductList products={filteredProducts} loading={isLoading} />
+            <ProductGridView products={filteredProducts} loading={isLoading} />
           ) : (
-            <ListView
-              rows={rows}
-              columns={columns}
-              setListView={setListView}
+            <ProductListView
+              products={filteredProducts}
               isLoading={isLoading}
             />
           )}
@@ -148,7 +115,7 @@ const Products = () => {
 
       <div className="fixed bottom-0 block sm:hidden h-[10vh] w-full">
         <ProductBottomBar
-          FilterData={FilterData}
+          ProductFilterData={ProductFilterData}
           setFilterOptions={setFilterOptions}
           filterOptions={filterOptions}
           setSortOrder={setSortOrder}

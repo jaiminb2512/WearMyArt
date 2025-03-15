@@ -8,7 +8,6 @@ import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
-import ListView from "../Components/ListView";
 
 const AllOrders = () => {
   const [tableView, setTableView] = useState(false);
@@ -95,7 +94,6 @@ const AllOrders = () => {
           </Button>
         </div>
       </div>
-      {/* <ListView rows={rows} columns={columns} isLoading={isLoading} /> */}
       <MTable rows={rows} columns={columns} isLoading={isLoading} />
     </div>
   );

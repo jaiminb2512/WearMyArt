@@ -1,20 +1,20 @@
 import React, { useEffect, useState } from "react";
 import { Button, Stepper, Step, StepLabel } from "@mui/material";
-import { CloudUpload, DesignServices, CheckCircle } from "@mui/icons-material";
-import ImageUploadStep from "../Components/Editor/ImageUploadStep";
-import ImageEditeStep from "../Components/Editor/ImageEditeStep";
-import { useSelector } from "react-redux";
+import { DesignServices, CheckCircle } from "@mui/icons-material";
+import { useSelector, useDispatch } from "react-redux";
+import ConfirmOrder from "../Components/Editor/ConfirmOrder";
+import { setFinalProductImg } from "../redux/tempProductSlice";
+import ImageEditStep from "../Components/Editor/ImageEditeStep";
 
-const allSteps = [
-  { label: "Upload Image", icon: <CloudUpload /> },
+const steps = [
   { label: "Customize Design", icon: <DesignServices /> },
   { label: "Review & Confirm", icon: <CheckCircle /> },
 ];
 
 const CustomizeProduct = () => {
-  const [activeStep, setActiveStep] = useState(1);
+  const [activeStep, setActiveStep] = useState(0);
   const [nextAllowed, setNextAllowed] = useState(false);
-
+  const dispatch = useDispatch();
   const product = useSelector((state) => state.tempProduct);
 
   useEffect(() => {
@@ -25,13 +25,53 @@ const CustomizeProduct = () => {
     }
   }, [activeStep]);
 
-  const steps =
-    product?.CustomizeOption === "Text"
-      ? allSteps.filter((step) => step.label !== "Upload Image")
-      : allSteps;
+  const handleSaveDesign = () => {
+    const canvas = document.querySelector("canvas");
+    if (!canvas) return false;
 
-  const handleNext = () => {
-    setActiveStep((prevStep) => prevStep + 1);
+    const ProductImg = product?.ImgURL?.[0]
+      ? `${import.meta.env.VITE_BASE_URL}${product.ImgURL[0]}`
+      : "http://localhost:3000/uploads/ProductImages-1740638255560-756813806.jpg";
+
+    const tempCanvas = document.createElement("canvas");
+    tempCanvas.width = 300;
+    tempCanvas.height = 300;
+    const ctx = tempCanvas.getContext("2d");
+
+    const designImage = canvas.toDataURL({ format: "png", quality: 1 });
+
+    const bgImage = new Image();
+    bgImage.crossOrigin = "Anonymous";
+    bgImage.src = ProductImg;
+
+    return new Promise((resolve) => {
+      bgImage.onload = () => {
+        ctx.drawImage(bgImage, 0, 0, 300, 300);
+
+        const designImg = new Image();
+        designImg.src = designImage;
+
+        designImg.onload = () => {
+          ctx.drawImage(designImg, 0, 0, 300, 300);
+
+          const finalImage = tempCanvas.toDataURL("image/png");
+
+          dispatch(setFinalProductImg(finalImage));
+          resolve(true);
+        };
+      };
+    });
+  };
+
+  const handleNext = async () => {
+    if (steps[activeStep]?.label === "Customize Design") {
+      const saved = await handleSaveDesign();
+      if (saved) {
+        setActiveStep((prevStep) => prevStep + 1);
+      }
+    } else {
+      setActiveStep((prevStep) => prevStep + 1);
+    }
   };
 
   const handleBack = () => {
@@ -40,7 +80,7 @@ const CustomizeProduct = () => {
 
   return (
     <div className="w-full p-5">
-      <Stepper
+      {/* <Stepper
         activeStep={activeStep}
         alternativeLabel
         className="w-full max-w-3xl mx-auto p-5"
@@ -62,38 +102,35 @@ const CustomizeProduct = () => {
             </StepLabel>
           </Step>
         ))}
-      </Stepper>
+      </Stepper> */}
 
-      <div className="mt-5 rounded-lg text-center flex flex-col justify-center items-center">
-        {steps[activeStep]?.label === "Upload Image" && (
-          <ImageUploadStep setNextAllowed={setNextAllowed} />
-        )}
-        {steps[activeStep]?.label === "Customize Design" && (
-          <ImageEditeStep setActiveStep={setActiveStep} />
-        )}
-        {steps[activeStep]?.label === "Review & Confirm" && (
-          <p>Review your design before confirming...</p>
-        )}
+      <div className="mt-5 rounded-lg text-center flex flex-col justify-center w-full h-full items-center px-[5vw]">
+        {steps[activeStep]?.label === "Customize Design" && <ImageEditStep />}
+        {steps[activeStep]?.label === "Review & Confirm" && <ConfirmOrder />}
 
         <div className="mt-4 flex justify-between w-full max-w-5xl mx-auto p-5">
-          <Button
-            disabled={activeStep === 0}
-            onClick={handleBack}
-            variant="contained"
-          >
-            Back
-          </Button>
-          <Button
-            disabled={!nextAllowed}
-            onClick={handleNext}
-            variant="contained"
-          >
-            Next
-          </Button>
+          {activeStep > 0 && (
+            <Button
+              disabled={activeStep === 0}
+              onClick={handleBack}
+              variant="contained"
+            >
+              Back
+            </Button>
+          )}
+          {activeStep < steps.length - 1 && (
+            <Button
+              onClick={handleNext}
+              variant="contained"
+              // disabled={nextAllowed}
+            >
+              Next
+            </Button>
+          )}
 
           {activeStep === steps.length - 1 && (
             <Button variant="contained" color="success">
-              Finish
+              Place Order
             </Button>
           )}
         </div>

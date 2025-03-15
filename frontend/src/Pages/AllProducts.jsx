@@ -1,21 +1,17 @@
 import React, { useMemo, useState } from "react";
 import { useFetchData } from "../utils/apiRequest";
 import ApiURLS from "../Data/ApiURLS";
-import { Button, Dialog, DialogContent } from "@mui/material";
-import MTable from "../Components/MTable";
-import ListView from "../Components/ListView";
-import ModeEditIcon from "@mui/icons-material/ModeEdit";
+import { Dialog, DialogContent } from "@mui/material";
 import ProductForm from "../Components/Product/ProductForm";
-import BlockIcon from "@mui/icons-material/Block";
-import ControlPointIcon from "@mui/icons-material/ControlPoint";
 import ProductFilter from "../Components/Product/ProductFilter";
-import { FilterData } from "../Data/FilterData";
+import { ProductFilterData } from "../Data/FilterData";
 import ProductTopbar from "../Components/Product/ProductTopbar";
-import ProductList from "../Components/Product/ProductList";
+import ProductGridView from "../Components/Product/ProductGridView";
 import ProductBottomBar from "../Components/Product/ProductBottomBar";
+import ProductListView from "../Components/Product/ProductListView";
 
 const AllProducts = () => {
-  const { data: AllPproducts = [], isLoading } = useFetchData(
+  const { data: AllProducts = [], isLoading } = useFetchData(
     "all-products",
     ApiURLS.GetAllProduct.url,
     ApiURLS.GetAllProduct.method,
@@ -53,6 +49,7 @@ const AllProducts = () => {
     Color: [],
     Price: [],
     Sort: ["Low to High"],
+    Avalibility: ["All"],
     VisibleColumns: [
       "image",
       "color",
@@ -64,7 +61,7 @@ const AllProducts = () => {
       "customizeOption",
     ],
   });
-  const [listView, setListView] = useState(true);
+  const [listView, setListView] = useState(false);
 
   const isPriceInRange = (price, range) => {
     if (!range) return true;
@@ -76,7 +73,7 @@ const AllProducts = () => {
   };
 
   const filteredProducts = useMemo(() => {
-    return AllPproducts.filter((product) => {
+    return AllProducts.filter((product) => {
       const sizeMatch =
         !filterOptions.Size.length || filterOptions.Size.includes(product.Size);
       const sleeveMatch =
@@ -97,136 +94,13 @@ const AllProducts = () => {
     }).sort((a, b) =>
       sortOrder === "lowToHigh" ? a.Price - b.Price : b.Price - a.Price
     );
-  }, [filterOptions, AllPproducts, sortOrder]);
-
-  const allColumns = [
-    {
-      field: "image",
-      headerName: "Image",
-      width: 100,
-      height: 150,
-      renderCell: (params) => (
-        <img
-          src={params.value}
-          alt="Product"
-          style={{ width: 150, height: 150, borderRadius: 5 }}
-        />
-      ),
-    },
-    { field: "color", headerName: "Color", width: 50 },
-    { field: "size", headerName: "Size", width: 50 },
-    { field: "sleeve", headerName: "Sleeve", width: 100 },
-    {
-      field: "price",
-      headerName: "Price",
-      type: "number",
-      width: 50,
-    },
-    {
-      field: "Actions",
-      headerName: "Actions",
-      renderCell: (params) => {
-        const productData = AllPproducts.find(
-          (product) => product._id === params.id
-        );
-
-        return (
-          <Button
-            variant="contained"
-            className="w-[fit-content]"
-            onClick={() => {
-              console.log("Edit button clicked for product:", productData);
-              handleOpenDialog(productData);
-            }}
-          >
-            <ModeEditIcon />
-          </Button>
-        );
-      },
-    },
-    {
-      field: "discountedPrice",
-      headerName: "Discounted Price",
-      type: "number",
-      width: 70,
-    },
-    {
-      field: "stock",
-      headerName: "Stock",
-      type: "number",
-      width: 70,
-    },
-    {
-      field: "customizeOption",
-      headerName: "Customization",
-      width: 100,
-    },
-    {
-      field: "discontinued",
-      headerName: "Discontinue",
-      width: 120,
-
-      renderCell: (params) => {
-        const productData = AllPproducts.find(
-          (product) => product._id === params.id
-        );
-
-        return productData?.isDiscontinued ? (
-          <Button
-            variant="contained"
-            className="w-[fit-content]"
-            color="secondary"
-            onClick={() => {
-              console.log(
-                "ReContinue button clicked for product:",
-                productData._id
-              );
-            }}
-          >
-            {/* ReContinue */}
-            <ControlPointIcon />
-          </Button>
-        ) : (
-          <Button
-            variant="contained"
-            className="w-[fit-content]"
-            color="error"
-            onClick={() => {
-              console.log(
-                "Discontinue button clicked for product:",
-                productData._id
-              );
-            }}
-          >
-            {/* Discontinue */}
-            <BlockIcon />
-          </Button>
-        );
-      },
-    },
-  ];
-
-  const columns = allColumns.filter((col) =>
-    (filterOptions.VisibleColumns || []).includes(col.field)
-  );
-
-  const rows = filteredProducts.map((product, index) => ({
-    id: product._id || index + 1,
-    image: product.ImgURL,
-    color: product.Color || "N/A",
-    size: product.Size || "N/A",
-    sleeve: product.Sleeve || "N/A",
-    price: product.Price,
-    discountedPrice: product.DiscountedPrice || "N/A",
-    stock: product.Stock || 0,
-    customizeOption: product.CustomizeOption || "N/A",
-  }));
+  }, [filterOptions, AllProducts, sortOrder]);
 
   return (
     <div className="flex h-screen">
-      <div className="sticky top-0 pl-[2vw] pt-[5vh] h-screen overflow-y-auto scrollbar-hide hidden sm:block sm:w-[30vw] md:w-[30vw] lg:w-[20vw] pr-5 border-r">
+      <div className="fixed top-17 pl-[2vw] pt-[5vh] h-screen overflow-y-auto scrollbar-hide hidden sm:block sm:w-[30vw] md:w-[30vw] lg:w-[20vw] pr-5 border-r">
         <ProductFilter
-          FilterData={FilterData}
+          ProductFilterData={ProductFilterData}
           setFilterOptions={setFilterOptions}
           filterOptions={filterOptions}
           applySorting={true}
@@ -235,27 +109,33 @@ const AllProducts = () => {
         />
       </div>
 
-      <div className="flex-1 flex flex-col overflow-y-scroll scrollbar-hide">
-        <div className="sticky top-0 w-full z-20 bg-white shadow-2xl">
-          <div className="flex gap-1 items-center w-full ml-2 px-[5vw] backdrop-blur-3xl pt-3 pb-2">
+      <div className="flex-1 flex flex-col overflow-y-scroll scrollbar-hide sm:ml-[20vw]">
+        <div className="fixed top-15 w-full z-20 bg-white shadow-2xl">
+          <div className="flex gap-1 items-center w-full sm:w-[75vw] ml-2 px-[5vw] backdrop-blur-3xl pt-3 pb-2 sm:h-15 ">
             <ProductTopbar
               listView={listView}
               setListView={setListView}
               count={filteredProducts.length}
               handleOpenDialog={handleOpenDialog}
+              allProducts={true}
             />
           </div>
         </div>
 
-        <div className="p-4 mt-4">
+        <div className="p-4 mt-17 mb-10">
           {listView ? (
-            <ProductList products={filteredProducts} loading={isLoading} />
+            <ProductGridView
+              products={filteredProducts}
+              loading={isLoading}
+              allProducts={true}
+              handleOpenDialog={handleOpenDialog}
+            />
           ) : (
-            <ListView
-              rows={rows}
-              columns={columns}
-              setListView={setListView}
+            <ProductListView
+              products={filteredProducts}
+              allProducts={true}
               isLoading={isLoading}
+              handleOpenDialog={handleOpenDialog}
             />
           )}
         </div>
@@ -263,7 +143,7 @@ const AllProducts = () => {
 
       <div className="fixed bottom-0 block sm:hidden h-[10vh] w-full">
         <ProductBottomBar
-          FilterData={FilterData}
+          ProductFilterData={ProductFilterData}
           setFilterOptions={setFilterOptions}
           filterOptions={filterOptions}
           setSortOrder={setSortOrder}

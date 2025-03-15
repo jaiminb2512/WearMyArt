@@ -23,7 +23,6 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import AllOrders from "./Pages/AllOrders";
 import AllUsers from "./Pages/AllUsers";
 import Auth from "./Pages/Auth";
-import ProductForm from "./Components/Product/ProductForm";
 import Orders from "./Pages/Orders";
 import Cart from "./Pages/Cart";
 

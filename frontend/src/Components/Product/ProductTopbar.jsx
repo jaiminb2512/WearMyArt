@@ -3,12 +3,16 @@ import React from "react";
 import { FaTableCellsLarge } from "react-icons/fa6";
 import { IoMenu } from "react-icons/io5";
 
-const ProductTopbar = ({ setListView, listView, count, handleOpenDialog }) => {
+const ProductTopbar = ({
+  setListView,
+  listView,
+  count,
+  handleOpenDialog,
+  allProducts = false,
+}) => {
   return (
-    <div className="flex flex-col w-full gap-2">
-      <div className="flex sm:flex-row justify-between sm:items-center gap-5 w-full px-[5vw] sm:px-0">
-        <h1 className="text-xl font-bold">{`${count} Products`}</h1>
-
+    <div className="flex w-full gap-2">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-5 w-full px-[5vw] sm:px-0">
         <div className="flex gap-2">
           <div className="relative flex border rounded-lg overflow-hidden bg-gray-200 max-w-[25vw]">
             <div
@@ -24,7 +28,7 @@ const ProductTopbar = ({ setListView, listView, count, handleOpenDialog }) => {
               }`}
               onClick={() => setListView(!listView)}
             >
-              <FaTableCellsLarge className="text-lg" />
+              <IoMenu className="text-lg" />
             </button>
 
             <button
@@ -33,21 +37,25 @@ const ProductTopbar = ({ setListView, listView, count, handleOpenDialog }) => {
               }`}
               onClick={() => setListView(!listView)}
             >
-              <IoMenu className="text-lg" />
+              <FaTableCellsLarge className="text-lg" />
             </button>
           </div>
 
-          <Button
-            variant="contained"
-            className="w-[fit-content]"
-            onClick={() => {
-              console.log("Add Product button clicked");
-              handleOpenDialog();
-            }}
-          >
-            Add Product
-          </Button>
+          {allProducts && (
+            <Button
+              variant="contained"
+              className="w-[fit-content]"
+              onClick={() => {
+                console.log("Add Product button clicked");
+                handleOpenDialog();
+              }}
+            >
+              Add Product
+            </Button>
+          )}
         </div>
+
+        <h1 className="text-xl font-bold hidden sm:block">{`${count} Products`}</h1>
       </div>
     </div>
   );

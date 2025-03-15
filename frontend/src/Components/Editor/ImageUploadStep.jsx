@@ -1,60 +1,58 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-import { useDispatch, useSelector } from "react-redux";
-import { updateProductData } from "../../Redux/tempProductSlice";
-import ApiURLS from "../../Data/ApiURLS";
+import React, { useState } from "react";
+import { useDispatch } from "react-redux";
+import { setCustomerImg } from "../../Redux/tempProductSlice";
+import { Button, CircularProgress } from "@mui/material";
 
-const ImageUploadStep = ({ setNextAllowed }) => {
+const ImageUploadStep = ({ onClose, addImage }) => {
   const dispatch = useDispatch();
   const [image, setImage] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const tempProduct = useSelector((state) => state.tempProduct);
-
-  const handleImageUpload = async (event) => {
+  const handleImageUpload = (event) => {
     const file = event.target.files[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onloadend = () => setImage(reader.result);
-    reader.readAsDataURL(file);
-
-    if (!tempProduct._id) {
-      console.error("Error: tempProduct._id is undefined");
+    const validImageTypes = ["image/png", "image/jpeg"];
+    if (!validImageTypes.includes(file.type)) {
+      setError("Only PNG and JPEG images are allowed.");
       return;
     }
 
-    const formData = new FormData();
-    formData.append("CustomerImg", file);
-    formData.append("ProductId", tempProduct._id);
+    setLoading(true);
 
-    try {
-      setLoading(true);
-
-      const response = await axios.post(
-        `${import.meta.env.VITE_BASE_URL}${ApiURLS.InitiateOrder.url}`,
-        formData,
-        {
-          withCredentials: true,
-          headers: { "Content-Type": "multipart/form-data" },
-        }
-      );
-
-      console.log("Upload Success:", response.data.success);
-      if (response.data.success) {
-        setNextAllowed(true);
-        // Use updateProductData instead of setProductData to merge the new data
-        dispatch(updateProductData(response.data.data));
-      }
-    } catch (error) {
-      console.error("Upload failed:", error.response?.data || error.message);
-    } finally {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const imageDataURL = reader.result;
+      setImage(imageDataURL);
+      setError("");
       setLoading(false);
+    };
+
+    reader.onerror = () => {
+      console.error("Error reading file.");
+      setError("Failed to read the file. Please try again.");
+      setLoading(false);
+    };
+
+    reader.readAsDataURL(file);
+  };
+
+  const handleConfirm = () => {
+    if (image) {
+      // First update Redux state
+      dispatch(setCustomerImg(image));
+
+      // Then pass the image data directly to the addImage function
+      if (addImage) addImage(image);
+
+      // Finally close the modal
+      if (onClose) onClose();
     }
   };
 
   return (
-    <div className="flex flex-col justify-center items-center border w-full sm:w-[50vw] rounded-3xl h-[50vh]">
+    <div className="flex flex-col justify-center items-center border w-full sm:w-[50vw] rounded-3xl h-[60vh] p-5 space-y-4">
       <input
         type="file"
         accept="image/png, image/jpeg"
@@ -62,14 +60,29 @@ const ImageUploadStep = ({ setNextAllowed }) => {
         onChange={handleImageUpload}
         disabled={loading}
       />
+
+      {loading && <CircularProgress color="primary" />}
+
+      {error && <p className="text-red-500">{error}</p>}
+
       {image && (
         <img
           src={image}
           alt="Uploaded Preview"
-          className="mt-4 h-[450px] object-cover rounded-lg"
+          className="mt-4 max-h-[400px] w-auto object-contain rounded-lg border shadow-md"
         />
       )}
-      {loading && <p className="text-blue-500">Uploading...</p>}
+
+      {image && (
+        <Button
+          onClick={handleConfirm}
+          variant="contained"
+          color="success"
+          className="w-full"
+        >
+          Confirm Image
+        </Button>
+      )}
     </div>
   );
 };
