@@ -1,9 +1,10 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  SideBarOpen: false,
-  FilterBarOpen: true, // Initially visible
+  SideBarOpen: true,
+  FilterBarOpen: false,
   TopBarOpen: false,
+  SmScreen: false,
 };
 
 const OpenCloseSlice = createSlice({
@@ -19,9 +20,12 @@ const OpenCloseSlice = createSlice({
     toggleFilterBar: (state) => {
       state.FilterBarOpen = !state.FilterBarOpen;
     },
+    toggleSmScreen: (state, action) => {
+      state.SmScreen = action.payload;
+    },
   },
 });
 
-export const { ToggleBar, toggleSidebar, toggleFilterBar } =
+export const { ToggleBar, toggleSidebar, toggleFilterBar, toggleSmScreen } =
   OpenCloseSlice.actions;
 export default OpenCloseSlice.reducer;

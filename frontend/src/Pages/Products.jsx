@@ -7,8 +7,10 @@ import ProductFilter from "../Components/Product/ProductFilter";
 import ProductTopbar from "../Components/Product/ProductTopbar";
 import ProductGridView from "../Components/Product/ProductGridView";
 import ProductBottomBar from "../Components/Product/ProductBottomBar";
+import { useSelector } from "react-redux";
 
 const Products = () => {
+  const { FilterBarOpen } = useSelector((state) => state.OpenClose);
   const [sortOrder, setSortOrder] = useState("lowToHigh");
   const [filterOptions, setFilterOptions] = useState({
     Size: [],
@@ -29,7 +31,7 @@ const Products = () => {
       "customizeOption",
     ],
   });
-  const [listView, setListView] = useState(false);
+  const [listView, setListView] = useState(true);
 
   const { data: products = [], isLoading } = useFetchData(
     "Products",
@@ -79,20 +81,30 @@ const Products = () => {
 
   return (
     <div className="flex h-screen">
-      <div className="fixed pt-[5vh] pl-2 h-screen overflow-y-auto scrollbar-hide hidden sm:block sm:w-[20vw] pr-5 border-r top-17">
-        <ProductFilter
-          ProductFilterData={ProductFilterData}
-          setFilterOptions={setFilterOptions}
-          filterOptions={filterOptions}
-          applySorting={true}
-          setSortOrder={setSortOrder}
-          allowColumnSelection={true}
-        />
+      <div
+        className={`fixed top-17 h-screen overflow-y-auto scrollbar-hide border-r transition-all duration-300
+      ${FilterBarOpen ? "w-[20vw] sm:block" : "w-0 sm:w-0"}`}
+      >
+        {FilterBarOpen && (
+          <div className="pl-[2vw] pt-[5vh] pr-5">
+            <ProductFilter
+              setFilterOptions={setFilterOptions}
+              filterOptions={filterOptions}
+              applySorting={true}
+              setSortOrder={setSortOrder}
+              allowColumnSelection={true}
+              allProducts={true}
+            />
+          </div>
+        )}
       </div>
 
-      <div className="flex-1 flex flex-col overflow-y-scroll scrollbar-hide sm:ml-[20vw]">
+      <div
+        className={`flex-1 flex flex-col overflow-y-scroll scrollbar-hide transition-all duration-300
+      ${FilterBarOpen ? "sm:ml-[20vw]" : "sm:ml-0"}`}
+      >
         <div className="fixed top-15 w-full z-20 bg-white shadow-2xl">
-          <div className="flex gap-1 items-center w-full sm:w-[80vw] ml-2 px-[5vw] backdrop-blur-3xl pt-3 pb-2 h-15 ">
+          <div className="flex gap-1 items-center w-full sm:w-[80vw] ml-2 backdrop-blur-3xl pt-3 pb-2 h-15 ">
             <ProductTopbar
               listView={listView}
               setListView={setListView}
@@ -100,20 +112,24 @@ const Products = () => {
             />
           </div>
         </div>
-
         <div className="p-4 mt-17 mb-10 sm:mb-0">
           {listView ? (
-            <ProductGridView products={filteredProducts} loading={isLoading} />
+            <ProductGridView
+              products={filteredProducts}
+              loading={isLoading}
+              count={filteredProducts.length}
+            />
           ) : (
             <ProductListView
               products={filteredProducts}
               isLoading={isLoading}
+              count={filteredProducts.length}
             />
           )}
         </div>
       </div>
 
-      <div className="fixed bottom-0 block sm:hidden h-[10vh] w-full">
+      <div className="fixed bottom-0 block sm:hidden h-[fit-content] w-full">
         <ProductBottomBar
           ProductFilterData={ProductFilterData}
           setFilterOptions={setFilterOptions}

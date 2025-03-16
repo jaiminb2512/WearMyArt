@@ -4,13 +4,15 @@ import ApiURLS from "../Data/ApiURLS";
 import { Dialog, DialogContent } from "@mui/material";
 import ProductForm from "../Components/Product/ProductForm";
 import ProductFilter from "../Components/Product/ProductFilter";
-import { ProductFilterData } from "../Data/FilterData";
 import ProductTopbar from "../Components/Product/ProductTopbar";
 import ProductGridView from "../Components/Product/ProductGridView";
 import ProductBottomBar from "../Components/Product/ProductBottomBar";
 import ProductListView from "../Components/Product/ProductListView";
+import { useSelector } from "react-redux";
 
 const AllProducts = () => {
+  const { FilterBarOpen } = useSelector((state) => state.OpenClose);
+
   const { data: AllProducts = [], isLoading } = useFetchData(
     "all-products",
     ApiURLS.GetAllProduct.url,
@@ -22,7 +24,6 @@ const AllProducts = () => {
   );
 
   const [userStock, setUserStock] = useState(10);
-  const [tableView, setTableView] = useState(true);
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
 
@@ -61,7 +62,7 @@ const AllProducts = () => {
       "customizeOption",
     ],
   });
-  const [listView, setListView] = useState(false);
+  const [listView, setListView] = useState(true);
 
   const isPriceInRange = (price, range) => {
     if (!range) return true;
@@ -85,11 +86,29 @@ const AllProducts = () => {
       const colorMatch =
         !filterOptions.Color.length ||
         filterOptions.Color.includes(product.Color);
+
+      // Fix for multiple price ranges
       const priceMatch =
         !filterOptions.Price.length ||
-        isPriceInRange(product.Price, filterOptions.Price[0]);
+        filterOptions.Price.some((range) =>
+          isPriceInRange(product.Price, range)
+        );
+
+      // Fix for Availability
+      const availabilityMatch =
+        filterOptions.Avalibility.includes("All") ||
+        (filterOptions.Avalibility.includes("Discontinued") &&
+          product.isDiscontinued) ||
+        (filterOptions.Avalibility.includes("Available") &&
+          !product.isDiscontinued);
+
       return (
-        sizeMatch && sleeveMatch && customizeMatch && colorMatch && priceMatch
+        sizeMatch &&
+        sleeveMatch &&
+        customizeMatch &&
+        colorMatch &&
+        priceMatch &&
+        availabilityMatch
       );
     }).sort((a, b) =>
       sortOrder === "lowToHigh" ? a.Price - b.Price : b.Price - a.Price
@@ -98,20 +117,31 @@ const AllProducts = () => {
 
   return (
     <div className="flex h-screen">
-      <div className="fixed top-17 pl-[2vw] pt-[5vh] h-screen overflow-y-auto scrollbar-hide hidden sm:block sm:w-[30vw] md:w-[30vw] lg:w-[20vw] pr-5 border-r">
-        <ProductFilter
-          ProductFilterData={ProductFilterData}
-          setFilterOptions={setFilterOptions}
-          filterOptions={filterOptions}
-          applySorting={true}
-          setSortOrder={setSortOrder}
-          allowColumnSelection={true}
-        />
-      </div>
+      {FilterBarOpen && (
+        <div
+          className={`fixed top-17 h-screen overflow-y-auto scrollbar-hide border-r transition-all duration-300
+      ${FilterBarOpen ? "w-[20vw] sm:block" : "w-0 sm:w-0"}`}
+        >
+          <div className="pl-[2vw] pt-[5vh] pr-5">
+            <ProductFilter
+              setFilterOptions={setFilterOptions}
+              filterOptions={filterOptions}
+              applySorting={true}
+              setSortOrder={setSortOrder}
+              allowColumnSelection={true}
+              allProducts={true}
+            />
+          </div>
+        </div>
+      )}
 
-      <div className="flex-1 flex flex-col overflow-y-scroll scrollbar-hide sm:ml-[20vw]">
-        <div className="fixed top-15 w-full z-20 bg-white shadow-2xl">
-          <div className="flex gap-1 items-center w-full sm:w-[75vw] ml-2 px-[5vw] backdrop-blur-3xl pt-3 pb-2 sm:h-15 ">
+      {/* Main Content */}
+      <div
+        className={`flex-1 flex flex-col overflow-y-scroll scrollbar-hide transition-all duration-300
+      ${FilterBarOpen ? "sm:ml-[20vw]" : "ml-0"}`}
+      >
+        <div className="fixed top-15 z-20 bg-white shadow-2xl w-full transition-all duration-300">
+          <div className="flex gap-1 items-center ml-2 backdrop-blur-3xl pt-3 pb-2 sm:h-15 w-full ">
             <ProductTopbar
               listView={listView}
               setListView={setListView}
@@ -122,13 +152,15 @@ const AllProducts = () => {
           </div>
         </div>
 
-        <div className="p-4 mt-17 mb-10">
+        {/* Product Listing */}
+        <div className="p-4 mt-17 mb-10 ml-3">
           {listView ? (
             <ProductGridView
               products={filteredProducts}
               loading={isLoading}
               allProducts={true}
               handleOpenDialog={handleOpenDialog}
+              count={filteredProducts.length}
             />
           ) : (
             <ProductListView
@@ -136,14 +168,15 @@ const AllProducts = () => {
               allProducts={true}
               isLoading={isLoading}
               handleOpenDialog={handleOpenDialog}
+              count={filteredProducts.length}
             />
           )}
         </div>
       </div>
 
+      {/* Bottom Bar for Mobile */}
       <div className="fixed bottom-0 block sm:hidden h-[10vh] w-full">
         <ProductBottomBar
-          ProductFilterData={ProductFilterData}
           setFilterOptions={setFilterOptions}
           filterOptions={filterOptions}
           setSortOrder={setSortOrder}
@@ -151,6 +184,7 @@ const AllProducts = () => {
         />
       </div>
 
+      {/* Dialog for Adding/Editing Product */}
       <Dialog
         open={openDialog}
         onClose={handleCloseDialog}

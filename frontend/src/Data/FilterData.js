@@ -25,11 +25,13 @@ export const ProductFilterData = [
     Options: ["Low to High", "High To Low"],
     type: "radio",
   },
+];
+
+export const AdminProductFilterData = [
   {
     title: "Avalibility",
     Options: ["All", "Discontinued", "Available"],
     type: "radio",
   },
 ];
-
 export const OrderFilterData = [];

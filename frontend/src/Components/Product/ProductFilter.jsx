@@ -12,14 +12,18 @@ import {
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import HighlightOffIcon from "@mui/icons-material/HighlightOff";
+import {
+  ProductFilterData,
+  AdminProductFilterData,
+} from "../../Data/FilterData";
 
 const ProductFilter = ({
   setFilterOptions,
   filterOptions,
-  ProductFilterData,
   setSortOrder,
   BottomBar = false,
   setFilterOpen = null,
+  allProducts = false,
 }) => {
   const handleCheckboxChange = (category, option) => {
     setFilterOptions((prevFilters) => {
@@ -125,6 +129,62 @@ const ProductFilter = ({
           </Accordion>
         );
       })}
+      {allProducts &&
+        AdminProductFilterData.map((data) => {
+          const isActive = filterOptions[data.title]?.length > 0;
+          return (
+            <Accordion key={data.title} className="w-full">
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Typography>
+                  <span
+                    className={isActive ? "text-green-500" : "text-gray-400"}
+                  >
+                    ●
+                  </span>{" "}
+                  {data.title}
+                </Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                {data.type === "radio" ? (
+                  <RadioGroup
+                    value={filterOptions[data.title]?.[0] || ""}
+                    onChange={(e) =>
+                      handleRadioChange(data.title, e.target.value)
+                    }
+                  >
+                    {data.Options.map((option, idx) => (
+                      <FormControlLabel
+                        key={idx}
+                        value={option}
+                        control={<Radio size="small" />}
+                        label={option}
+                      />
+                    ))}
+                  </RadioGroup>
+                ) : (
+                  <div className="flex flex-col gap-1">
+                    {data.Options.map((option, idx) => (
+                      <FormControlLabel
+                        key={idx}
+                        control={
+                          <Checkbox
+                            checked={filterOptions[data.title]?.includes(
+                              option
+                            )}
+                            onChange={() =>
+                              handleCheckboxChange(data.title, option)
+                            }
+                          />
+                        }
+                        label={option}
+                      />
+                    ))}
+                  </div>
+                )}
+              </AccordionDetails>
+            </Accordion>
+          );
+        })}
       {BottomBar && (
         <div className="mt-2 w-full flex gap-2">
           <Button variant="outlined" className="w-full" color="success">

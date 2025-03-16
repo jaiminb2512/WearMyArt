@@ -11,6 +11,7 @@ const ProductListView = ({
   isLoading,
   allProducts = false,
   handleOpenDialog,
+  count,
 }) => {
   if (isLoading) {
     return (
@@ -30,6 +31,7 @@ const ProductListView = ({
 
   return (
     <section>
+      <h1 className="text-lg font-bold hidden sm:block">{`${count} Products`}</h1>
       <div className="grid gap-8">
         {products.map((item) => {
           const {
