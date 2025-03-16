@@ -1,6 +1,6 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import { darkTheme, lightTheme } from "./Theme/theme";
 import { CssBaseline, Box } from "@mui/material";
@@ -25,6 +25,7 @@ import AllUsers from "./Pages/AllUsers";
 import Auth from "./Pages/Auth";
 import Orders from "./Pages/Orders";
 import Cart from "./Pages/Cart";
+import { toggleSmScreen } from "./Redux/OpenCloseSlice";
 
 const queryClient = new QueryClient();
 
@@ -33,7 +34,22 @@ const AppLayout = () => {
   const showSidebar = location.pathname.includes("/dashboard");
 
   const [hideText, setHideText] = useState(false);
-  const sidebarWidth = showSidebar ? (hideText ? 60 : 240) : 0;
+  let sidebarWidth = showSidebar ? (hideText ? 60 : 240) : 0;
+
+  const { SmScreen } = useSelector((state) => state.OpenClose);
+  const dispatch = useDispatch();
+
+  const ScreenWidth = window.screen.width;
+
+  useEffect(() => {
+    if (ScreenWidth < 635) {
+      dispatch(toggleSmScreen(true));
+    } else {
+      dispatch(toggleSmScreen(false));
+    }
+  }, [ScreenWidth]);
+
+  sidebarWidth = SmScreen ? 0 : sidebarWidth;
 
   return (
     <>
@@ -47,9 +63,10 @@ const AppLayout = () => {
           sx={{
             flexGrow: 1,
             transition: "margin 0.3s ease",
-            marginLeft: `${sidebarWidth}px`,
           }}
-          className="mt-15"
+          className={`mt-15 
+            ml-[${sidebarWidth}px]
+          `}
         >
           <Routes>
             <Route path="/" element={<Home />} />

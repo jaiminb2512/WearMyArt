@@ -43,22 +43,6 @@ const Sidebar = ({ hideText, setHideText }) => {
 
   return (
     <>
-      {SideBarOpen && (
-        <Box
-          onClick={() => dispatch(toggleSidebar())}
-          sx={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100vw",
-            height: "100vh",
-            backgroundColor: "rgba(0,0,0,0.5)",
-            zIndex: 999,
-            display: { sm: "none", xs: "block" },
-          }}
-        />
-      )}
-
       <Box
         sx={{
           height: "100vh",
@@ -91,13 +75,6 @@ const Sidebar = ({ hideText, setHideText }) => {
             <Typography variant="h6" fontWeight="bold">
               {hideText ? "WA" : "WearMyArt"}
             </Typography>
-
-            <IconButton
-              sx={{ display: { sm: "none", xs: "block" } }}
-              onClick={() => dispatch(toggleSidebar())}
-            >
-              <KeyboardDoubleArrowLeftIcon />
-            </IconButton>
           </Box>
 
           <Box sx={{ flexGrow: 1 }}>
@@ -105,7 +82,10 @@ const Sidebar = ({ hideText, setHideText }) => {
               <Box
                 key={menu.name}
                 sx={menuItemStyle(menu.path)}
-                onClick={() => navigate(`/dashboard${menu.path}`)}
+                onClick={() => {
+                  navigate(`/dashboard${menu.path}`);
+                  dispatch(toggleSidebar(false));
+                }}
               >
                 <menu.icon sx={{ color: theme.palette.primary.contrastText }} />
                 {!hideText && (
@@ -120,11 +100,14 @@ const Sidebar = ({ hideText, setHideText }) => {
               <Box
                 key={menu.name}
                 sx={menuItemStyle(menu.path)}
-                onClick={() =>
-                  menu.name === "Log Out"
-                    ? logOut()
-                    : navigate(`/dashboard${menu.path}`)
-                }
+                onClick={() => {
+                  if (menu.name === "Log Out") {
+                    logOut();
+                  } else {
+                    navigate(`/dashboard${menu.path}`);
+                  }
+                  dispatch(toggleSidebar(false));
+                }}
               >
                 <menu.icon sx={{ color: theme.palette.primary.contrastText }} />
                 {!hideText && (
@@ -133,14 +116,32 @@ const Sidebar = ({ hideText, setHideText }) => {
               </Box>
             ))}
 
-            <Box onClick={() => setHideText(!hideText)} sx={menuItemStyle("")}>
-              {hideText ? (
-                <KeyboardDoubleArrowRightIcon />
-              ) : (
+            <div className="hidden sm:block">
+              <Box
+                onClick={() => {
+                  setHideText(!hideText);
+                }}
+                sx={menuItemStyle("")}
+              >
+                {hideText ? (
+                  <KeyboardDoubleArrowRightIcon />
+                ) : (
+                  <KeyboardDoubleArrowLeftIcon />
+                )}
+                {!hideText && <Typography variant="body2">Minimize</Typography>}
+              </Box>
+            </div>
+
+            <div className="block sm:hidden py-1 px-2 mb-1 cursor-pointer rounded">
+              <IconButton
+                onClick={() => dispatch(toggleSidebar(false))}
+                sx={{ color: theme.palette.primary.contrastText }}
+                className="flex items-center gap-2"
+              >
                 <KeyboardDoubleArrowLeftIcon />
-              )}
-              {!hideText && <Typography variant="body2">Minimize</Typography>}
-            </Box>
+                <Typography variant="body2">Close Sidebar</Typography>
+              </IconButton>
+            </div>
           </Box>
         </Box>
       </Box>

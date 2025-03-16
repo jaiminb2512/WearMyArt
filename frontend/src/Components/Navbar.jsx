@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { toggleSidebar } from "../Redux/OpenCloseSlice";
 import MenuOpenIcon from "@mui/icons-material/MenuOpen";
 import MenuIcon from "@mui/icons-material/Menu";
+import { Button } from "@mui/material";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -14,14 +15,14 @@ const Navbar = () => {
   return (
     <div className="fixed top-0 left-0 w-full z-40 backdrop-blur-3xl h-15 shadow-2xl">
       <div className="px-[5vw] flex justify-between sm:justify-end items-center py-4 gap-3">
-        <div className="block sm:hidden">
+        <div className="block sm:hidden flex justify-center items-center w-12">
           <MTooltip title={SideBarOpen ? "Close Sidebar" : "Open Sidebar"}>
-            <div
+            <Button
               className="p-2 flex items-center justify-center w-12 h-10 cursor-pointer bg-gray-200 rounded hidden sm:block"
-              onClick={() => dispatch(toggleSidebar())}
+              onClick={() => dispatch(toggleSidebar(!SideBarOpen))}
             >
               {SideBarOpen ? <MenuOpenIcon /> : <MenuIcon />}
-            </div>
+            </Button>
           </MTooltip>
         </div>
         <div className="flex gap-3">
