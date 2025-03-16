@@ -49,6 +49,8 @@ const AppLayout = () => {
     }
   }, [ScreenWidth]);
 
+  console.log(SmScreen);
+
   sidebarWidth = SmScreen ? 0 : sidebarWidth;
 
   return (
@@ -64,9 +66,13 @@ const AppLayout = () => {
             flexGrow: 1,
             transition: "margin 0.3s ease",
           }}
-          className={`mt-15 
-            ml-[${sidebarWidth}px]
-          `}
+          className={`mt-15 ${
+            sidebarWidth === 60
+              ? "ml-[60px]"
+              : sidebarWidth === 240
+              ? "ml-[240px]"
+              : "ml-0"
+          }`}
         >
           <Routes>
             <Route path="/" element={<Home />} />

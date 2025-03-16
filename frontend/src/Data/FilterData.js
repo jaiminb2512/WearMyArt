@@ -34,6 +34,7 @@ export const AdminProductFilterData = [
     type: "radio",
   },
 ];
+
 export const OrderFilterData = [
   {
     title: "Status",
@@ -45,5 +46,26 @@ export const OrderFilterData = [
       "Completed",
       "Rejected",
     ],
+    type: "AutoComplete",
+  },
+  {
+    title: "FinalCost",
+    Options: ["0-499", "499-999", "999-1999", "1999+"],
+    type: "radio",
+  },
+];
+
+export const AdminOrderFilterData = [
+  {
+    title: "Order Date",
+    type: "date",
+  },
+  {
+    title: "Duration",
+    type: "date",
+  },
+  {
+    title: "Quantity",
+    type: "input",
   },
 ];

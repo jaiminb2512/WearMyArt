@@ -2,7 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   SideBarOpen: true,
-  FilterBarOpen: false,
+  FilterBarOpen: true,
   TopBarOpen: false,
   SmScreen: false,
 };

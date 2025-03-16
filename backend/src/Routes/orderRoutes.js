@@ -6,19 +6,12 @@ import {
   getAllCartOrder,
   getAllOrder,
   getSingleOrder,
-  initiateOrder,
   updateOrderStatus,
 } from "../controllers/orderControllers.js";
 import tokenVerification from "../middleware/tokenVerification.js";
 import { upload } from "../middleware/multer.middleware.js";
 
 const router = Router();
-router.post(
-  "/initiate-order",
-  tokenVerification,
-  upload.single("CustomerImg"),
-  initiateOrder
-);
 router.post(
   "/add-to-cart-order",
   tokenVerification,

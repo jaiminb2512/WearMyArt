@@ -1,102 +1,100 @@
-import React, { useState } from "react";
-import { useFetchData, apiRequest } from "../utils/apiRequest";
+import React, { useMemo, useState } from "react";
+import { useFetchData } from "../utils/apiRequest";
 import ApiURLS from "../Data/ApiURLS";
-import MTable from "../Components/MTable";
-import { Button } from "@mui/material";
-import Box from "@mui/material/Box";
-import InputLabel from "@mui/material/InputLabel";
-import MenuItem from "@mui/material/MenuItem";
-import FormControl from "@mui/material/FormControl";
-import Select from "@mui/material/Select";
+import OrderListView from "../Components/OrderComponents/OrderListView";
+import OrderFilter from "../Components/OrderComponents/OrderFilter";
+import OrderTopBar from "../Components/OrderComponents/OrderTopBar";
+import OrderBottomBar from "../Components/OrderComponents/OrderBottomBar";
+import { useSelector } from "react-redux";
 
 const AllOrders = () => {
-  const [tableView, setTableView] = useState(false);
-  const {
-    data: allOrders = [],
-    isLoading,
-    refetch,
-  } = useFetchData(
+  const { FilterBarOpen } = useSelector((state) => state.OpenClose);
+
+  const { data: allOrders = [], isLoading } = useFetchData(
     "AllOrders",
     ApiURLS.GetAllOrders.url,
     ApiURLS.GetAllOrders.method,
     {
-      staleTime: 5 * 60 * 1000, // 5 Minutes
-      cacheTime: 10 * 60 * 1000, // 10 Minutes
+      staleTime: 5 * 60 * 1000,
+      cacheTime: 10 * 60 * 1000,
     }
   );
 
-  const handleStatusChange = async (orderId, newStatus) => {
-    console.log(orderId, newStatus);
-  };
+  const [filterOptions, setFilterOptions] = useState({
+    Status: [],
+    OrderDate: "",
+    Duration: { start: "", end: "" },
+    Quantity: "",
+  });
 
-  console.log(allOrders);
+  const filteredOrders = useMemo(() => {
+    return allOrders.filter((order) => {
+      const statusMatch =
+        !filterOptions.Status.length ||
+        filterOptions.Status.includes(order.Status);
 
-  const columns = [
-    {
-      field: "image",
-      headerName: "Image",
-      width: 100,
-      renderCell: (params) => (
-        <img
-          src={params.value}
-          alt="Final Product"
-          style={{ width: 50, height: 50, borderRadius: 5 }}
-        />
-      ),
-    },
-    { field: "quantity", headerName: "Quantity", width: 100 },
-    {
-      field: "status",
-      headerName: "Status",
-      width: 180,
-      renderCell: (params) => (
-        <FormControl fullWidth size="small">
-          <Select
-            value={params.value}
-            onChange={(e) => handleStatusChange(params.row.id, e.target.value)}
-          >
-            <MenuItem value="Process">Process</MenuItem>
-            <MenuItem value="Ready">Ready</MenuItem>
-            <MenuItem value="Shipped">Shipped</MenuItem>
-            <MenuItem value="Completed">Completed</MenuItem>
-            <MenuItem value="Rejected">Rejected</MenuItem>
-          </Select>
-        </FormControl>
-      ),
-    },
-    { field: "finalCost", headerName: "Final Cost", width: 120 },
-    { field: "font", headerName: "Font", width: 100 },
-    { field: "fontSize", headerName: "Font Size", width: 100 },
-    { field: "text", headerName: "Text", width: 150 },
-    { field: "color", headerName: "Color", width: 100 },
-  ];
+      // ✅ Fixed Order Date Matching
+      const orderDateMatch =
+        !filterOptions.OrderDate ||
+        new Date(order.createdAt).toISOString().split("T")[0] ===
+          new Date(filterOptions.OrderDate).toISOString().split("T")[0];
 
-  const rows = allOrders.map((order, index) => ({
-    id: order._id || index + 1,
-    quantity: order.Quantity || 1,
-    status: order.Status || "Process",
-    font: order.Font || "N/A",
-    fontSize: order.FontSize || "N/A",
-    text: order.Text || "N/A",
-    color: order.Color || "N/A",
-    finalCost: order.FinalCost || "N/A",
-    image: `${import.meta.env.VITE_BASE_URL}${order.FinalProductImg}`,
-  }));
+      // ✅ Improved Duration Filter
+      const durationMatch =
+        (!filterOptions.Duration.start && !filterOptions.Duration.end) ||
+        (new Date(order.createdAt) >= new Date(filterOptions.Duration.start) &&
+          new Date(order.createdAt) <= new Date(filterOptions.Duration.end));
+
+      // ✅ Quantity Filter
+      const quantityMatch =
+        !filterOptions.Quantity ||
+        order.Quantity === Number(filterOptions.Quantity);
+
+      return statusMatch && orderDateMatch && durationMatch && quantityMatch;
+    });
+  }, [filterOptions, allOrders]);
 
   return (
-    <div className="flex-1 flex flex-col ">
-      <div className="sticky top-15 w-full z-10 hidden  sm:block shadow-2xl">
-        <div className=" hidden sm:flex gap-1 items-center w-full ml-2 px-[5vw] backdrop-blur-3xl pt-3 pb-2">
-          <Button
-            variant="contained"
-            className="w-[fit-content]"
-            onClick={() => setTableView(!tableView)}
-          >
-            {tableView ? "Grid View" : "Table View"}
-          </Button>
+    <div className="flex h-screen">
+      {FilterBarOpen && (
+        <div
+          className={`fixed top-17 h-screen overflow-y-auto scrollbar-hide border-r transition-all duration-300
+          ${FilterBarOpen ? "w-[20vw] sm:block" : "w-0 sm:w-0"}`}
+        >
+          <div className="pl-[2vw] pt-[5vh] pr-5">
+            <OrderFilter
+              setFilterOptions={setFilterOptions}
+              filterOptions={filterOptions}
+            />
+          </div>
+        </div>
+      )}
+
+      <div
+        className={`flex-1 flex flex-col overflow-y-scroll scrollbar-hide transition-all duration-300
+          ${FilterBarOpen ? "sm:ml-[20vw]" : "ml-0"}`}
+      >
+        <div className="fixed top-15 z-20 bg-white shadow-2xl w-full transition-all duration-300">
+          <div className="flex gap-1 items-center ml-2 backdrop-blur-3xl pt-3 pb-2 sm:h-15 w-full ">
+            <OrderTopBar count={filteredOrders.length} />
+          </div>
+        </div>
+
+        <div className="p-4 mt-17 mb-10 ml-3">
+          <OrderListView
+            Orders={filteredOrders}
+            loading={isLoading}
+            count={filteredOrders.length}
+          />
         </div>
       </div>
-      <MTable rows={rows} columns={columns} isLoading={isLoading} />
+
+      <div className="fixed bottom-0 block sm:hidden h-[10vh] w-full">
+        <OrderBottomBar
+          setFilterOptions={setFilterOptions}
+          filterOptions={filterOptions}
+        />
+      </div>
     </div>
   );
 };

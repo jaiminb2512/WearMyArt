@@ -2,12 +2,12 @@ import React, { useMemo, useState } from "react";
 import { useFetchData } from "../utils/apiRequest";
 import ApiURLS from "../Data/ApiURLS";
 import { Dialog, DialogContent } from "@mui/material";
-import ProductForm from "../Components/Product/ProductForm";
-import ProductFilter from "../Components/Product/ProductFilter";
-import ProductTopbar from "../Components/Product/ProductTopbar";
-import ProductGridView from "../Components/Product/ProductGridView";
-import ProductBottomBar from "../Components/Product/ProductBottomBar";
-import ProductListView from "../Components/Product/ProductListView";
+import ProductForm from "../Components/ProductComponents/ProductForm";
+import ProductFilter from "../Components/ProductComponents/ProductFilter";
+import ProductTopbar from "../Components/ProductComponents/ProductTopbar";
+import ProductGridView from "../Components/ProductComponents/ProductGridView";
+import ProductBottomBar from "../Components/ProductComponents/ProductBottomBar";
+import ProductListView from "../Components/ProductComponents/ProductListView";
 import { useSelector } from "react-redux";
 
 const AllProducts = () => {
@@ -126,7 +126,6 @@ const AllProducts = () => {
             <ProductFilter
               setFilterOptions={setFilterOptions}
               filterOptions={filterOptions}
-              applySorting={true}
               setSortOrder={setSortOrder}
               allowColumnSelection={true}
               allProducts={true}

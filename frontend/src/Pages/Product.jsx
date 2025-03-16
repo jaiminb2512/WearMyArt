@@ -2,10 +2,10 @@ import React, { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useFetchData } from "../utils/apiRequest";
 import ApiURLS from "../Data/ApiURLS";
-import ProductImages from "../Components/Product/ProductImages";
+import ProductImages from "../Components/ProductComponents/ProductImages";
 import { TbReplace } from "react-icons/tb";
 import { Button, CircularProgress } from "@mui/material";
-import CustomizeBtn from "../Components/Product/CustomizeBtn";
+import CustomizeBtn from "../Components/ProductComponents/CustomizeBtn";
 
 const Product = () => {
   const { id } = useParams();

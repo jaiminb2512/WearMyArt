@@ -2,11 +2,11 @@ import React, { useState, useMemo } from "react";
 import { useFetchData } from "../utils/apiRequest";
 import ApiURLS from "../Data/ApiURLS";
 import { ProductFilterData } from "../Data/FilterData";
-import ProductListView from "../Components/Product/ProductListView";
-import ProductFilter from "../Components/Product/ProductFilter";
-import ProductTopbar from "../Components/Product/ProductTopbar";
-import ProductGridView from "../Components/Product/ProductGridView";
-import ProductBottomBar from "../Components/Product/ProductBottomBar";
+import ProductListView from "../Components/ProductComponents/ProductListView";
+import ProductFilter from "../Components/ProductComponents/ProductFilter";
+import ProductTopbar from "../Components/ProductComponents/ProductTopbar";
+import ProductGridView from "../Components/ProductComponents/ProductGridView";
+import ProductBottomBar from "../Components/ProductComponents/ProductBottomBar";
 import { useSelector } from "react-redux";
 
 const Products = () => {

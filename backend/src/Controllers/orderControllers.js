@@ -1,12 +1,12 @@
 import Order from "../models/orderModel.js";
 import { connectRedis } from "../config/redisConnection.js";
-import apiResponse from "../utils/apiResponse.js";
-import productValidate from "../utils/productValidate.js";
-import { sendOrderConfirmationEmail } from "../utils/sendMail.js";
+import apiResponse from "../Utils/apiResponse.js";
+import productValidate from "../Utils/productValidate.js";
+import { sendOrderConfirmationEmail } from "../Utils/sendMail.js";
 
 const addOrder = async (req, res) => {
   try {
-    const { OrderKey, Quantity, FinalCost } = req.body;
+    const { CustomizeOption, Quantity, FinalCost } = req.body;
     const FinalProductImg = req.file.path;
     const CustomerId = req.user._id;
 
@@ -27,7 +27,7 @@ const addOrder = async (req, res) => {
     const { Email, FullName } = req.user;
 
     if (!OrderKey) {
-      const { ProductId, Font, FontSize, Text, Color, TextStyle } = req.body;
+      const { ProductId, Font, FontSize, Text, Color } = req.body;
 
       const { Size } = productValidate(ProductId, res, Quantity);
 
@@ -35,7 +35,6 @@ const addOrder = async (req, res) => {
         ProductId,
         CustomerId,
         Font,
-        TextStyle,
         FontSize,
         Text,
         Color,
@@ -120,9 +119,9 @@ const addToCartOrder = async (req, res) => {
 
     if (!OrderKey) {
       // OrderKey is not given means the product's customization is text type
-      const { ProductId, Font, TextStyle, FontSize, Text, Color } = req.body;
+      const { ProductId, Font, FontSize, Text, Color } = req.body;
 
-      if (!(ProductId || Font || TextStyle || FontSize || Text || Color)) {
+      if (!(ProductId || Font || FontSize || Text || Color)) {
         return apiResponse(res, false, null, "All fields are required", 400);
       }
 
@@ -133,7 +132,6 @@ const addToCartOrder = async (req, res) => {
         ProductId: String(ProductId),
         CustomerId: String(CustomerId),
         Font: String(Font || ""),
-        TextStyle: String(TextStyle || ""),
         FontSize: Number(FontSize) || 0,
         Text: String(Text || ""),
         Color: String(Color || ""),
@@ -148,7 +146,6 @@ const addToCartOrder = async (req, res) => {
         {
           ProductId,
           Font,
-          TextStyle,
           FontSize,
           Text,
           Color,
@@ -194,6 +191,7 @@ const addToCartOrder = async (req, res) => {
       );
     }
   } catch (error) {
+    console.log(error);
     return apiResponse(res, false, null, error.message, 500);
   }
 };
@@ -218,7 +216,6 @@ const cartToOrder = async (req, res) => {
         ProductId,
         CustomerImg = "",
         Font = "",
-        TextStyle = "",
         FontSize = 0,
         Text = "",
         Color = "",
@@ -232,7 +229,6 @@ const cartToOrder = async (req, res) => {
         CustomerId,
         CustomerImg,
         Font,
-        TextStyle,
         FontSize: Number(FontSize),
         Text,
         Color,
@@ -290,16 +286,17 @@ const getAllCartOrder = async (req, res) => {
       200
     );
   } catch (error) {
+    console.error(error);
     return apiResponse(res, false, null, error.message, 500);
   }
 };
 
 const getAllOrder = async (req, res) => {
   try {
-    const orders = await Order.find({})
-      .populate("ProductId")
-      .populate("CustomerId")
-      .exec();
+    const orders = await Order.find({});
+    // .populate("ProductId")
+    // .populate("CustomerId")
+    // .exec();
 
     return apiResponse(
       res,
@@ -329,56 +326,6 @@ const getSingleOrder = async (req, res) => {
       true,
       populatedOrder,
       "Product Fetched successfully",
-      200
-    );
-  } catch (error) {
-    return apiResponse(res, false, null, error.message, 500);
-  }
-};
-
-const initiateOrder = async (req, res) => {
-  try {
-    if (!req.file) {
-      return apiResponse(res, false, null, "CustomerImg is missing", 400);
-    }
-
-    const CustomerImg = `/uploads/${req.file.filename}`;
-    const CustomerId = req.user._id;
-    const { ProductId } = req.body;
-
-    if (!ProductId) {
-      return apiResponse(
-        res,
-        false,
-        null,
-        "Please provide a valid ProductId",
-        400
-      );
-    }
-
-    const redisClient = await connectRedis();
-
-    const OrderKey = `order:${CustomerId}:${Date.now()}`;
-
-    await productValidate(ProductId, res);
-
-    await redisClient.hSet(`${OrderKey}`, {
-      ProductId: `${ProductId}`,
-      CustomerId: `${CustomerId}`,
-      CustomerImg: `${CustomerImg}`,
-    });
-
-    await redisClient.expire(OrderKey, 3600);
-
-    return apiResponse(
-      res,
-      true,
-      {
-        OrderKey,
-        ProductId,
-        CustomerImg,
-      },
-      "Your photo saved Successfully",
       200
     );
   } catch (error) {
@@ -418,6 +365,5 @@ export {
   getAllCartOrder,
   getAllOrder,
   getSingleOrder,
-  initiateOrder,
   updateOrderStatus,
 };
