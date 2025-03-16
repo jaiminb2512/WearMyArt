@@ -4,7 +4,7 @@ import {
   addCustomizationOptions,
   deleteCustomizationOptions,
   getCustomizationOptions,
-} from "../Controllers/customizationOptionsControllers.js";
+} from "../controllers/customizationOptionsControllers.js";
 
 const router = Router();
 

@@ -15,7 +15,7 @@ import { Box, Typography, IconButton } from "@mui/material";
 
 const Sidebar = ({ hideText, setHideText }) => {
   const dispatch = useDispatch();
-  const { SideBarOpen } = useSelector((state) => state.OpenClose);
+  const { SideBarOpen, SmScreen } = useSelector((state) => state.OpenClose);
   const { user } = useSelector((state) => state.user);
   const navigate = useNavigate();
   const { logOut } = useLogOut();
@@ -84,7 +84,7 @@ const Sidebar = ({ hideText, setHideText }) => {
                 sx={menuItemStyle(menu.path)}
                 onClick={() => {
                   navigate(`/dashboard${menu.path}`);
-                  dispatch(toggleSidebar(false));
+                  if (SmScreen) dispatch(toggleSidebar(false));
                 }}
               >
                 <menu.icon sx={{ color: theme.palette.primary.contrastText }} />
@@ -106,7 +106,7 @@ const Sidebar = ({ hideText, setHideText }) => {
                   } else {
                     navigate(`/dashboard${menu.path}`);
                   }
-                  dispatch(toggleSidebar(false));
+                  if (SmScreen) dispatch(toggleSidebar(false));
                 }}
               >
                 <menu.icon sx={{ color: theme.palette.primary.contrastText }} />

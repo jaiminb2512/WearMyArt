@@ -34,4 +34,16 @@ export const AdminProductFilterData = [
     type: "radio",
   },
 ];
-export const OrderFilterData = [];
+export const OrderFilterData = [
+  {
+    title: "Status",
+    Options: [
+      "Pending",
+      "Process",
+      "Ready",
+      "Shipped",
+      "Completed",
+      "Rejected",
+    ],
+  },
+];

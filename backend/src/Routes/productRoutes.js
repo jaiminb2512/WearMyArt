@@ -9,7 +9,7 @@ import {
   updateProduct,
   getAllActiveProducts,
   getLowStockProducts,
-} from "../Controllers/productControllers.js";
+} from "../controllers/productControllers.js";
 import tokenVerification from "../middleware/tokenVerification.js";
 import { upload } from "../middleware/multer.middleware.js";
 

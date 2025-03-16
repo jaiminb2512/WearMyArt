@@ -29,6 +29,8 @@ const AllOrders = () => {
     console.log(orderId, newStatus);
   };
 
+  console.log(allOrders);
+
   const columns = [
     {
       field: "image",

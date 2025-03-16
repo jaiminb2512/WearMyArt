@@ -1,8 +1,8 @@
 import Order from "../models/orderModel.js";
 import { connectRedis } from "../config/redisConnection.js";
-import apiResponse from "../Utils/apiResponse.js";
-import productValidate from "../Utils/productValidate.js";
-import { sendOrderConfirmationEmail } from "../Utils/sendMail.js";
+import apiResponse from "../utils/apiResponse.js";
+import productValidate from "../utils/productValidate.js";
+import { sendOrderConfirmationEmail } from "../utils/sendMail.js";
 
 const addOrder = async (req, res) => {
   try {

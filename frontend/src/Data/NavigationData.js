@@ -63,7 +63,7 @@ export const isCustomer = [
   },
   {
     name: "Orders",
-    path: "/orders",
+    path: "/all-orders",
     icon: ListAltIcon,
   },
 ];

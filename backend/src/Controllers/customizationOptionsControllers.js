@@ -1,5 +1,5 @@
 import CustomizationOptions from "../models/customizationOptionsModel.js";
-import apiResponse from "../Utils/apiResponse.js";
+import apiResponse from "../utils/apiResponse.js";
 
 const addCustomizationOptions = async (req, res) => {
   const { FontOptions, TextStyles } = req.body;

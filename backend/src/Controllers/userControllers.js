@@ -1,9 +1,9 @@
 import User from "../models/userModel.js";
 import Order from "../models/orderModel.js";
-import apiResponse from "../Utils/apiResponse.js";
+import apiResponse from "../utils/apiResponse.js";
 import mongoose from "mongoose";
-import { generateAndSetTokens } from "../Utils/generateAndSetTokens.js";
-import { sendMail } from "../Utils/sendMail.js";
+import { generateAndSetTokens } from "../utils/generateAndSetTokens.js";
+import { sendMail } from "../utils/sendMail.js";
 import bcrypt from "bcrypt";
 
 const generateOTP = () => {

@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import Product from "../models/productModel.js";
-import apiResponse from "../Utils/apiResponse.js";
-import deleteFiles from "../Utils/deleteFiles.js";
+import apiResponse from "../utils/apiResponse.js";
+import deleteFiles from "../utils/deleteFiles.js";
 import path from "path";
 
 const addProduct = async (req, res) => {

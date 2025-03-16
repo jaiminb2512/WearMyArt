@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import apiResponse from "../Utils/apiResponse.js";
+import apiResponse from "../utils/apiResponse.js";
 import User from "../models/userModel.js";
 
 const tokenVerification = async function (req, res, next, checkAdmin = false) {

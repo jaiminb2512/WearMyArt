@@ -16,7 +16,7 @@ import {
   blockUsers,
   unblockUsers,
   getAllUsers,
-} from "../Controllers/userControllers.js";
+} from "../controllers/userControllers.js";
 
 const router = Router();
 

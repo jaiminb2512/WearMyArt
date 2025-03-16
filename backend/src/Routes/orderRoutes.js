@@ -8,7 +8,7 @@ import {
   getSingleOrder,
   initiateOrder,
   updateOrderStatus,
-} from "../Controllers/orderControllers.js";
+} from "../controllers/orderControllers.js";
 import tokenVerification from "../middleware/tokenVerification.js";
 import { upload } from "../middleware/multer.middleware.js";
 

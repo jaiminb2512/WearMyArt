@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 import dbConnect from "./src/config/db.js";
 import express from "express";
-import Routes from "./src/Routes/Routes.js";
+import Routes from "./src/routes/routes.js";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import { connectRedis } from "./src/config/redisConnection.js";
@@ -25,7 +25,7 @@ connectRedis();
 const port = process.env.PORT || 3000;
 
 app.get("/", (req, res) => {
-  res.send("Hello Jaimin");
+  res.send("Api is Running .... ");
 });
 
 app.use("/uploads", express.static("uploads"));
