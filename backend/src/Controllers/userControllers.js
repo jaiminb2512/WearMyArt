@@ -474,7 +474,9 @@ const getSingleUser = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const SingleUser = await User.findById(id);
+    const SingleUser = await User.findById(id).select(
+      "_id FullName Email isAdmin isBlocked"
+    );
 
     return apiResponse(res, true, SingleUser, "User Fetched Successfully", 200);
   } catch (error) {

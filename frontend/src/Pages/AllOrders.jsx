@@ -25,6 +25,9 @@ const AllOrders = () => {
     OrderDate: "",
     Duration: { start: "", end: "" },
     Quantity: "",
+    FinalCost: "",
+    OrderID: "",
+    CustomizeOption: [],
   });
 
   const filteredOrders = useMemo(() => {
@@ -32,39 +35,44 @@ const AllOrders = () => {
       const statusMatch =
         !filterOptions.Status.length ||
         filterOptions.Status.includes(order.Status);
+      const customizeMatch =
+        !filterOptions.CustomizeOption.length ||
+        filterOptions.CustomizeOption.includes(order.CustomizeOption);
+      const orderDateMatch = (() => {
+        if (!filterOptions.OrderDate) return true;
 
-      // ✅ Fixed Order Date Matching
-      const orderDateMatch =
-        !filterOptions.OrderDate ||
-        new Date(order.createdAt).toISOString().split("T")[0] ===
-          new Date(filterOptions.OrderDate).toISOString().split("T")[0];
+        const inputDate = filterOptions.OrderDate.trim();
+        const orderCreatedAt = new Date(order.createdAt);
 
-      // ✅ Improved Duration Filter
-      const durationMatch =
-        (!filterOptions.Duration.start && !filterOptions.Duration.end) ||
-        (new Date(order.createdAt) >= new Date(filterOptions.Duration.start) &&
-          new Date(order.createdAt) <= new Date(filterOptions.Duration.end));
+        if (inputDate.length === 4) {
+          return orderCreatedAt.getFullYear().toString() === inputDate;
+        } else {
+          return (
+            orderCreatedAt.toISOString().split("T")[0] ===
+            new Date(inputDate).toISOString().split("T")[0]
+          );
+        }
+      })();
 
-      // ✅ Quantity Filter
-      const quantityMatch =
-        !filterOptions.Quantity ||
-        order.Quantity === Number(filterOptions.Quantity);
+      const orderIdMatch =
+        !filterOptions.OrderID ||
+        order.OrderID.toLowerCase().includes(
+          filterOptions.OrderID.toLowerCase()
+        );
 
-      return statusMatch && orderDateMatch && durationMatch && quantityMatch;
+      return statusMatch && orderDateMatch && orderIdMatch && customizeMatch;
     });
   }, [filterOptions, allOrders]);
 
   return (
     <div className="flex h-screen">
       {FilterBarOpen && (
-        <div
-          className={`fixed top-17 h-screen overflow-y-auto scrollbar-hide border-r transition-all duration-300
-          ${FilterBarOpen ? "w-[20vw] sm:block" : "w-0 sm:w-0"}`}
-        >
+        <div className="fixed top-17 h-screen overflow-y-auto scrollbar-hide border-r transition-all duration-300 w-[20vw]">
           <div className="pl-[2vw] pt-[5vh] pr-5">
             <OrderFilter
               setFilterOptions={setFilterOptions}
               filterOptions={filterOptions}
+              allOrders={true}
             />
           </div>
         </div>
@@ -72,7 +80,7 @@ const AllOrders = () => {
 
       <div
         className={`flex-1 flex flex-col overflow-y-scroll scrollbar-hide transition-all duration-300
-          ${FilterBarOpen ? "sm:ml-[20vw]" : "ml-0"}`}
+      ${FilterBarOpen ? "sm:ml-[20vw]" : "ml-0"}`}
       >
         <div className="fixed top-15 z-20 bg-white shadow-2xl w-full transition-all duration-300">
           <div className="flex gap-1 items-center ml-2 backdrop-blur-3xl pt-3 pb-2 sm:h-15 w-full ">
@@ -85,6 +93,7 @@ const AllOrders = () => {
             Orders={filteredOrders}
             loading={isLoading}
             count={filteredOrders.length}
+            allOrders={true}
           />
         </div>
       </div>

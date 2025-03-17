@@ -21,9 +21,6 @@ const OrderSchema = new Schema(
     TextStyle: {
       type: String,
     },
-    FontSize: {
-      type: Number,
-    },
     Text: {
       type: String,
     },

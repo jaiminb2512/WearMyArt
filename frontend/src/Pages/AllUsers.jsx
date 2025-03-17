@@ -16,8 +16,6 @@ const AllUsers = () => {
     }
   );
 
-  console.log(AllUsers);
-
   const handleBlockClick = (id, currentBlockStatus) => {
     console.log("User ID:", id, "Current Block Status:", currentBlockStatus);
   };

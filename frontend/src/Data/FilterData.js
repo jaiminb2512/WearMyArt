@@ -68,4 +68,13 @@ export const AdminOrderFilterData = [
     title: "Quantity",
     type: "input",
   },
+  {
+    title: "Order ID",
+    type: "input",
+  },
+  {
+    title: "CustomizeOption",
+    Options: ["Photo", "Text", "Both"],
+    type: "radio",
+  },
 ];

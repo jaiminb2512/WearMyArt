@@ -1,14 +1,20 @@
 import Order from "../models/orderModel.js";
 import { connectRedis } from "../config/redisConnection.js";
-import apiResponse from "../Utils/apiResponse.js";
-import productValidate from "../Utils/productValidate.js";
-import { sendOrderConfirmationEmail } from "../Utils/sendMail.js";
+import apiResponse from "../utils/apiResponse.js";
+import productValidate from "../utils/productValidate.js";
+import { sendOrderConfirmationEmail } from "../utils/sendMail.js";
+import deleteFiles from "../utils/deleteFiles.js";
 
 const addOrder = async (req, res) => {
   try {
-    const { CustomizeOption, Quantity, FinalCost } = req.body;
-    const FinalProductImg = req.file.path;
+    const { CustomizeOption, Quantity, FinalCost, ProductId } = req.body;
+    const FinalProductImg = `/uploads/${req.files["FinalProductImg"][0].filename}`;
     const CustomerId = req.user._id;
+
+    if (!CustomizeOption) {
+      return apiResponse(res, false, null, "CustomizeOption is required", 400);
+    }
+    const { Size } = productValidate(ProductId, res, Quantity);
 
     if (!FinalProductImg) {
       return apiResponse(
@@ -26,21 +32,20 @@ const addOrder = async (req, res) => {
 
     const { Email, FullName } = req.user;
 
-    if (!OrderKey) {
-      const { ProductId, Font, FontSize, Text, Color } = req.body;
-
-      const { Size } = productValidate(ProductId, res, Quantity);
+    if (CustomizeOption === "Text") {
+      const { Font, Text, Color, TextStyle } = req.body;
 
       const newOrder = new Order({
         ProductId,
         CustomerId,
         Font,
-        FontSize,
+        TextStyle,
         Text,
         Color,
         Quantity,
         FinalCost,
         FinalProductImg,
+        CustomizeOption: "Text",
       });
 
       await newOrder.save();
@@ -53,22 +58,12 @@ const addOrder = async (req, res) => {
       );
 
       return apiResponse(res, true, newOrder, "Order is Successfully placed");
-    } else {
-      const redisClient = await connectRedis();
-      const orderDetails = await redisClient.hGetAll(OrderKey);
+    } else if (CustomizeOption === "Photo") {
+      const CustomerImg = `/uploads/${req.files["CustomerImg"][0].filename}`;
 
-      if (!orderDetails || Object.keys(orderDetails).length === 0) {
-        return apiResponse(
-          res,
-          false,
-          null,
-          "No order found for the provided OrderKey",
-          404
-        );
+      if (!CustomerImg) {
+        return apiResponse(res, false, null, "Customer Img is required", 400);
       }
-
-      const { ProductId, CustomerImg } = orderDetails;
-      const { Size } = productValidate(ProductId, res, orderDetails.Quantity);
 
       const newOrder = new Order({
         ProductId,
@@ -77,10 +72,10 @@ const addOrder = async (req, res) => {
         Quantity,
         FinalCost,
         FinalProductImg,
+        CustomizeOption: "Photo",
       });
 
       await newOrder.save();
-      await redisClient.del(OrderKey);
 
       await sendOrderConfirmationEmail(
         Email,
@@ -96,8 +91,102 @@ const addOrder = async (req, res) => {
         "Order is Successfully placed",
         200
       );
+    } else if (CustomizeOption === "Both") {
+      const { Font, Text, Color, TextStyle } = req.body;
+      const FinalProductImg = `/uploads/${req.files["FinalProductImg"][0].filename}`;
+      const CustomerImg = `/uploads/${req.files["CustomerImg"][0].filename}`;
+
+      if (!CustomerImg && !FinalProductImg) {
+        return apiResponse(
+          res,
+          false,
+          null,
+          "Customer Img and Final Product Image is required",
+          400
+        );
+      }
+
+      if (!CustomerImg && FinalProductImg) {
+        return apiResponse(res, false, null, "Customer Img is required", 400);
+      }
+
+      if (!FinalProductImg) {
+        deleteFiles([`/uploads/${req.files["CustomerImg"][0].filename}`]);
+        return apiResponse(
+          res,
+          false,
+          null,
+          "Final Product Image is required",
+          400
+        );
+      }
+
+      const newOrder = new Order({
+        ProductId,
+        CustomerImg,
+        CustomerId,
+        Quantity,
+        FinalCost,
+        FinalProductImg,
+        Font,
+        TextStyle,
+        Text,
+        Color,
+        CustomizeOption: "Both",
+      });
+
+      await newOrder.save();
+
+      await sendOrderConfirmationEmail(
+        Email,
+        FullName,
+        [newOrder],
+        [FinalProductImg]
+      );
+
+      return apiResponse(
+        res,
+        true,
+        newOrder,
+        "Order is Successfully placed",
+        200
+      );
+    } else {
+      const FinalProductImg = `/uploads/${req.files["FinalProductImg"][0].filename}`;
+      const CustomerImg = `/uploads/${req.files["CustomerImg"][0].filename}`;
+
+      if (!CustomerImg && !FinalProductImg) {
+        return apiResponse(
+          res,
+          false,
+          null,
+          "Customer Img and Final Product Image is required",
+          400
+        );
+      }
+
+      if (!CustomerImg && FinalProductImg) {
+        return apiResponse(res, false, null, "Customer Img is required", 400);
+      }
+
+      if (!FinalProductImg) {
+        deleteFiles([`/uploads/${req.files["CustomerImg"][0].filename}`]);
+        return apiResponse(
+          res,
+          false,
+          null,
+          "Final Product Image is required",
+          400
+        );
+      }
+      return apiResponse(res, false, null, "Invalid Customize Type", 400);
     }
   } catch (error) {
+    deleteFiles([
+      `/uploads/${req.files["FinalProductImg"][0].filename}`,
+      `/uploads/${req.files["CustomerImg"][0].filename}`,
+    ]);
+    console.log(error.message);
     return apiResponse(res, false, null, error.message, 500);
   }
 };
@@ -119,9 +208,9 @@ const addToCartOrder = async (req, res) => {
 
     if (!OrderKey) {
       // OrderKey is not given means the product's customization is text type
-      const { ProductId, Font, FontSize, Text, Color } = req.body;
+      const { ProductId, Font, TextStyle, FontSize, Text, Color } = req.body;
 
-      if (!(ProductId || Font || FontSize || Text || Color)) {
+      if (!(ProductId || Font || TextStyle || FontSize || Text || Color)) {
         return apiResponse(res, false, null, "All fields are required", 400);
       }
 
@@ -132,6 +221,7 @@ const addToCartOrder = async (req, res) => {
         ProductId: String(ProductId),
         CustomerId: String(CustomerId),
         Font: String(Font || ""),
+        TextStyle: String(TextStyle || ""),
         FontSize: Number(FontSize) || 0,
         Text: String(Text || ""),
         Color: String(Color || ""),
@@ -146,6 +236,7 @@ const addToCartOrder = async (req, res) => {
         {
           ProductId,
           Font,
+          TextStyle,
           FontSize,
           Text,
           Color,
@@ -191,7 +282,6 @@ const addToCartOrder = async (req, res) => {
       );
     }
   } catch (error) {
-    console.log(error);
     return apiResponse(res, false, null, error.message, 500);
   }
 };
@@ -216,6 +306,7 @@ const cartToOrder = async (req, res) => {
         ProductId,
         CustomerImg = "",
         Font = "",
+        TextStyle = "",
         FontSize = 0,
         Text = "",
         Color = "",
@@ -229,6 +320,7 @@ const cartToOrder = async (req, res) => {
         CustomerId,
         CustomerImg,
         Font,
+        TextStyle,
         FontSize: Number(FontSize),
         Text,
         Color,
@@ -286,7 +378,6 @@ const getAllCartOrder = async (req, res) => {
       200
     );
   } catch (error) {
-    console.error(error);
     return apiResponse(res, false, null, error.message, 500);
   }
 };

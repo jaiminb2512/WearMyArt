@@ -23,7 +23,10 @@ router.post("/cart-to-order", tokenVerification, cartToOrder);
 router.post(
   "/add-order",
   tokenVerification,
-  upload.single("FinalProductImg"),
+  upload.fields([
+    { name: "FinalProductImg", maxCount: 1 },
+    { name: "CustomerImg", maxCount: 1 },
+  ]),
   addOrder
 );
 router.patch(

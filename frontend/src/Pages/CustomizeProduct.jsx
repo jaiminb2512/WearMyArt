@@ -2,9 +2,9 @@ import React, { useEffect, useState } from "react";
 import { Button, Stepper, Step, StepLabel } from "@mui/material";
 import { DesignServices, CheckCircle } from "@mui/icons-material";
 import { useSelector, useDispatch } from "react-redux";
-import ConfirmOrder from "../Components/Editor/ConfirmOrder";
+import ConfirmOrder from "../Components/CustomizeTShirt/ConfirmOrder";
 import { setFinalProductImg } from "../redux/tempProductSlice";
-import ImageEditStep from "../Components/Editor/ImageEditeStep";
+import ImageEditStep from "../Components/CustomizeTShirt/ImageEditeStep";
 
 const steps = [
   { label: "Customize Design", icon: <DesignServices /> },

@@ -134,7 +134,7 @@ const sendOrderConfirmationEmail = async (
   const name = "WearMyArt Order Confirmation";
   const subject = "Thank You for Your Orders!";
 
-  await SendMail(email, name, subject, htmlContent);
+  await sendMail(email, name, subject, htmlContent);
 };
 
 export { sendMail, sendOrderConfirmationEmail };

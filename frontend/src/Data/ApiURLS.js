@@ -12,7 +12,7 @@ const ApiURLS = {
     method: "POST",
   },
   ForgotPassword: { url: "/api/user/forgot-password", method: "POST" },
-  GetSingleUser: { url: "/api/user/single-user/:id", method: "GET" },
+  GetSingleUser: { url: "/api/user/single-user", method: "GET" },
   MakeAdmin: { url: "/api/user/make-admin/:id", method: "PATCH" },
   BlockUsers: { url: "/api/user/block-users", method: "PATCH" },
   UnblockUsers: { url: "/api/user/unblock-users", method: "PATCH" },

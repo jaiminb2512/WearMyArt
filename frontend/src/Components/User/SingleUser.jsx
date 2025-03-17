@@ -1,10 +1,8 @@
 import React from "react";
-import { useSelector } from "react-redux";
-import { Avatar, Box, Typography, Stack } from "@mui/material";
+import { Avatar, Button, Typography } from "@mui/material";
 
-const Profile = () => {
-  const { user } = useSelector((state) => state.user);
-
+const SingleUser = ({ user }) => {
+  console.log(user);
   const getInitials = (name) => {
     if (!name) return "U";
     return name
@@ -14,14 +12,13 @@ const Profile = () => {
       .toUpperCase();
   };
 
-  const initials = user?.name ? getInitials(user.name) : "U";
+  const handleBlockClick = (id, currentBlockStatus) => {
+    console.log("User ID:", id, "Current Block Status:", currentBlockStatus);
+  };
 
+  const initials = user?.FullName ? getInitials(user.FullName) : "U";
   return (
-    <Box
-      height="100vh"
-      bgcolor="background.default"
-      className="flex justify-center items-center h-full gap-[5vw]"
-    >
+    <div className="flex gap-6">
       <Avatar
         sx={{
           width: 300,
@@ -34,7 +31,7 @@ const Profile = () => {
         {initials}
       </Avatar>
 
-      <div>
+      <div className="flex flex-col gap-2 justify-center">
         {user?.isAdmin && (
           <Typography variant="h6" color="error" fontWeight="bold">
             Admin
@@ -45,9 +42,16 @@ const Profile = () => {
         <Typography variant="h6" color="text.secondary">
           {user?.Email || "No Email Provided"}
         </Typography>
+        <Button
+          variant="contained"
+          color={user.isBlocked ? "secondary" : "error"}
+          onClick={() => handleBlockClick(user.id, !user.isBlocked)}
+        >
+          {user.isBlocked ? "Unblock" : "Block"}
+        </Button>
       </div>
-    </Box>
+    </div>
   );
 };
 
-export default Profile;
+export default SingleUser;

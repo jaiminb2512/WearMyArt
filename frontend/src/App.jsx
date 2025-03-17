@@ -26,6 +26,7 @@ import Auth from "./Pages/Auth";
 import Orders from "./Pages/Orders";
 import Cart from "./Pages/Cart";
 import { toggleSmScreen } from "./Redux/OpenCloseSlice";
+import OrderDetails from "./Pages/OrderDetails";
 
 const queryClient = new QueryClient();
 
@@ -80,6 +81,7 @@ const AppLayout = () => {
             <Route path="/register" element={<Auth />} />
             <Route path="/products" element={<Products />} />
             <Route path="/product/:id" element={<Product />} />
+            <Route path="/dashboard/order-details" element={<OrderDetails />} />
             <Route path="/customize-product" element={<CustomizeProduct />} />
             <Route path="/dashboard/Profile" element={<Profile />} />
             <Route path="/dashboard/orders" element={<Orders />} />
