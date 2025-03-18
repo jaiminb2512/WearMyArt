@@ -1,9 +1,4 @@
 import React from "react";
-import { Button } from "@mui/material";
-import ModeEditIcon from "@mui/icons-material/ModeEdit";
-import ProductImages from "../ProductComponents/ProductImages";
-import BlockIcon from "@mui/icons-material/Block";
-import MenuIcon from "@mui/icons-material/Menu";
 import { useNavigate } from "react-router-dom";
 import SingleOrder from "./SingleOrder";
 
@@ -41,19 +36,7 @@ const OrderListView = ({ Orders, loading, allOrders = false, count }) => {
       <h1 className="relative text-lg font-bold hidden sm:block">{`${count} Orders`}</h1>
       <div className="grid gap-8">
         {Orders.map((order) => {
-          const {
-            _id,
-            CustomerImg,
-            FinalProductImg,
-            Quantity,
-            FinalCost,
-            Status,
-            createdAt,
-            CustomizeOption,
-            Font,
-            Text,
-            Color,
-          } = order;
+          const { _id, CustomerImg, FinalProductImg, CustomizeOption } = order;
 
           const imgs = [FinalProductImg];
           const altNames = ["Final Product Img"];

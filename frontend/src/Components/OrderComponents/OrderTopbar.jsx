@@ -9,7 +9,7 @@ const OrderTopBar = () => {
   const { FilterBarOpen } = useSelector((state) => state.OpenClose);
   const dispatch = useDispatch();
   return (
-    <div>
+    <div className="ml-[2vw]">
       <MTooltip title={FilterBarOpen ? "Close Filter" : "Open Filter"}>
         <div
           className="p-2 items-center justify-center w-12 h-10 cursor-pointer bg-gray-200 rounded hidden sm:block"

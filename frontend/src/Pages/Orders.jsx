@@ -1,17 +1,14 @@
-import React, { useState } from "react";
-import { useFetchData, apiRequest } from "../utils/apiRequest";
+import React, { useMemo, useState } from "react";
+import { useFetchData } from "../utils/apiRequest";
 import ApiURLS from "../Data/ApiURLS";
-import MTable from "../Components/MTable";
-import { Button } from "@mui/material";
-import Box from "@mui/material/Box";
-import InputLabel from "@mui/material/InputLabel";
-import MenuItem from "@mui/material/MenuItem";
-import FormControl from "@mui/material/FormControl";
-import Select from "@mui/material/Select";
 import OrderListView from "../Components/OrderComponents/OrderListView";
+import OrderBottombar from "../Components/OrderComponents/OrderBottomBar";
+import OrderTopBar from "../Components/OrderComponents/OrderTopBar";
+import OrderFilter from "../Components/OrderComponents/OrderFilter";
+import { useSelector } from "react-redux";
 
 const Orders = () => {
-  const [tableView, setTableView] = useState(false);
+  const { FilterBarOpen } = useSelector((state) => state.OpenClose);
   const {
     data: MyOrders = [],
     isLoading,
@@ -26,70 +23,104 @@ const Orders = () => {
     }
   );
 
-  const handleStatusChange = async (orderId, newStatus) => {
-    console.log(orderId, newStatus);
+  const [filterOptions, setFilterOptions] = useState({
+    Status: [],
+    OrderDate: "",
+    Duration: { start: "", end: "" },
+    Quantity: "",
+    FinalCost: "",
+    OrderID: "",
+    CustomizeOption: [],
+  });
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return "";
+
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+
+    return `${day}/${month}/${year}`;
   };
 
-  const columns = [
-    {
-      field: "image",
-      headerName: "Image",
-      width: 100,
-      renderCell: (params) => (
-        <img
-          src={params.value}
-          alt="Final Product"
-          style={{ width: 50, height: 50, borderRadius: 5 }}
-        />
-      ),
-    },
-    { field: "quantity", headerName: "Quantity", width: 100 },
-    {
-      field: "status",
-      headerName: "Status",
-      width: 180,
-      renderCell: (params) => (
-        <FormControl fullWidth size="small">
-          <Select
-            value={params.value}
-            onChange={(e) => handleStatusChange(params.row.id, e.target.value)}
-          >
-            <MenuItem value="Process">Process</MenuItem>
-            <MenuItem value="Ready">Ready</MenuItem>
-            <MenuItem value="Shipped">Shipped</MenuItem>
-            <MenuItem value="Completed">Completed</MenuItem>
-            <MenuItem value="Rejected">Rejected</MenuItem>
-          </Select>
-        </FormControl>
-      ),
-    },
-    { field: "finalCost", headerName: "Final Cost", width: 120 },
-    { field: "font", headerName: "Font", width: 100 },
-    { field: "fontSize", headerName: "Font Size", width: 100 },
-    { field: "text", headerName: "Text", width: 150 },
-    { field: "color", headerName: "Color", width: 100 },
-  ];
+  const filteredOrders = useMemo(() => {
+    return MyOrders.filter((order) => {
+      const statusMatch =
+        !filterOptions.Status.length ||
+        filterOptions.Status.includes(order.Status);
 
-  const rows = MyOrders.map((order, index) => ({
-    id: order._id || index + 1,
-    quantity: order.Quantity || 1,
-    status: order.Status || "Process",
-    font: order.Font || "N/A",
-    fontSize: order.FontSize || "N/A",
-    text: order.Text || "N/A",
-    color: order.Color || "N/A",
-    finalCost: order.FinalCost || "N/A",
-    image: `${import.meta.env.VITE_BASE_URL}${order.FinalProductImg}`,
-  }));
+      const customizeMatch =
+        !filterOptions.CustomizeOption.length ||
+        filterOptions.CustomizeOption.includes(order.CustomizeOption);
+
+      const orderDateMatch = (() => {
+        if (!filterOptions.OrderDate) return true;
+
+        const inputDate = String(filterOptions.OrderDate).trim();
+        const parsedInputDate = new Date(inputDate);
+
+        if (isNaN(parsedInputDate.getTime())) return false;
+
+        const orderCreatedAt = new Date(order.createdAt);
+        if (isNaN(orderCreatedAt.getTime())) return false;
+
+        const formattedOrderDate = formatDate(orderCreatedAt);
+        const formattedInputDate = formatDate(parsedInputDate);
+
+        return formattedOrderDate === formattedInputDate;
+      })();
+
+      const orderIdMatch =
+        !filterOptions.OrderID ||
+        order.OrderID?.toLowerCase().includes(
+          filterOptions.OrderID.toLowerCase()
+        );
+
+      return statusMatch && orderDateMatch && orderIdMatch && customizeMatch;
+    });
+  }, [filterOptions, MyOrders]);
 
   return (
-    <div className="flex-1 flex flex-col ml-[2vw]">
-      <OrderListView
-        Orders={MyOrders}
-        loading={isLoading}
-        allOrders={true}
-        count={MyOrders.length}
-      />
+    <div className="flex h-screen">
+      {FilterBarOpen && (
+        <div className="fixed top-17 h-screen overflow-y-auto scrollbar-hide border-r transition-all duration-300 w-[20vw]">
+          <div className="pl-[2vw] pt-[5vh] pr-5">
+            <OrderFilter
+              setFilterOptions={setFilterOptions}
+              filterOptions={filterOptions}
+              MyOrders={true}
+            />
+          </div>
+        </div>
+      )}
+
+      <div
+        className={`flex-1 flex flex-col overflow-y-scroll scrollbar-hide transition-all duration-300
+      ${FilterBarOpen ? "sm:ml-[20vw]" : "ml-0"}`}
+      >
+        <div className="fixed hidden sm:block top-15 z-20 bg-white shadow-2xl w-full transition-all duration-300">
+          <div className="flex gap-1 items-center ml-2 backdrop-blur-3xl pt-3 pb-2 sm:h-15 w-full ">
+            <OrderTopBar count={filteredOrders.length} />
+          </div>
+        </div>
+
+        <div className="p-4 sm:mt-17 mb-10 ml-3">
+          <OrderListView
+            Orders={filteredOrders}
+            loading={isLoading}
+            count={filteredOrders.length}
+            MyOrders={true}
+          />
+        </div>
+      </div>
+
+      <div className="fixed bottom-0 block sm:hidden h-[10vh] w-full">
+        <OrderBottombar
+          setFilterOptions={setFilterOptions}
+          filterOptions={filterOptions}
+        />
+      </div>
     </div>
   );
 };

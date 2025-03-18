@@ -87,14 +87,12 @@ const AllProducts = () => {
         !filterOptions.Color.length ||
         filterOptions.Color.includes(product.Color);
 
-      // Fix for multiple price ranges
       const priceMatch =
         !filterOptions.Price.length ||
         filterOptions.Price.some((range) =>
           isPriceInRange(product.Price, range)
         );
 
-      // Fix for Availability
       const availabilityMatch =
         filterOptions.Avalibility.includes("All") ||
         (filterOptions.Avalibility.includes("Discontinued") &&

@@ -39,10 +39,11 @@ const OrderFilter = ({
   const clearFilters = () => {
     setFilterOptions({
       Status: [],
-      OrderDate: Date.now(),
-      Duration: { start: Date.now(), end: "" },
+      OrderDate: "",
+      Duration: { start: "", end: "" },
       Quantity: "",
       FinalCost: "",
+      OrderID: "",
       CustomizeOption: [],
     });
   };

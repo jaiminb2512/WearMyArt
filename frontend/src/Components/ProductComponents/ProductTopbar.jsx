@@ -63,13 +63,15 @@ const ProductTopbar = ({
         </div>
 
         {allProducts && (
-          <Button
-            variant="contained"
-            className="whitespace-nowrap"
-            onClick={handleOpenDialog}
-          >
-            Add Product
-          </Button>
+          <MTooltip title="Add Product">
+            <Button
+              variant="contained"
+              className="whitespace-nowrap"
+              onClick={handleOpenDialog}
+            >
+              Add Product
+            </Button>
+          </MTooltip>
         )}
       </div>
     </div>

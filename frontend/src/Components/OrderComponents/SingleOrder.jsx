@@ -5,6 +5,9 @@ import ProductImages from "../ProductComponents/ProductImages";
 import BlockIcon from "@mui/icons-material/Block";
 import MenuIcon from "@mui/icons-material/Menu";
 import ModeEditIcon from "@mui/icons-material/ModeEdit";
+import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import Inventory2Icon from "@mui/icons-material/Inventory2";
+import MTooltip from "../MTooltip";
 
 const SingleOrder = ({
   order,
@@ -109,63 +112,86 @@ const SingleOrder = ({
             {formatDate(createdAt)}
           </p>
 
-          <div className="flex gap-2 flex-wrap">
+          <div className="flex gap-2 items-center mt-4 w-2/3">
             {OrderDetails ? (
-              <div className="bottom-0 right-0 flex flex-col gap-2">
-                <div className="flex gap-2">
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={handleFetchUser}
-                  >
-                    <div className="flex gap-2 items-center">
-                      <MenuIcon />
-                      <span className="hidden sm:block">Customer Details</span>
-                    </div>
-                  </Button>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={handleFetchProduct}
-                  >
-                    <div className="flex gap-2 items-center">
-                      <MenuIcon />
-                      <span className="hidden sm:block">Product Details</span>
-                    </div>
-                  </Button>
+              <div className="flex gap-3 justify-center items-center">
+                <div className="w-full sm:w-auto">
+                  <MTooltip title="Customer Details">
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={handleFetchUser}
+                      className="sm:w-[200px]"
+                    >
+                      <div className="flex gap-2 items-center justify-center">
+                        <PersonAddIcon />
+                        <span className="hidden sm:block">
+                          Customer Details
+                        </span>
+                      </div>
+                    </Button>
+                  </MTooltip>
+                </div>
+                <div className="w-full">
+                  <MTooltip title="Product Details">
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={handleFetchProduct}
+                      className="sm:w-[200px]"
+                    >
+                      <div className="flex gap-2 items-center justify-center">
+                        <Inventory2Icon />
+                        <span className="hidden sm:block">Product Details</span>
+                      </div>
+                    </Button>
+                  </MTooltip>
                 </div>
               </div>
             ) : (
-              <div className="bottom-0 right-0 flex gap-2">
-                <div className="flex gap-2">
+              <div className="w-full">
+                <MTooltip title="Order Details">
                   <Button
                     variant="contained"
                     color="primary"
                     onClick={() => handleRedirect(order)}
+                    className={` ${Status} === "Pending" ? "sm:w-[150px]" : "`}
                   >
-                    <div className="flex gap-2 items-center">
+                    <div className="flex gap-2 items-center justify-center">
                       <MenuIcon />
-                      <span className="hidden sm:block">Details</span>
+                      <span className="hidden sm:block">Order Details</span>
                     </div>
                   </Button>
-                </div>
+                </MTooltip>
               </div>
             )}
 
             {allOrders && Status === "Pending" && (
-              <div className="flex gap-3">
-                <Button variant="contained" color="success">
-                  <div className="flex gap-2 items-center">
-                    <ModeEditIcon />
-                    <span className="hidden sm:block">Accept</span>
-                  </div>
-                </Button>
-                <Button variant="contained" color="error">
-                  <div className="flex gap-2 items-center">
-                    <BlockIcon />
-                    <span className="hidden sm:block">Reject</span>
-                  </div>
-                </Button>
+              <div className="flex gap-3 w-fit">
+                <MTooltip title="Accept Order">
+                  <Button
+                    variant="contained"
+                    color="success"
+                    className="sm:w-[150px]"
+                  >
+                    <div className="flex gap-2 items-center justify-center">
+                      <ModeEditIcon />
+                      <span className="hidden sm:block">Accept Order</span>
+                    </div>
+                  </Button>
+                </MTooltip>
+                <MTooltip title="Reject Order">
+                  <Button
+                    variant="contained"
+                    color="error"
+                    className="sm:w-[150px]"
+                  >
+                    <div className="flex gap-2 items-center justify-center">
+                      <BlockIcon />
+                      <span className="hidden sm:block">Reject Order</span>
+                    </div>
+                  </Button>
+                </MTooltip>
               </div>
             )}
           </div>

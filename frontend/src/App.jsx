@@ -6,6 +6,7 @@ import { darkTheme, lightTheme } from "./Theme/theme";
 import { CssBaseline, Box } from "@mui/material";
 
 import Navbar from "./Components/Navbar";
+import Footer from "./Components/Footer";
 import Sidebar from "./Components/Sidebar";
 import UserAvatar from "./Components/UserAvtar";
 import ToastNotification from "./Components/ToastNotification";
@@ -91,6 +92,7 @@ const AppLayout = () => {
             <Route path="/dashboard/all-users" element={<AllUsers />} />
             <Route path="*" element={<Errorpage />} />
           </Routes>
+          <Footer />
         </Box>
       </Box>
       <ToastNotification />

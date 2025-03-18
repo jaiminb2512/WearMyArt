@@ -11,7 +11,7 @@ import SettingsIcon from "@mui/icons-material/Settings";
 
 export const LoginData = [
   { name: "Log Out", icon: ExitToAppIcon, path: "/logout" },
-  { name: "Profile", icon: AccountCircleIcon, path: "/dashboard" },
+  { name: "Profile", icon: AccountCircleIcon, path: "/dashboard/profile" },
 ];
 
 export const LogoutData = [
@@ -22,7 +22,7 @@ export const LogoutData = [
 export const everyOne = [
   {
     name: "Profile",
-    path: "/profile",
+    path: "/dashboard/profile",
     icon: AccountCircleIcon,
   },
   {
@@ -71,7 +71,7 @@ export const isCustomer = [
 export const sidebarCustomer = [
   {
     name: "Profile",
-    path: "/profile",
+    path: "/dashboard/profile",
     icon: AccountCircleIcon,
   },
   {
@@ -106,7 +106,7 @@ export const sidebarCustomer = [
 export const sidebarAdmin = [
   {
     name: "Profile",
-    path: "/profile",
+    path: "/dashboard/profile",
     icon: AccountCircleIcon,
   },
   {

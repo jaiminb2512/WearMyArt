@@ -1,14 +1,18 @@
 import React, { useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import SingleOrder from "../Components/OrderComponents/SingleOrder";
 import { useFetchData } from "../utils/apiRequest";
 import ApiURLS from "../Data/ApiURLS";
 import SingleProduct from "../Components/ProductComponents/SingleProduct";
 import SingleUser from "../Components/User/SingleUser";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { Button } from "@mui/material";
+import MTooltip from "../Components/MTooltip";
 
 const OrderDetails = () => {
   const location = useLocation();
   const order = location.state?.order;
+  const navigate = useNavigate();
 
   if (!order) {
     return (
@@ -40,7 +44,7 @@ const OrderDetails = () => {
     refetch: refetchUser,
     isLoading: isUserLoading,
   } = useFetchData(
-    `productData-${order?.CustomerId}`,
+    `userData-${order?.CustomerId}`,
     `${ApiURLS.GetSingleUser.url}/${order?.CustomerId}`,
     ApiURLS.GetSingleUser.method,
     {
@@ -61,31 +65,45 @@ const OrderDetails = () => {
   };
 
   return (
-    <div className="flex flex-col justify-center items-center w-full h-full mt-[5vh]">
-      <div className="mx-auto p-4 w-full flex justify-center items-center">
-        <SingleOrder
-          order={order}
-          allOrders={true}
-          OrderDetails={true}
-          handleFetchProduct={handleFetchProduct}
-          handleFetchUser={handleFetchUser}
-        />
+    <div className="ml-[2vw]">
+      <div className="left-0 w-full ml-[2vw] mt-[5vh] cursor-pointer">
+        <MTooltip title="Go Back">
+          <Button onClick={() => navigate(-1)} variant="outlined">
+            <div className="flex gap-3">
+              <ArrowBackIcon /> Go Back
+            </div>
+          </Button>
+        </MTooltip>
       </div>
-      <div className="">
+
+      <div className="flex flex-col justify-center items-center gap-4 w-full h-full mt-[2vh]">
+        <div className="border rounded-2xl w-[80vw]">
+          <SingleOrder
+            order={order}
+            allOrders={true}
+            OrderDetails={true}
+            handleFetchProduct={handleFetchProduct}
+            handleFetchUser={handleFetchUser}
+          />
+        </div>
         {showData === "product" && (
-          <div>
-            {isProductLoading && <p>Loading product data...</p>}
-            {productData && (
-              <SingleProduct Product={productData} allProducts={true} />
+          <div className="rounded-2xl w-[80vw]">
+            {isProductLoading ? (
+              <p className="text-center">Loading product data...</p>
+            ) : (
+              productData && (
+                <SingleProduct Product={productData} allProducts={true} />
+              )
             )}
           </div>
         )}
-      </div>
-      <div className="mx-auto p-4">
         {showData === "user" && (
-          <div className="w-full">
-            {isUserLoading && <p>Loading User data...</p>}
-            {userData && <SingleUser user={userData} />}
+          <div className="border rounded-2xl w-[80vw]">
+            {isUserLoading ? (
+              <p className="text-center">Loading User data...</p>
+            ) : (
+              userData && <SingleUser user={userData} />
+            )}
           </div>
         )}
       </div>

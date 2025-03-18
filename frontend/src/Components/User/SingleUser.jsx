@@ -1,5 +1,6 @@
 import React from "react";
 import { Avatar, Button, Typography } from "@mui/material";
+import MTooltip from "../MTooltip";
 
 const SingleUser = ({ user }) => {
   console.log(user);
@@ -18,20 +19,23 @@ const SingleUser = ({ user }) => {
 
   const initials = user?.FullName ? getInitials(user.FullName) : "U";
   return (
-    <div className="flex gap-6">
-      <Avatar
-        sx={{
-          width: 300,
-          height: 300,
-          bgcolor: "primary.main",
-          fontSize: 60,
-          fontWeight: "bold",
-        }}
-      >
-        {initials}
-      </Avatar>
+    <div className="flex gap-10 rounded-lg overflow-hidden p-3 flex-col sm:flex-row">
+      <div className="w-full sm:w-1/2 flex justify-end">
+        <Avatar
+          sx={{
+            width: 250,
+            height: 250,
+            bgcolor: "primary.main",
+            fontSize: 48,
+            fontWeight: "bold",
+            borderRadius: 10,
+          }}
+        >
+          {initials}
+        </Avatar>
+      </div>
 
-      <div className="flex flex-col gap-2 justify-center">
+      <div className="p-4 w-full sm:w-2/3 flex flex-col">
         {user?.isAdmin && (
           <Typography variant="h6" color="error" fontWeight="bold">
             Admin
@@ -42,13 +46,19 @@ const SingleUser = ({ user }) => {
         <Typography variant="h6" color="text.secondary">
           {user?.Email || "No Email Provided"}
         </Typography>
-        <Button
-          variant="contained"
-          color={user.isBlocked ? "secondary" : "error"}
-          onClick={() => handleBlockClick(user.id, !user.isBlocked)}
-        >
-          {user.isBlocked ? "Unblock" : "Block"}
-        </Button>
+        <div className="w-full">
+          <MTooltip title={user.isBlocked ? "Unblock" : "Block"}>
+            <Button
+              variant="contained"
+              color={user.isBlocked ? "secondary" : "error"}
+              onClick={() => handleBlockClick(user.id, !user.isBlocked)}
+              sx={{ mt: 1 }}
+              className="w-fit"
+            >
+              {user.isBlocked ? "Unblock" : "Block"}
+            </Button>
+          </MTooltip>
+        </div>
       </div>
     </div>
   );

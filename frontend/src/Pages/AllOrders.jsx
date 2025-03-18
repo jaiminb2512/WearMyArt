@@ -6,6 +6,7 @@ import OrderFilter from "../Components/OrderComponents/OrderFilter";
 import OrderTopBar from "../Components/OrderComponents/OrderTopBar";
 import OrderBottomBar from "../Components/OrderComponents/OrderBottomBar";
 import { useSelector } from "react-redux";
+import { OrderFilterData } from "../Data/FilterData";
 
 const AllOrders = () => {
   const { FilterBarOpen } = useSelector((state) => state.OpenClose);
@@ -32,35 +33,90 @@ const AllOrders = () => {
 
   const filteredOrders = useMemo(() => {
     return allOrders.filter((order) => {
+      // Handle Status filter
       const statusMatch =
         !filterOptions.Status.length ||
         filterOptions.Status.includes(order.Status);
+
+      // Handle CustomizeOption filter
       const customizeMatch =
         !filterOptions.CustomizeOption.length ||
         filterOptions.CustomizeOption.includes(order.CustomizeOption);
+
+      // Handle OrderDate filter
       const orderDateMatch = (() => {
         if (!filterOptions.OrderDate) return true;
-
         const inputDate = filterOptions.OrderDate.trim();
+        const [inputDay, inputMonth, inputYear] = inputDate
+          .split("/")
+          .map(Number);
+        if (isNaN(inputDay) || isNaN(inputMonth) || isNaN(inputYear))
+          return false;
         const orderCreatedAt = new Date(order.createdAt);
-
-        if (inputDate.length === 4) {
-          return orderCreatedAt.getFullYear().toString() === inputDate;
-        } else {
-          return (
-            orderCreatedAt.toISOString().split("T")[0] ===
-            new Date(inputDate).toISOString().split("T")[0]
-          );
-        }
+        if (isNaN(orderCreatedAt.getTime())) return false;
+        return (
+          orderCreatedAt.getDate() === inputDay &&
+          orderCreatedAt.getMonth() + 1 === inputMonth &&
+          orderCreatedAt.getFullYear() === inputYear
+        );
       })();
 
+      // Handle Duration filter
+      const durationMatch = (() => {
+        if (!filterOptions.Duration.start || !filterOptions.Duration.end)
+          return true;
+        const startDate = new Date(
+          ...filterOptions.Duration.start.split("/").reverse().map(Number)
+        );
+        const endDate = new Date(
+          ...filterOptions.Duration.end.split("/").reverse().map(Number)
+        );
+        const orderCreatedAt = new Date(order.createdAt);
+        return orderCreatedAt >= startDate && orderCreatedAt <= endDate;
+      })();
+
+      // Handle OrderID filter
       const orderIdMatch =
         !filterOptions.OrderID ||
-        order.OrderID.toLowerCase().includes(
+        order.OrderID?.toLowerCase().includes(
           filterOptions.OrderID.toLowerCase()
         );
 
-      return statusMatch && orderDateMatch && orderIdMatch && customizeMatch;
+      // Handle Quantity filter
+      const quantityMatch =
+        !filterOptions.Quantity || order.Quantity == filterOptions.Quantity;
+
+      // Handle FinalCost filter dynamically
+      const finalCostMatch = (() => {
+        if (!filterOptions.FinalCost) return true;
+        const cost = parseFloat(order.FinalCost);
+
+        // Find the selected range dynamically
+        const selectedRange = OrderFilterData.find(
+          (filter) => filter.title === "FinalCost"
+        )?.Options.find((range) => range === filterOptions.FinalCost);
+
+        if (!selectedRange) return true;
+
+        if (selectedRange.includes("+")) {
+          // Handle cases like "1999+"
+          const min = parseFloat(selectedRange.replace("+", ""));
+          return cost >= min;
+        }
+
+        const [min, max] = selectedRange.split("-").map(Number);
+        return cost >= min && cost <= max;
+      })();
+
+      return (
+        statusMatch &&
+        orderDateMatch &&
+        durationMatch &&
+        orderIdMatch &&
+        customizeMatch &&
+        quantityMatch &&
+        finalCostMatch
+      );
     });
   }, [filterOptions, allOrders]);
 
