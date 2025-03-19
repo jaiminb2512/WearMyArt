@@ -2,6 +2,7 @@ import React from "react";
 import { Accordion, AccordionSummary, AccordionDetails } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { styled } from "@mui/material/styles";
+import { FAQsData } from "../Data/Content";
 
 const StyledAccordion = styled(Accordion)(({ theme }) => ({
   "&.Mui-expanded": {
@@ -13,9 +14,8 @@ const StyledAccordion = styled(Accordion)(({ theme }) => ({
 
 const FAQ = () => {
   return (
-    <div className="flex flex-col md:flex-row p-6 md:p-12">
-      {/* Left Section */}
-      <div className="md:w-1/3 space-y-4">
+    <div className="flex flex-col md:flex-row p-6 md:p-12 mx-[10vw] min-h-[fit-content] py-16 gap-[50px]">
+      <div className="md:w-1/3 space-y-4 flex flex-col justify-center items-center md:items-start">
         <span className="bg-purple-200 text-purple-700 px-3 py-1 rounded-full text-sm font-semibold">
           Support
         </span>
@@ -32,56 +32,16 @@ const FAQ = () => {
       </div>
 
       <div className="md:w-2/3 space-y-4">
-        <StyledAccordion defaultExpanded>
-          <AccordionSummary
-            expandIcon={<ExpandMoreIcon />}
-            className="bg-green-500 text-white"
-          >
-            How does product customization work?
-          </AccordionSummary>
-          <AccordionDetails className="text-gray-700 bg-white">
-            To make a T-shirt design, you first need to install specific graphic
-            design software. Once you've done that, start your creation with a
-            design in at least 220 DPI so it won't be pixelated when printed. To
-            design your own T-shirt, you can upload your design to the front of
-            your tee and add custom elements like text. For some of our
-            T-shirts, reverse side printing is also available.
-          </AccordionDetails>
-        </StyledAccordion>
-        <StyledAccordion>
-          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            What products can I customize?
-          </AccordionSummary>
-          <AccordionDetails>
-            You can customize T-shirts, hoodies, caps, tote bags, and more.
-          </AccordionDetails>
-        </StyledAccordion>
-        <StyledAccordion>
-          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            How are your T-shirts printed?
-          </AccordionSummary>
-          <AccordionDetails>
-            We use high-quality screen printing and direct-to-garment (DTG)
-            printing methods.
-          </AccordionDetails>
-        </StyledAccordion>
-        <StyledAccordion>
-          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            What is the best T-shirt material?
-          </AccordionSummary>
-          <AccordionDetails>
-            100% cotton and cotton blends are great choices for comfort and
-            durability.
-          </AccordionDetails>
-        </StyledAccordion>
-        <StyledAccordion>
-          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            Can I order a personalized gift?
-          </AccordionSummary>
-          <AccordionDetails>
-            Yes! Our custom design options make for great personalized gifts.
-          </AccordionDetails>
-        </StyledAccordion>
+        {FAQsData.map((faq) => (
+          <StyledAccordion key={faq.id}>
+            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+              {faq.question}
+            </AccordionSummary>
+            <AccordionDetails className="text-gray-700 bg-white">
+              {faq.answer}
+            </AccordionDetails>
+          </StyledAccordion>
+        ))}
       </div>
     </div>
   );

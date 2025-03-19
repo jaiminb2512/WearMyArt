@@ -6,18 +6,22 @@ import WhyChooseUs from "../Components/HomeComponents/WhyChooseUs";
 import Testimonials from "../Components/HomeComponents/Testimonials";
 import Social from "../Components/HomeComponents/Social";
 import FAQ from "../Components/FAQ";
+import TshirtPrintingSteps from "../Components/HomeComponents/TshirtPrintingSteps";
+import FeaturesSection from "../Components/HomeComponents/FeaturesSection";
 
 const Home = () => {
   return (
-    <div>
+    <>
       <Hero />
       <CustomizeTshirtProcess />
       <TShirtPrinting />
       <WhyChooseUs />
       <Testimonials />
+      <TshirtPrintingSteps />
+      <FeaturesSection />
       <FAQ />
       <Social />
-    </div>
+    </>
   );
 };
 

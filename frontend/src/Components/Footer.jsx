@@ -10,8 +10,8 @@ import {
 const Footer = () => {
   return (
     <footer className="bg-gray-100 py-10 px-6 md:px-20">
-      <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-6 text-gray-700">
-        <div>
+      <div className="max-w-6xl mx-auto flex gap-6 text-gray-700 flex-col md:flex-row">
+        <div className="flex-1 flex flex-col justify-center items-center md:justify-start md:items-start">
           <h2 className="text-xl font-bold flex items-center gap-2">
             <span className="text-green-500">🟢</span> WearMyArt
           </h2>
@@ -19,29 +19,31 @@ const Footer = () => {
           <p className="font-semibold mt-1">+91 123 456 7890</p>
         </div>
 
-        <div>
-          <h3 className="font-semibold text-lg mb-2">Information</h3>
-          <ul className="space-y-2">
-            <li>About us</li>
-            <li>Our Blog</li>
-            <li>Start a Return</li>
-            <li>Contact Us</li>
-            <li>Shipping FAQ</li>
-          </ul>
+        <div className="flex flex-2 justify-center items-center">
+          <div className="flex-1 ">
+            <h3 className="font-semibold text-lg mb-2">Information</h3>
+            <ul className="space-y-2">
+              <li>About us</li>
+              <li>Our Blog</li>
+              <li>Start a Return</li>
+              <li>Contact Us</li>
+              <li>Shipping FAQ</li>
+            </ul>
+          </div>
+
+          <div className="flex-1 ">
+            <h3 className="font-semibold text-lg mb-2">Useful links</h3>
+            <ul className="space-y-2">
+              <li>My Account</li>
+              <li>Print Provider</li>
+              <li>Become a Partner</li>
+              <li>Custom Products</li>
+              <li>Make your own shirt</li>
+            </ul>
+          </div>
         </div>
 
-        <div>
-          <h3 className="font-semibold text-lg mb-2">Useful links</h3>
-          <ul className="space-y-2">
-            <li>My Account</li>
-            <li>Print Provider</li>
-            <li>Become a Partner</li>
-            <li>Custom Products</li>
-            <li>Make your own shirt</li>
-          </ul>
-        </div>
-
-        <div>
+        <div className="flex-1 flex flex-col justify-center items-center md:justify-start md:items-start">
           <h3 className="font-semibold text-lg mb-2">Newsletter</h3>
           <p className="mb-3">
             Get the latest news, events & more delivered to your inbox.

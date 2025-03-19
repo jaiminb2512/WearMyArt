@@ -1,102 +1,82 @@
-import React, { useEffect, useState } from "react";
-import "./style.css";
+import React from "react";
+import { motion } from "framer-motion";
 import { useLocation, useNavigate } from "react-router-dom";
-import LoginForm from "../Components/Auth/LoginForm";
-import RegisterForm from "../Components/Auth/RegisterForm";
+
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import LockOpenIcon from "@mui/icons-material/LockOpen";
+import LoginForm from "../Components/Auth/LoginForm";
+import RegisterForm from "../Components/Auth/RegisterForm";
 
-const Auth = () => {
-  const [isRegisterMode, setRegisterMode] = useState(false);
-
+export default function AuthPage() {
   const location = useLocation();
-  useEffect(() => {
-    setRegisterMode(location.pathname.includes("/register"));
-  }, []);
-
   const navigate = useNavigate();
-  const handleRegisterClick = () => {
-    setRegisterMode(true);
-    navigate(`/register`);
-  };
 
-  const handleLogInClick = () => {
-    setRegisterMode(false);
-    navigate(`/login`);
-  };
+  const isLogin = location.pathname === "/login";
 
   return (
-    <div className={`container ${isRegisterMode ? "sign-up-mode" : ""}`}>
-      <div className="forms-container">
-        <div className="signin-signup">
-          <div
-            className={`sign-in-form flex items-center justify-center flex-col transition-all duration-[0.2s] delay-[0.7s] overflow-hidden col-[1_/_2] row-[1_/_2] px-20 py-0 ${
-              !isRegisterMode
-                ? "opacity-100 pointer-events-auto"
-                : "opacity-0 pointer-events-none"
-            }`}
+    <div className="flex justify-center items-center min-h-screen bg-gradient-to-b from-[#C5F1E1] to-white">
+      <div className="relative flex bg-white rounded-2xl shadow-xl overflow-hidden w-3/5 h-[60vh]">
+        <div className="absolute -bottom-32 -left-32 w-80 h-80 bg-green-200 rounded-full "></div>
+        <div className="relative w-3/5 p-8 flex justify-center items-center overflow-hidden">
+          <motion.div
+            initial={{ x: 0 }}
+            animate={{ x: isLogin ? "0%" : "-100%" }}
+            transition={{ duration: 0.5 }}
+            className="absolute w-full"
           >
             <LoginForm />
-          </div>
-          <div
-            className={`sign-in-form flex items-center justify-center flex-col transition-all duration-[0.2s] delay-[0.7s] overflow-hidden col-[1_/_2] row-[1_/_2] px-20 py-0 ${
-              isRegisterMode
-                ? "opacity-100 pointer-events-auto"
-                : "opacity-0 pointer-events-none"
-            }`}
+          </motion.div>
+          <motion.div
+            initial={{ x: "100%" }}
+            animate={{ x: isLogin ? "100%" : "0%" }}
+            transition={{ duration: 0.5 }}
+            className="absolute w-full"
           >
             <RegisterForm />
-          </div>
+          </motion.div>
         </div>
-      </div>
-
-      <div className="panels-container">
-        <div className="panel left-panel">
-          <div className="content">
-            <h3>New to Our Platform?</h3>
-            <p>
-              Join us today and explore exclusive features tailored just for
-              you. Create an account in seconds and start your journey!
+        <motion.div
+          initial={{ x: 0 }}
+          animate={{ x: isLogin ? "0%" : "0%" }}
+          transition={{ duration: 0.5 }}
+          className=" w-2/5 bg-gradient-to-b from-[#8edfc1] to-[#15ec9e] text-white flex flex-col justify-center items-center p-6 relative w-2/5 bg-blue-500 text-white flex flex-col justify-center items-center p-6 h-[60vh]"
+        >
+          <div className="absolute -top-32 -right-32 w-80 h-80 bg-green-200 rounded-full"></div>
+          {/* <div className="absolute -bottom-32 -left-32 w-80 h-80 bg-green-200 rounded-full overflow-clip"></div> */}
+          <motion.div
+            key={isLogin ? "loginSidebar" : "registerSidebar"}
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5 }}
+            className="text-center relative"
+          >
+            <h2 className="text-2xl font-bold mb-2">
+              {isLogin ? "New to Our Platform?" : "Already a member?"}
+            </h2>
+            <p className="text-sm mb-4">
+              {isLogin
+                ? "Join us today and explore exclusive features tailored just for you. Create an account in seconds and start your journey!"
+                : " Welcome back! Log in to access your account and continue enjoying our services with ease."}
             </p>
-            <button
-              className="btn transparent"
-              id="sign-up-btn"
-              onClick={handleRegisterClick}
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => navigate(isLogin ? "/register" : "/login")}
+              className="bg-white text-green-900 px-4 py-2 rounded-lg font-semibold hover:bg-gray-100 transition"
             >
-              <span className="flex justify-center items-center gap-2">
-                Register <PersonAddIcon />
-              </span>
-            </button>
-          </div>
-          <img
-            src="img/register.svg"
-            className="image"
-            alt="Register illustration"
-          />
-        </div>
-
-        <div className="panel right-panel">
-          <div className="content">
-            <h3>Already Have an Account?</h3>
-            <p>
-              Welcome back! Log in to access your account and continue enjoying
-              our services with ease.
-            </p>
-            <button
-              className="btn transparent"
-              id="sign-in-btn"
-              onClick={handleLogInClick}
-            >
-              <span className="flex justify-center items-center gap-2">
-                Log In <LockOpenIcon />
-              </span>
-            </button>
-          </div>
-          <img src="img/log.svg" className="image" alt="Log In illustration" />
-        </div>
+              {isLogin ? (
+                <span className="flex justify-center items-center gap-2">
+                  Register <PersonAddIcon />
+                </span>
+              ) : (
+                <span className="flex justify-center items-center gap-2">
+                  Log In <LockOpenIcon />
+                </span>
+              )}
+            </motion.button>
+          </motion.div>
+        </motion.div>
       </div>
     </div>
   );
-};
-
-export default Auth;
+}

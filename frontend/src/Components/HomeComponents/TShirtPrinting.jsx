@@ -1,20 +1,20 @@
 import React from "react";
 import HeroImage from "/img/Image 4.png";
 import LaptopImage from "/img/Laptop.png";
+import { TShirtPrintingData } from "../../Data/Content";
 
 const TShirtPrinting = () => {
   return (
-    <div className="bg-white min-h-screen py-12 px-[10vw]">
-      <div className="flex items-center flex-col sm:flex-row">
+    <div className="bg-white min-h-screen py-12 px-4 sm:px-[10vw] overflow-x-hidden">
+      <div className="flex flex-col sm:flex-row items-center justify-center">
         <img
           src={HeroImage}
           alt="Hero Design"
-          className="mb-6 sm:w-1/2 w-full"
+          className="mb-6 sm:w-1/2 w-full max-w-full"
         />
-        <div>
-          <h1 className="text-4xl font-bold mb-4 flex flex-col w-[fit-content] ">
-            <p>Free and easy way to</p>
-            <p>bring your ideas to life</p>
+        <div className="text-center sm:text-left">
+          <h1 className="text-4xl font-bold mb-4">
+            Free and easy way to bring your ideas to life
           </h1>
           <p className="text-gray-500 max-w-lg mb-6">
             Create stunning t-shirt designs with our easy-to-use tools.
@@ -33,36 +33,24 @@ const TShirtPrinting = () => {
           make custom t-shirts effortless.
         </p>
 
-        <div className="flex">
-          <div className="flex flex-col md:justify-center gap-8">
-            <div className="bg-white shadow-lg p-6 rounded-lg w-80">
-              <h3 className="font-bold mb-2">Easy to Create & Customize</h3>
-              <p className="text-gray-500">
-                Use our powerful editor to design t-shirts that match your
-                vision.
-              </p>
-            </div>
-
-            <div className="bg-white shadow-lg p-6 rounded-lg w-80">
-              <h3 className="font-bold mb-2">Thousands of Free Templates</h3>
-              <p className="text-gray-500">
-                Choose from a wide range of professionally designed templates.
-              </p>
-            </div>
-
-            <div className="bg-white shadow-lg p-6 rounded-lg w-80">
-              <h3 className="font-bold mb-2">Free Standard Shipping</h3>
-              <p className="text-gray-500">
-                Get your custom t-shirts delivered to your doorstep at no extra
-                cost.
-              </p>
-            </div>
+        <div className="flex flex-col md:flex-row md:items-center w-full gap-8">
+          <div className="flex flex-col gap-8 w-full md:w-1/2">
+            {TShirtPrintingData.map((data, index) => (
+              <div
+                key={index}
+                className="bg-white shadow-lg p-6 rounded-lg w-full "
+              >
+                <h3 className="font-bold mb-2">{data.title}</h3>
+                <p className="text-gray-500">{data.description}</p>
+              </div>
+            ))}
           </div>
-          <div className="flex-1">
+
+          <div className="flex justify-center md:w-1/2">
             <img
               src={LaptopImage}
               alt="Laptop Design"
-              className="mb-6 w-[50vw]"
+              className="hidden md:block w-full max-w-[500px]"
             />
           </div>
         </div>

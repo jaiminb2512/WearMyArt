@@ -14,6 +14,7 @@ import {
 } from "@mui/material";
 import { login } from "../../Redux/UserSlice.js";
 import { useApiMutation } from "../../utils/apiRequest.js";
+import { motion } from "framer-motion";
 
 const LoginForm = () => {
   const [loginData, setLoginData] = useState({
@@ -107,71 +108,95 @@ const LoginForm = () => {
   return (
     <Container component="main">
       <div className="w-full">
-        <Typography variant="h4" align="center" gutterBottom>
+        <Typography
+          variant="h4"
+          align="center"
+          gutterBottom
+          className="text-green-500"
+        >
           Login
         </Typography>
 
         <form onSubmit={handleLogin} className="w-full flex flex-col gap-2">
-          <TextField
-            label="Email"
-            type="email"
-            name="Email"
-            value={loginData.Email}
-            onChange={onChange}
-            fullWidth
-            error={!!errors.Email}
-            helperText={errors.Email}
-            variant="standard"
-          />
+          <motion.div
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.3 }}
+            className="mb-4"
+          >
+            <TextField
+              label="Email"
+              type="email"
+              name="Email"
+              value={loginData.Email}
+              onChange={onChange}
+              fullWidth
+              error={!!errors.Email}
+              helperText={errors.Email}
+              variant="standard"
+            />
+          </motion.div>
 
           {!isOtpSent ? (
             <div>
-              <TextField
-                label="Password"
-                type={showPassword ? "text" : "password"}
-                name="Password"
-                value={loginData.Password}
-                onChange={onChange}
-                fullWidth
-                error={!!errors.Password}
-                helperText={errors.Password}
-                variant="standard"
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton
-                        onClick={() => setShowPassword((prev) => !prev)}
-                      >
-                        {showPassword ? <IoEyeOutline /> : <FaEyeSlash />}
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
-              />
+              <motion.div
+                initial={{ opacity: 0, x: -30 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.5 }}
+                className="mb-6"
+              >
+                <TextField
+                  label="Password"
+                  type={showPassword ? "text" : "password"}
+                  name="Password"
+                  value={loginData.Password}
+                  onChange={onChange}
+                  fullWidth
+                  error={!!errors.Password}
+                  helperText={errors.Password}
+                  variant="standard"
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          onClick={() => setShowPassword((prev) => !prev)}
+                        >
+                          {showPassword ? <IoEyeOutline /> : <FaEyeSlash />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              </motion.div>
               <Typography variant="body2" align="right">
-                <span style={{ cursor: "pointer", color: "#1976d2" }}>
-                  Forgot Password ?
-                </span>
+                <span className="text-green-500">Forgot Password ?</span>
               </Typography>
             </div>
           ) : (
-            <TextField
-              label="OTP"
-              type="text"
-              name="OTP"
-              value={loginData.OTP}
-              onChange={onChange}
-              fullWidth
-              error={!!errors.OTP}
-              helperText={errors.OTP}
-              variant="filled"
-            />
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.0 }}
+              className="mb-6"
+            >
+              <TextField
+                label="OTP"
+                type="text"
+                name="OTP"
+                value={loginData.OTP}
+                onChange={onChange}
+                fullWidth
+                error={!!errors.OTP}
+                helperText={errors.OTP}
+                variant="filled"
+              />
+            </motion.div>
           )}
 
           <Button
             type="submit"
             variant="contained"
-            color="primary"
+            color="success"
             fullWidth
             sx={{ mt: 2 }}
             disabled={loginMutation.isLoading}
@@ -182,7 +207,7 @@ const LoginForm = () => {
           {!isOtpSent && (
             <Button
               variant="outlined"
-              color="primary"
+              color="success"
               fullWidth
               onClick={handleSendOtp}
               disabled={isOtpButtonDisabled || sendOtpMutation.isLoading}

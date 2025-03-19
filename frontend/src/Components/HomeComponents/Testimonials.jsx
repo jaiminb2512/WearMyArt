@@ -1,25 +1,5 @@
 import React from "react";
-
-const testimonials = [
-  {
-    name: "Dean D.",
-    role: "Director",
-    image: "https://via.placeholder.com/50",
-    text: "Great quality products - Flags, programs for exceptional capacities, birthday, and occasion welcome are largely still mainstream on paper.",
-  },
-  {
-    name: "Cristian L.",
-    role: "Manager",
-    image: "https://via.placeholder.com/50",
-    text: "Best services ever - Flags, programs for exceptional capacities, birthday, and are largely still mainstream on paper occasion welcome.",
-  },
-  {
-    name: "Leonel R.",
-    role: "Designer",
-    image: "https://via.placeholder.com/50",
-    text: "Top notch support - Flags, programs for, birthday, and occasion welcome are largely still mainstream on paper exceptional capacities.",
-  },
-];
+import { testimonialsData } from "../../Data/Content";
 
 const Testimonials = () => {
   return (
@@ -31,11 +11,11 @@ const Testimonials = () => {
         <p className="text-gray-500 mt-2">
           We provide support for more than 15K+ Businesses.
         </p>
-        <div className="mt-10 grid md:grid-cols-3 gap-6">
-          {testimonials.map((testimonial, index) => (
+        <div className="mt-10 grid md:grid-cols-3 gap-6 mx-[5vw] xl:mx-0">
+          {testimonialsData.map((testimonial, index) => (
             <div
               key={index}
-              className="p-6 bg-gray-100 shadow-2xl rounded-2xl border flex flex-col items-center"
+              className="p-6 bg-gray-100 shadow-2xl rounded-2xl border flex flex-col items-center hover:scale-110 hover:translate-y-2 transition-transform duration-300 ease-in-out"
             >
               <img
                 src={testimonial.image}
