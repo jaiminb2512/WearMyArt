@@ -12,6 +12,7 @@ import useLogOut from "../utils/Logout";
 import { toggleSidebar } from "../Redux/OpenCloseSlice";
 import { useTheme } from "@mui/material/styles";
 import { Box, Typography, IconButton } from "@mui/material";
+import MTooltip from "./MTooltip";
 
 const Sidebar = ({ hideText, setHideText }) => {
   const dispatch = useDispatch();
@@ -80,7 +81,6 @@ const Sidebar = ({ hideText, setHideText }) => {
           <Box sx={{ flexGrow: 1 }}>
             {sidebarData.map((menu) => (
               <Box
-                key={menu.name}
                 sx={menuItemStyle(menu.path)}
                 onClick={() => {
                   navigate(`/dashboard${menu.path}`);

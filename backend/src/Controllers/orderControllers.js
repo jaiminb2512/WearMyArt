@@ -151,9 +151,119 @@ const addOrder = async (req, res) => {
         "Order is Successfully placed",
         200
       );
-    } else {
-      const FinalProductImg = `/uploads/${req.files["FinalProductImg"][0].filename}`;
-      const CustomerImg = `/uploads/${req.files["CustomerImg"][0].filename}`;
+    }
+  } catch (error) {
+    deleteFiles([
+      `/uploads/${req.files["FinalProductImg"][0].filename}`,
+      `/uploads/${req.files["CustomerImg"][0].filename}`,
+    ]);
+    console.log(error.message);
+    return apiResponse(res, false, null, error.message, 500);
+  }
+};
+
+const addToCartOrder = async (req, res) => {
+  try {
+    const { CustomizeOption, Quantity, FinalCost, ProductId } = req.body;
+    console.log(req.files.FinalProductImg[0].filename);
+    const FinalProductImg = `/uploads/${req.files.FinalProductImg[0].filename}`;
+
+    const CustomerId = req.user._id;
+
+    if (!CustomizeOption) {
+      return apiResponse(res, false, null, "CustomizeOption is required", 400);
+    }
+    const { Size } = productValidate(ProductId, res, Quantity);
+
+    if (!FinalProductImg) {
+      return apiResponse(res, false, null, "FinalProductImg is required", 400);
+    }
+    if (!FinalCost) {
+      return apiResponse(res, false, null, "FinalCost is required", 400);
+    }
+
+    await productValidate(ProductId, res, Quantity);
+
+    const redisClient = await connectRedis();
+
+    if (CustomizeOption === "Text") {
+      const { Font, TextStyle, Text, Color } = req.body;
+
+      if (!(ProductId || Font || TextStyle || Text || Color)) {
+        return apiResponse(res, false, null, "All fields are required", 400);
+      }
+
+      const newOrderKey = `order:${CustomerId}:${Date.now()}`;
+
+      await redisClient.hSet(newOrderKey, {
+        ProductId: String(ProductId),
+        CustomerId: String(CustomerId),
+        Font: String(Font || ""),
+        TextStyle: String(TextStyle || ""),
+        Text: String(Text || ""),
+        Color: String(Color || ""),
+        Quantity: Number(Quantity) || 1,
+        FinalCost: Number(FinalCost),
+        FinalProductImg: String(FinalProductImg || ""),
+        CustomizeOption: "Text",
+      });
+
+      console.log("here is the order");
+      return apiResponse(
+        res,
+        true,
+        {
+          OrderKey: newOrderKey,
+          ProductId,
+          Font,
+          TextStyle,
+          Text,
+          Color,
+          Quantity,
+          FinalCost,
+          FinalProductImg,
+        },
+        `Order is successfully added to cart`,
+        200
+      );
+    } else if (CustomizeOption === "Photo") {
+      const CustomerImg = `/uploads/${req.files.CustomerImg[0].filename}`;
+
+      if (!CustomerImg) {
+        return apiResponse(res, false, null, "Customer Img is required", 400);
+      }
+
+      const newOrderKey = `order:${CustomerId}:${Date.now()}`;
+      await redisClient.hSet(newOrderKey, {
+        ProductId: String(ProductId),
+        CustomerImg: String(CustomerImg || ""),
+        CustomerId: String(CustomerId),
+        Quantity: Number(Quantity) || 1,
+        FinalCost: Number(FinalCost),
+        FinalProductImg: String(FinalProductImg || ""),
+        CustomizeOption: "Photo",
+      });
+
+      return apiResponse(
+        res,
+        true,
+        {
+          OrderKey: newOrderKey,
+          ProductId,
+          CustomerImg,
+          CustomerId,
+          Quantity,
+          FinalCost,
+          FinalProductImg,
+          CustomizeOption,
+        },
+        `Order is successfully updated in the cart`,
+        200
+      );
+    } else if (CustomizeOption === "Both") {
+      const { Font, Text, Color, TextStyle } = req.body;
+      const FinalProductImg = `/uploads/${req.files.FinalProductImg[0].filename}`;
+      const CustomerImg = `/uploads/${req.files.CustomerImg[0].filename}`;
 
       if (!CustomerImg && !FinalProductImg) {
         return apiResponse(
@@ -170,7 +280,7 @@ const addOrder = async (req, res) => {
       }
 
       if (!FinalProductImg) {
-        deleteFiles([`/uploads/${req.files["CustomerImg"][0].filename}`]);
+        deleteFiles([`/uploads/${req.files.CustomerImg[0].filename}`]);
         return apiResponse(
           res,
           false,
@@ -179,109 +289,67 @@ const addOrder = async (req, res) => {
           400
         );
       }
-      return apiResponse(res, false, null, "Invalid Customize Type", 400);
-    }
-  } catch (error) {
-    deleteFiles([
-      `/uploads/${req.files["FinalProductImg"][0].filename}`,
-      `/uploads/${req.files["CustomerImg"][0].filename}`,
-    ]);
-    console.log(error.message);
-    return apiResponse(res, false, null, error.message, 500);
-  }
-};
 
-const addToCartOrder = async (req, res) => {
-  try {
-    const { OrderKey, Quantity, FinalCost } = req.body;
-    const FinalProductImg = req.file.path;
-
-    if (!FinalProductImg) {
-      return apiResponse(res, false, null, "FinalProductImg is required", 400);
-    }
-    if (!FinalCost) {
-      return apiResponse(res, false, null, "FinalCost is required", 400);
-    }
-
-    const redisClient = await connectRedis();
-    const CustomerId = req.user._id;
-
-    if (!OrderKey) {
-      // OrderKey is not given means the product's customization is text type
-      const { ProductId, Font, TextStyle, FontSize, Text, Color } = req.body;
-
-      if (!(ProductId || Font || TextStyle || FontSize || Text || Color)) {
-        return apiResponse(res, false, null, "All fields are required", 400);
-      }
-
-      await productValidate(ProductId, res, Quantity);
       const newOrderKey = `order:${CustomerId}:${Date.now()}`;
-
       await redisClient.hSet(newOrderKey, {
         ProductId: String(ProductId),
+        CustomerImg: String(CustomerImg || ""),
         CustomerId: String(CustomerId),
-        Font: String(Font || ""),
-        TextStyle: String(TextStyle || ""),
-        FontSize: Number(FontSize) || 0,
-        Text: String(Text || ""),
-        Color: String(Color || ""),
         Quantity: Number(Quantity) || 1,
         FinalCost: Number(FinalCost),
         FinalProductImg: String(FinalProductImg || ""),
+        Font: String(Font || ""),
+        TextStyle: String(TextStyle || ""),
+        Text: String(Text || ""),
+        Color: String(Color || ""),
+        CustomizeOption: "Both",
+      });
+
+      const newOrder = new Order({
+        ProductId,
+        CustomerImg,
+        CustomerId,
+        Quantity,
+        FinalCost,
+        FinalProductImg,
+        Font,
+        TextStyle,
+        Text,
+        Color,
+        CustomizeOption: "Both",
       });
 
       return apiResponse(
         res,
         true,
         {
+          OrderKey: newOrderKey,
           ProductId,
-          Font,
-          TextStyle,
-          FontSize,
-          Text,
-          Color,
+          CustomerImg,
+          CustomerId,
           Quantity,
           FinalCost,
           FinalProductImg,
+          Font,
+          TextStyle,
+          Text,
+          Color,
+          CustomizeOption: "Both",
         },
-        `Order is successfully added to cart`,
-        200
-      );
-    } else {
-      const orderDetails = await redisClient.hGetAll(OrderKey);
-
-      if (!orderDetails || Object.keys(orderDetails).length === 0) {
-        return apiResponse(
-          res,
-          false,
-          null,
-          "No order found for the provided OrderKey",
-          404
-        );
-      }
-
-      await productValidate(orderDetails.ProductId, res, Quantity);
-
-      await redisClient.hSet(OrderKey, {
-        Quantity: Number(Quantity || 1),
-        FinalCost: Number(FinalCost),
-        FinalProductImg: String(FinalProductImg || ""),
-      });
-
-      return apiResponse(
-        res,
-        true,
-        {
-          ...orderDetails,
-          Quantity: Number(Quantity || 1),
-          FinalCost: Number(FinalCost),
-          FinalProductImg: String(FinalProductImg || ""),
-        },
-        `Order is successfully updated in the cart`,
+        "Order is Successfully placed",
         200
       );
     }
   } catch (error) {
+    // if (req.files?.CustomerImg[0]?.filename) {
+    //   deleteFiles([
+    //     `/uploads/${req.files.FinalProductImg[0].filename}`,
+    //     `/uploads/${req.files.CustomerImg[0].filename}`,
+    //   ]);
+    // } else {
+    //   deleteFiles([`/uploads/${req.files.FinalProductImg[0].filename}`]);
+    // }
+    console.log(error.message);
     return apiResponse(res, false, null, error.message, 500);
   }
 };

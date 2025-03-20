@@ -16,6 +16,7 @@ import {
   blockUsers,
   unblockUsers,
   getAllUsers,
+  otpVerifyForForgotPassword,
 } from "../controllers/userControllers.js";
 
 const router = Router();
@@ -29,6 +30,7 @@ router.post("/sending-mail-for-login", sendingMailForLoginUser);
 router.post("/login", loginUser);
 
 router.post("/sending-mail-for-forgot-password", sendingMailForForgotPassword);
+router.post("/otp-verify-for-forgot-password", otpVerifyForForgotPassword);
 router.post("/forgot-password", forgotPassword);
 
 // Admin Requests

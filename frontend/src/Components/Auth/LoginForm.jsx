@@ -11,10 +11,11 @@ import {
   IconButton,
   InputAdornment,
   Container,
+  FormControlLabel,
+  Checkbox,
 } from "@mui/material";
 import { login } from "../../Redux/UserSlice.js";
 import { useApiMutation } from "../../utils/apiRequest.js";
-import { motion } from "framer-motion";
 
 const LoginForm = () => {
   const [loginData, setLoginData] = useState({
@@ -79,6 +80,7 @@ const LoginForm = () => {
     }
 
     const userData = await loginMutation.mutateAsync(requestData);
+    console.log(userData);
     if (userData) {
       dispatch(login(userData.user));
       navigate("/");
@@ -118,12 +120,7 @@ const LoginForm = () => {
         </Typography>
 
         <form onSubmit={handleLogin} className="w-full flex flex-col gap-2">
-          <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.3 }}
-            className="mb-4"
-          >
+          <div className="mb-4">
             <TextField
               label="Email"
               type="email"
@@ -135,16 +132,11 @@ const LoginForm = () => {
               helperText={errors.Email}
               variant="standard"
             />
-          </motion.div>
+          </div>
 
           {!isOtpSent ? (
             <div>
-              <motion.div
-                initial={{ opacity: 0, x: -30 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.5 }}
-                className="mb-6"
-              >
+              <div className="mb-6">
                 <TextField
                   label="Password"
                   type={showPassword ? "text" : "password"}
@@ -167,18 +159,24 @@ const LoginForm = () => {
                     ),
                   }}
                 />
-              </motion.div>
-              <Typography variant="body2" align="right">
-                <span className="text-green-500">Forgot Password ?</span>
-              </Typography>
+              </div>
+              <div className="flex justify-between items-center">
+                <FormControlLabel control={<Checkbox />} label="Remember me" />
+                <Typography
+                  variant="body2"
+                  align="right"
+                  onClick={() => {
+                    navigate("/forgot-password");
+                  }}
+                >
+                  <span className="text-green-500 cursor-pointer">
+                    Forgot Password ?
+                  </span>
+                </Typography>
+              </div>
             </div>
           ) : (
-            <motion.div
-              initial={{ opacity: 0, x: -30 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.0 }}
-              className="mb-6"
-            >
+            <div className="mb-6">
               <TextField
                 label="OTP"
                 type="text"
@@ -190,7 +188,7 @@ const LoginForm = () => {
                 helperText={errors.OTP}
                 variant="filled"
               />
-            </motion.div>
+            </div>
           )}
 
           <Button

@@ -11,6 +11,10 @@ const ApiURLS = {
     url: "/api/user/sending-mail-for-forgot-password",
     method: "POST",
   },
+  otpVerifyForForgotPassword: {
+    url: "/api/user/otp-verify-for-forgot-password",
+    method: "POST",
+  },
   ForgotPassword: { url: "/api/user/forgot-password", method: "POST" },
   GetSingleUser: { url: "/api/user/single-user", method: "GET" },
   MakeAdmin: { url: "/api/user/make-admin/:id", method: "PATCH" },

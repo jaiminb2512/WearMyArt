@@ -9,13 +9,12 @@ import {
   TextField,
   IconButton,
   Container,
-  Paper,
-  Typography,
-  Box,
-  InputAdornment,
   Stepper,
   Step,
   StepLabel,
+  InputAdornment,
+  Checkbox,
+  FormControlLabel,
 } from "@mui/material";
 import { IoEyeOutline } from "react-icons/io5";
 import { FaEyeSlash } from "react-icons/fa6";
@@ -31,11 +30,13 @@ const RegisterForm = () => {
     OTP: "",
   });
   const [showPassword, setShowPassword] = useState(false);
+  const [agreeTerms, setAgreeTerms] = useState(false);
   const [errors, setErrors] = useState({
     FullName: "",
     Email: "",
     Password: "",
     OTP: "",
+    Terms: "",
   });
 
   const navigate = useNavigate();
@@ -56,11 +57,29 @@ const RegisterForm = () => {
       ...prevData,
       [name]: value,
     }));
+    setErrors((prevData) => ({
+      ...prevData,
+      [name]: "",
+    }));
+  };
+
+  const handleCheckbox = (e) => {
+    setErrors((prevData) => ({
+      ...prevData,
+      Terms: "",
+    }));
+    setAgreeTerms(e.target.checked);
   };
 
   const validateForm = () => {
     let formValid = true;
-    const newErrors = { FullName: "", Email: "", Password: "", OTP: "" };
+    const newErrors = {
+      FullName: "",
+      Email: "",
+      Password: "",
+      OTP: "",
+      Terms: "",
+    };
 
     if (activeStep === 0) {
       if (registerData.FullName.length < 6) {
@@ -72,8 +91,17 @@ const RegisterForm = () => {
         newErrors.Email = "Invalid Email format";
         formValid = false;
       }
-      if (registerData.Password.length < 6) {
-        newErrors.Password = "Password must be at least 6 characters long";
+
+      const passwordRegex =
+        /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,16}$/;
+
+      if (!passwordRegex.test(registerData.Password)) {
+        newErrors.Password =
+          "Password must be 8-16 characters, include 1 uppercase letter, 1 number, and 1 special character";
+        formValid = false;
+      }
+      if (!agreeTerms) {
+        newErrors.Terms = "You must agree to the terms and conditions";
         formValid = false;
       }
     } else {
@@ -117,8 +145,8 @@ const RegisterForm = () => {
   };
 
   return (
-    <div>
-      <Container component="main" maxWidth="xs">
+    <Container component="main">
+      <div className="w-full">
         <Stepper activeStep={activeStep} alternativeLabel>
           {steps.map((label) => (
             <Step key={label}>
@@ -173,6 +201,16 @@ const RegisterForm = () => {
                   ),
                 }}
               />
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={agreeTerms}
+                    onChange={(e) => handleCheckbox(e)}
+                  />
+                }
+                label="I agree to the Terms and Conditions"
+              />
+              {errors.Terms && <p style={{ color: "red" }}>{errors.Terms}</p>}
             </>
           ) : (
             <TextField
@@ -199,8 +237,8 @@ const RegisterForm = () => {
             {activeStep === 0 ? "Next" : "Verify & Register"}
           </Button>
         </form>
-      </Container>
-    </div>
+      </div>
+    </Container>
   );
 };
 

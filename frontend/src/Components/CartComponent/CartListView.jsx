@@ -1,14 +1,13 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import SingleOrder from "./SingleOrder";
 import ShoppingBagIcon from "@mui/icons-material/ShoppingBag";
-import Button from "@mui/material/Button";
+import { Button } from "@mui/material";
 import MTooltip from "../MTooltip";
 
-const OrderListView = ({ Orders, loading, allOrders = false, count }) => {
+const CartListView = ({ MyCart, isLoading = false }) => {
   const navigate = useNavigate();
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex justify-center items-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600"></div>
@@ -16,14 +15,14 @@ const OrderListView = ({ Orders, loading, allOrders = false, count }) => {
     );
   }
 
-  if (!Orders || Orders.length === 0) {
+  if (!MyCart || MyCart.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center gap-4 h-[70vh] ">
         <div className="bg-gray-100 rounded-full p-8 flex items-center justify-center">
           <ShoppingBagIcon className="w-64 h-64 text-gray-500" />
         </div>
         <p className="text-gray-600 text-lg font-medium">
-          Your order list is empty. Start shopping now!
+          Your Cart is empty. Start shopping now!
         </p>
         <MTooltip title="Start shopping">
           <Button
@@ -45,34 +44,7 @@ const OrderListView = ({ Orders, loading, allOrders = false, count }) => {
     return date.toLocaleDateString();
   };
 
-  const handleRedirect = (order) => {
-    navigate("/dashboard/order", { state: { order } });
-  };
-
-  return (
-    <section>
-      <h1 className="relative text-lg font-bold hidden sm:block">{`${count} Orders`}</h1>
-      <div className="grid gap-8">
-        {Orders.map((order) => {
-          const { _id, CustomerImg, FinalProductImg, CustomizeOption } = order;
-
-          const imgs = [FinalProductImg];
-          const altNames = ["Final Product Img"];
-
-          if (CustomizeOption === "Photo") {
-            imgs.push(CustomerImg);
-            altNames.push("Customer Img");
-          }
-
-          return (
-            <div className="border rounded-2xl">
-              <SingleOrder allOrders={true} key={_id} order={order} />;
-            </div>
-          );
-        })}
-      </div>
-    </section>
-  );
+  return <div>CartListView</div>;
 };
 
-export default OrderListView;
+export default CartListView;

@@ -19,7 +19,8 @@ const OrderSchema = new Schema(
       type: String,
     },
     TextStyle: {
-      type: String,
+      type: [String],
+      default: [],
     },
     Text: {
       type: String,

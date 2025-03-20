@@ -355,6 +355,33 @@ const sendingMailForForgotPassword = async (req, res) => {
     return apiResponse(res, false, null, error.message, 500);
   }
 };
+const otpVerifyForForgotPassword = async (req, res) => {
+  try {
+    const { Email, OTP } = req.body;
+    const user = await User.findOne({ Email });
+
+    if (!user) {
+      return apiResponse(res, false, null, "Invalid Email", 400);
+    }
+
+    if (user.isBlocked) {
+      return apiResponse(res, false, null, "User is Blocked", 400);
+    }
+
+    if (user.OTP != OTP) {
+      return apiResponse(res, false, null, "Invalid OTP", 400);
+    }
+
+    if (user.OTPExpiry < Date.now()) {
+      return apiResponse(res, false, null, "OTP Expired", 400);
+    }
+
+    return apiResponse(res, true, null, "OTP is Verified", 200);
+  } catch (error) {
+    console.log(error);
+    return apiResponse(res, false, null, error.message, 500);
+  }
+};
 const forgotPassword = async (req, res) => {
   try {
     const { Email, OTP, Password } = req.body;
@@ -366,7 +393,7 @@ const forgotPassword = async (req, res) => {
     if (user.isBlocked) {
       return apiResponse(res, false, null, "User is Blocked", 400);
     }
-    if (OTP !== user.OTP) {
+    if (OTP != user.OTP) {
       return apiResponse(res, false, null, "Invalid OTP", 400);
     }
     if (user.OTPExpiry < Date.now()) {
@@ -453,7 +480,7 @@ const getAllOwnOrder = async (req, res) => {
     if (result.length > 0) {
       apiResponse(res, true, result, "Orders fetched successfully", 200);
     } else {
-      apiResponse(res, false, null, "No orders found", 404);
+      apiResponse(res, true, null, "No orders found", 200);
     }
   } catch (error) {
     apiResponse(res, false, null, `Error: ${error.message}`, 500);
@@ -474,9 +501,7 @@ const getSingleUser = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const SingleUser = await User.findById(id).select(
-      "_id FullName Email isAdmin isBlocked"
-    );
+    const SingleUser = await User.findById(id);
 
     return apiResponse(res, true, SingleUser, "User Fetched Successfully", 200);
   } catch (error) {
@@ -710,4 +735,5 @@ export {
   blockUsers,
   unblockUsers,
   getAllUsers,
+  otpVerifyForForgotPassword,
 };

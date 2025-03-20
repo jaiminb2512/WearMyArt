@@ -80,6 +80,7 @@ const AppLayout = () => {
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Auth />} />
             <Route path="/register" element={<Auth />} />
+            <Route path="/forgot-password" element={<Auth />} />
             <Route path="/products" element={<Products />} />
             <Route path="/product/:id" element={<Product />} />
             <Route path="/dashboard/order-details" element={<OrderDetails />} />
@@ -92,7 +93,7 @@ const AppLayout = () => {
             <Route path="/dashboard/all-users" element={<AllUsers />} />
             <Route path="*" element={<Errorpage />} />
           </Routes>
-          <Footer />
+          {/* <Footer /> */}
         </Box>
       </Box>
       <ToastNotification />

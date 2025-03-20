@@ -45,6 +45,7 @@ const Orders = () => {
   };
 
   const filteredOrders = useMemo(() => {
+    if (!Array.isArray(MyOrders)) return [];
     return MyOrders.filter((order) => {
       const statusMatch =
         !filterOptions.Status.length ||

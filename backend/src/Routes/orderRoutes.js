@@ -15,7 +15,10 @@ const router = Router();
 router.post(
   "/add-to-cart-order",
   tokenVerification,
-  upload.single("FinalProductImg"),
+  upload.fields([
+    { name: "FinalProductImg", maxCount: 1 },
+    { name: "CustomerImg", maxCount: 1 },
+  ]),
   addToCartOrder
 );
 router.get("/get-cart-order", tokenVerification, getAllCartOrder);

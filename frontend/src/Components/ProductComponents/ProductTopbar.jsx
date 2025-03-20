@@ -18,9 +18,7 @@ const ProductTopbar = ({
   const dispatch = useDispatch();
 
   return (
-    <div
-      className={"flex w-full items-center justify-between px-4 sm:px-6 py-2"}
-    >
+    <div className="flex w-full items-center justify-between px-4 sm:px-6 py-2">
       <div className="flex items-center gap-4 ">
         <MTooltip title={FilterBarOpen ? "Close Filter" : "Open Filter"}>
           <div
