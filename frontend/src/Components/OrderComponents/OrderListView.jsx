@@ -4,9 +4,13 @@ import SingleOrder from "./SingleOrder";
 import ShoppingBagIcon from "@mui/icons-material/ShoppingBag";
 import Button from "@mui/material/Button";
 import MTooltip from "../MTooltip";
+import { useSelector } from "react-redux";
 
-const OrderListView = ({ Orders, loading, allOrders = false, count }) => {
+const OrderListView = ({ Orders, loading, count }) => {
   const navigate = useNavigate();
+
+  const { user } = useSelector((state) => state.user);
+  const { isAdmin } = user;
 
   if (loading) {
     return (
@@ -19,7 +23,7 @@ const OrderListView = ({ Orders, loading, allOrders = false, count }) => {
   if (!Orders || Orders.length === 0) {
     return (
       <div>
-        {allOrders ? (
+        {isAdmin ? (
           <div className="flex flex-col items-center justify-center gap-4 h-[70vh] ">
             <MTooltip title="No Order Found">
               <Button
@@ -82,7 +86,7 @@ const OrderListView = ({ Orders, loading, allOrders = false, count }) => {
 
           return (
             <div className="border rounded-2xl">
-              <SingleOrder allOrders={true} key={_id} order={order} />;
+              <SingleOrder isAdmin={true} key={_id} order={order} />;
             </div>
           );
         })}

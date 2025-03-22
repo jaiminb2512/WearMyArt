@@ -16,6 +16,7 @@ import {
   ProductFilterData,
   AdminProductFilterData,
 } from "../../Data/FilterData";
+import { useSelector } from "react-redux";
 
 const ProductFilter = ({
   setFilterOptions,
@@ -23,8 +24,9 @@ const ProductFilter = ({
   setSortOrder,
   BottomBar = false,
   setFilterOpen = null,
-  allProducts = false,
 }) => {
+  const { user } = useSelector((state) => state.user);
+  const { isAdmin } = user;
   const handleCheckboxChange = (category, option) => {
     setFilterOptions((prevFilters) => {
       const updatedOptions = prevFilters[category].includes(option)
@@ -129,7 +131,7 @@ const ProductFilter = ({
           </Accordion>
         );
       })}
-      {allProducts &&
+      {isAdmin &&
         AdminProductFilterData.map((data) => {
           const isActive = filterOptions[data.title]?.length > 0;
           return (

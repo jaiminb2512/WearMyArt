@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useFetchData } from "../utils/apiRequest";
 import ApiURLS from "../Data/ApiURLS";
 import CartListView from "../Components/CartComponents/CartListView";
@@ -7,14 +7,11 @@ import CheckoutSummary from "../Components/CartComponents/CheckoutSummary";
 import { Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import MTooltipButton from "../Components/MTooltipButton";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { addProducts, addTotalCost } from "../Redux/BuyProductSlice";
 
 const Cart = () => {
-  const [activeStep, setActiveStep] = useState();
-
   const dispatch = useDispatch();
-
   const {
     data: MyCart = [],
     isLoading,
@@ -36,22 +33,24 @@ const Cart = () => {
 
     dispatch(addTotalCost(total));
   };
+
   useEffect(() => {
-    if (MyCart.length > 0) {
-      dispatch(addProducts(MyCart));
-      const total = MyCart.reduce((sum, item) => {
-        return sum + item.orderData.Quantity * item.orderData.FinalCost;
-      }, 0);
-      dispatch(addTotalCost(total));
-    } else {
-      dispatch(addTotalCost(0));
-    }
+    dispatch(addProducts(MyCart));
+    const total = MyCart.reduce((sum, item) => {
+      return sum + item.orderData.Quantity * item.orderData.FinalCost;
+    }, 0);
+    dispatch(addTotalCost(total));
   }, [MyCart, dispatch]);
 
-  const { TotalCost } = useSelector((state) => state.BuyProduct);
-
   const navigate = useNavigate();
-  console.log("Total of selected items: ₹", TotalCost);
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center w-full">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600"></div>
+      </div>
+    );
+  }
 
   if (!MyCart || MyCart.length === 0) {
     return (
@@ -76,7 +75,7 @@ const Cart = () => {
   return (
     <div className="flex flex-col min-h-screen bg-gray-100 w-full">
       <div className="w-full fixed top-15 z-10 bg-white shadow-md">
-        <CartTopBar activeStep={0} />
+        <CartTopBar />
       </div>
       <div className="flex flex-col md:flex-row  w-full mt-24 mb-10 pl-[3vw] pr-[1vw]">
         <div className="w-full rounded-lg">
@@ -98,7 +97,7 @@ const Cart = () => {
               />
             </div>
             <div className="w-full md:w-[40%] rounded-lg md:pt-6 mb-6 sm:mb-0">
-              <CheckoutSummary activeStep={0} setActiveStep={setActiveStep} />
+              <CheckoutSummary activeStep={0} />
             </div>
           </div>
         </div>

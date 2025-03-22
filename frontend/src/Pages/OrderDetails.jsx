@@ -6,8 +6,6 @@ import ApiURLS from "../Data/ApiURLS";
 import SingleProduct from "../Components/ProductComponents/SingleProduct";
 import SingleUser from "../Components/User/SingleUser";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { Button } from "@mui/material";
-import MTooltip from "../Components/MTooltip";
 import MTooltipButton from "../Components/MTooltipButton";
 
 const OrderDetails = () => {
@@ -83,7 +81,6 @@ const OrderDetails = () => {
         <div className="border rounded-2xl w-[80vw]">
           <SingleOrder
             order={order}
-            allOrders={true}
             OrderDetails={true}
             handleFetchProduct={handleFetchProduct}
             handleFetchUser={handleFetchUser}

@@ -167,7 +167,6 @@ const AllProducts = () => {
               setListView={setListView}
               count={filteredProducts.length}
               handleOpenDialog={handleOpenDialog}
-              allProducts={true}
             />
           </div>
         </div>
@@ -177,7 +176,6 @@ const AllProducts = () => {
             <ProductGridView
               products={filteredProducts}
               loading={isLoading}
-              allProducts={true}
               handleOpenDialog={handleOpenDialog}
               count={filteredProducts.length}
               handleDiscontinueProducts={handleDiscontinueProducts}
@@ -186,7 +184,6 @@ const AllProducts = () => {
           ) : (
             <ProductListView
               products={filteredProducts}
-              allProducts={true}
               isLoading={isLoading}
               handleOpenDialog={handleOpenDialog}
               count={filteredProducts.length}

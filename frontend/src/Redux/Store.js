@@ -6,7 +6,6 @@ import tempProductReducer from "./tempProductSlice";
 import customizaionOptionsSlice from "./customizaionOptionsSlice";
 import OpenCloseSlice from "./OpenCloseSlice";
 import CanvasFunctionSlice from "./CanvasFunctionSlice";
-import checkoutReducer from "./CheckoutSlice";
 import BuyProductSlice from "./BuyProductSlice";
 
 const store = configureStore({
@@ -18,7 +17,6 @@ const store = configureStore({
     updateCustomizaionOptions: customizaionOptionsSlice,
     OpenClose: OpenCloseSlice,
     CanvasFunction: CanvasFunctionSlice,
-    checkout: checkoutReducer,
     BuyProduct: BuyProductSlice,
   },
 });

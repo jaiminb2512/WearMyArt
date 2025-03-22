@@ -6,14 +6,16 @@ import ModeEditIcon from "@mui/icons-material/ModeEdit";
 import BlockIcon from "@mui/icons-material/Block";
 import ControlPointIcon from "@mui/icons-material/ControlPoint";
 import MTooltipButton from "../MTooltipButton";
+import { useSelector } from "react-redux";
 
 const SingleProduct = ({
   Product,
-  allProducts = false,
   handleOpenDialog = null,
   handleDiscontinueProducts = null,
   handleReContinueProducts = null,
 }) => {
+  const { user } = useSelector((state) => state.user);
+  const { isAdmin } = user;
   const {
     _id,
     ImgURL,
@@ -74,7 +76,7 @@ const SingleProduct = ({
             <p className="text-gray-700">
               <span className="font-medium">Size:</span> {Size}
             </p>
-            {allProducts && (
+            {isAdmin && (
               <p className="text-gray-700">
                 <span className="font-medium">Stock:</span> {Stock}
               </p>
@@ -88,7 +90,7 @@ const SingleProduct = ({
           </div>
         </div>
 
-        {allProducts ? (
+        {isAdmin ? (
           <div className="flex gap-3 mt-4">
             <MTooltipButton
               title="Update Product"

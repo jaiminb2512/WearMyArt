@@ -1,13 +1,20 @@
-import React, { useEffect, useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { updateCheckoutForm } from "../../Redux/CheckoutSlice";
+import React, { useState } from "react";
+import { useSelector } from "react-redux";
 
-const Checkout = () => {
-  const dispatch = useDispatch();
+const CheckoutForm = () => {
   const { user } = useSelector((state) => state.user);
-  const formDataFromRedux = useSelector((state) => state.checkout.formData);
 
-  const [formData, setFormData] = useState(formDataFromRedux);
+  const [formData, setFormData] = useState({
+    country: "India",
+    streetAddress: "",
+    apartment: "",
+    city: "",
+    postcode: "",
+    phone: "",
+    orderNotes: "",
+    outOfStock: "Contact me (With delay)",
+    heardAboutUs: "",
+  });
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -17,7 +24,6 @@ const Checkout = () => {
     };
 
     setFormData(newFormData);
-    dispatch(updateCheckoutForm(newFormData));
   };
 
   return (
@@ -173,4 +179,4 @@ const Checkout = () => {
   );
 };
 
-export default Checkout;
+export default CheckoutForm;

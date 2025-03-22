@@ -7,14 +7,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { toggleFilterBar } from "../../Redux/OpenCloseSlice";
 import MTooltip from "../MTooltip";
 
-const ProductTopbar = ({
-  setListView,
-  listView,
-  count,
-  handleOpenDialog,
-  allProducts = false,
-}) => {
+const ProductTopbar = ({ setListView, listView, count, handleOpenDialog }) => {
   const { FilterBarOpen } = useSelector((state) => state.OpenClose);
+  const { user } = useSelector((state) => state.user);
+  const { isAdmin } = user;
   const dispatch = useDispatch();
 
   return (
@@ -60,7 +56,7 @@ const ProductTopbar = ({
           </MTooltip>
         </div>
 
-        {allProducts && (
+        {isAdmin && (
           <MTooltip title="Add Product">
             <Button
               variant="contained"

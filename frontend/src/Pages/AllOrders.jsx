@@ -140,7 +140,6 @@ const AllOrders = () => {
             Orders={filteredOrders}
             loading={isLoading}
             count={filteredOrders.length}
-            allOrders={true}
           />
         </div>
       </div>

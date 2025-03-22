@@ -4,6 +4,7 @@ import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import CreditCardIcon from "@mui/icons-material/CreditCard";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import AssuredWorkloadIcon from "@mui/icons-material/AssuredWorkload";
+import { useSelector } from "react-redux";
 
 const steps = [
   { label: "Shopping Cart", icon: <ShoppingCartIcon /> },
@@ -42,6 +43,7 @@ const CustomStepper = ({ activeStep }) => {
   );
 };
 
-export default function App({ activeStep }) {
-  return <CustomStepper activeStep={activeStep} />; // Change step number here
+export default function App() {
+  const { activeStep } = useSelector((state) => state.BuyProduct);
+  return <CustomStepper activeStep={activeStep} />;
 }

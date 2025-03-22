@@ -80,7 +80,6 @@ const LoginForm = () => {
     }
 
     const userData = await loginMutation.mutateAsync(requestData);
-    console.log(userData);
     if (userData) {
       dispatch(login(userData.user));
       navigate("/");

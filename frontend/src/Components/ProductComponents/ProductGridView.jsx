@@ -12,13 +12,15 @@ import MTooltipButton from "../MTooltipButton";
 const ProductGridView = ({
   products,
   loading,
-  allProducts = false,
   handleOpenDialog = null,
   count,
   handleDiscontinueProducts = null,
   handleReContinueProducts = null,
 }) => {
   const navigate = useNavigate();
+
+  const { user } = useSelector((state) => state.user);
+  const { isAdmin } = user;
 
   const redirectToProduct = (id) => {
     navigate(`/product/${id}`);
@@ -60,7 +62,7 @@ const ProductGridView = ({
                     )}
                   </div>
 
-                  {allProducts ? (
+                  {isAdmin ? (
                     <div className="flex gap-3">
                       <MTooltipButton
                         title="Edit Product"

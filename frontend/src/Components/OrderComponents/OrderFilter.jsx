@@ -18,7 +18,6 @@ import { AdminOrderFilterData, OrderFilterData } from "../../Data/FilterData";
 const OrderFilter = ({
   setFilterOptions,
   filterOptions,
-  allOrders = false,
   setFilterOpen = null,
   BottomBar = false,
 }) => {

@@ -8,15 +8,18 @@ import ModeEditIcon from "@mui/icons-material/ModeEdit";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import Inventory2Icon from "@mui/icons-material/Inventory2";
 import MTooltip from "../MTooltip";
+import { useSelector } from "react-redux";
 
 const SingleOrder = ({
   order,
-  allOrders = false,
   OrderDetails = false,
   handleFetchUser = null,
   handleFetchProduct = null,
 }) => {
   const navigate = useNavigate();
+
+  const { user } = useSelector((state) => state.user);
+  const { isAdmin } = user;
 
   if (!order) {
     return (
@@ -166,7 +169,7 @@ const SingleOrder = ({
               </div>
             )}
 
-            {allOrders && Status === "Pending" && (
+            {isAdmin && Status === "Pending" && (
               <div className="flex gap-3 w-fit">
                 <MTooltip title="Accept Order">
                   <Button

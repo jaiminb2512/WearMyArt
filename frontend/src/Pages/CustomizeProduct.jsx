@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Stepper, Step, StepLabel } from "@mui/material";
+import { Button } from "@mui/material";
 import { DesignServices, CheckCircle } from "@mui/icons-material";
 import { useSelector, useDispatch } from "react-redux";
 import ConfirmOrder from "../Components/CustomizeTShirt/ConfirmOrder";

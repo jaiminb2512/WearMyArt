@@ -35,12 +35,12 @@ export const everyOne = [
 export const isAdmin = [
   {
     name: "Products",
-    path: "/products",
+    path: "/all-products",
     icon: InventoryIcon,
   },
   {
     name: "Orders",
-    path: "/orders",
+    path: "/all-orders",
     icon: ListAltIcon,
   },
   {
@@ -63,7 +63,7 @@ export const isCustomer = [
   },
   {
     name: "Orders",
-    path: "/all-orders",
+    path: "/orders",
     icon: ListAltIcon,
   },
 ];
@@ -82,23 +82,6 @@ export const sidebarCustomer = [
   {
     name: "Orders",
     path: "/orders",
-    icon: ListAltIcon,
-  },
-
-  // delete this
-  {
-    name: "All Products",
-    path: "/all-products",
-    icon: InventoryIcon,
-  },
-  {
-    name: "All Users",
-    path: "/all-users",
-    icon: SupervisorAccountIcon,
-  },
-  {
-    name: "All Orders",
-    path: "/all-orders",
     icon: ListAltIcon,
   },
 ];

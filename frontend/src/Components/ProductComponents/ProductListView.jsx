@@ -4,7 +4,6 @@ import SingleProduct from "./SingleProduct";
 const ProductListView = ({
   products = [],
   isLoading,
-  allProducts = false,
   handleOpenDialog = null,
   count = null,
   singleProduct = null,
@@ -37,7 +36,6 @@ const ProductListView = ({
           <SingleProduct
             key={product._id}
             Product={product}
-            allProducts={allProducts}
             handleOpenDialog={handleOpenDialog}
             handleDiscontinueProducts={handleDiscontinueProducts}
             handleReContinueProducts={handleReContinueProducts}

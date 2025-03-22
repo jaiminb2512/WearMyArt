@@ -18,6 +18,7 @@ import Product from "./Pages/Product";
 import Profile from "./Pages/Profile";
 import AllProducts from "./Pages/AllProducts";
 import Errorpage from "./Pages/Errorpage";
+import OrderSuccess from "./Pages/OrderSuccess";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
@@ -31,6 +32,8 @@ import OrderDetails from "./Pages/OrderDetails";
 import ApiURLS from "./Data/ApiURLS";
 import { useApiMutation } from "./utils/apiRequest";
 import { login } from "./Redux/UserSlice";
+import CheckOut from "./Pages/CheckOut";
+import CompleteOrder from "./Components/PurchaseComponents/CompleteOrder";
 
 const queryClient = new QueryClient();
 
@@ -112,6 +115,12 @@ const AppLayout = () => {
             <Route path="/register" element={<Auth />} />
             <Route path="/forgot-password" element={<Auth />} />
             <Route path="/products" element={<Products />} />
+            <Route path="/dashboard/checkout" element={<CheckOut />} />
+            <Route
+              path="/dashboard/complete-order"
+              element={<CompleteOrder />}
+            />
+            <Route path="/dashboard/order-success" element={<OrderSuccess />} />
             <Route path="/product/:id" element={<Product />} />
             <Route path="/dashboard/order-details" element={<OrderDetails />} />
             <Route path="/customize-product" element={<CustomizeProduct />} />

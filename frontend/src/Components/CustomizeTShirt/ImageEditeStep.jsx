@@ -4,10 +4,8 @@ import Options from "./Options";
 import Layers from "./Layers";
 
 const ImageEditStep = () => {
-  // Import Workspace component instance
   const workspaceRef = React.useRef();
 
-  // Functions to be passed to Options component
   const handleAddText = () => {
     if (workspaceRef.current) {
       workspaceRef.current.addText();
