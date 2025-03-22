@@ -369,7 +369,7 @@ const otpVerifyForForgotPassword = async (req, res) => {
     }
 
     if (user.OTP != OTP) {
-      return apiResponse(res, false, null, "Invalid OTP", 400);
+      return apiResponse(res, true, null, "Invalid OTP", 200);
     }
 
     if (user.OTPExpiry < Date.now()) {

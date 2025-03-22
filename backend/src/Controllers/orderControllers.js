@@ -257,7 +257,7 @@ const addToCartOrder = async (req, res) => {
           FinalProductImg,
           CustomizeOption,
         },
-        `Order is successfully updated in the cart`,
+        `Order is successfully added to cart`,
         200
       );
     } else if (CustomizeOption === "Both") {
@@ -350,6 +350,75 @@ const addToCartOrder = async (req, res) => {
     //   deleteFiles([`/uploads/${req.files.FinalProductImg[0].filename}`]);
     // }
     console.log(error.message);
+    return apiResponse(res, false, null, error.message, 500);
+  }
+};
+
+const updateCartQuantity = async (req, res) => {
+  try {
+    const { orderKey, Quantity } = req.body;
+
+    if (!Quantity) {
+      return apiResponse(res, false, null, "Quantity is required", 400);
+    }
+
+    if (Quantity < 1) {
+      return apiResponse(
+        res,
+        false,
+        null,
+        "Quantity must be greater than or equal to 1",
+        400
+      );
+    }
+
+    if (!orderKey) {
+      return apiResponse(res, false, null, "orderKey is required", 400);
+    }
+
+    const redisClient = await connectRedis();
+
+    await redisClient.hSet("cart", orderKey, Quantity);
+
+    return apiResponse(
+      res,
+      true,
+      { orderKey, Quantity },
+      "Cart updated successfully",
+      200
+    );
+  } catch (error) {
+    return apiResponse(res, false, null, error.message, 500);
+  }
+};
+
+const removeCart = async (req, res) => {
+  try {
+    const { orderKeys } = req.body;
+
+    for (const orderKey in orderKeys) {
+      if (!orderKey) {
+        return apiResponse(res, false, null, "OrderKey is required", 400);
+      }
+
+      const redisClient = await connectRedis();
+
+      const exists = await redisClient.hExists("cart", orderKey);
+      if (!exists) {
+        return apiResponse(res, false, null, "Order not found in cart", 404);
+      }
+
+      await redisClient.hDel("cart", orderKey);
+    }
+
+    return apiResponse(
+      res,
+      true,
+      { orderKeys },
+      "Cart item removed successfully",
+      200
+    );
+  } catch (error) {
     return apiResponse(res, false, null, error.message, 500);
   }
 };
@@ -525,4 +594,6 @@ export {
   getAllOrder,
   getSingleOrder,
   updateOrderStatus,
+  updateCartQuantity,
+  removeCart,
 };

@@ -7,6 +7,8 @@ import {
   getAllOrder,
   getSingleOrder,
   updateOrderStatus,
+  updateCartQuantity,
+  removeCart,
 } from "../controllers/orderControllers.js";
 import tokenVerification from "../middleware/tokenVerification.js";
 import { upload } from "../middleware/multer.middleware.js";
@@ -23,6 +25,8 @@ router.post(
 );
 router.get("/get-cart-order", tokenVerification, getAllCartOrder);
 router.post("/cart-to-order", tokenVerification, cartToOrder);
+router.patch("/update-cart-quantity", tokenVerification, updateCartQuantity);
+router.delete("/remove-cart", tokenVerification, removeCart);
 router.post(
   "/add-order",
   tokenVerification,

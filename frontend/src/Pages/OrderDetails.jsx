@@ -8,6 +8,7 @@ import SingleUser from "../Components/User/SingleUser";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { Button } from "@mui/material";
 import MTooltip from "../Components/MTooltip";
+import MTooltipButton from "../Components/MTooltipButton";
 
 const OrderDetails = () => {
   const location = useLocation();
@@ -67,13 +68,15 @@ const OrderDetails = () => {
   return (
     <div className="ml-[2vw]">
       <div className="left-0 w-full ml-[2vw] mt-[5vh] cursor-pointer">
-        <MTooltip title="Go Back">
-          <Button onClick={() => navigate(-1)} variant="outlined">
-            <div className="flex gap-3">
-              <ArrowBackIcon /> Go Back
-            </div>
-          </Button>
-        </MTooltip>
+        <MTooltipButton
+          title="Go Back"
+          color="success"
+          onClick={() => navigate(-1)}
+          variant="outlined"
+          className="flex gap-2 justify-center items-center"
+        >
+          <ArrowBackIcon /> Go Back
+        </MTooltipButton>
       </div>
 
       <div className="flex flex-col justify-center items-center gap-4 w-full h-full mt-[2vh]">

@@ -33,17 +33,14 @@ const AllOrders = () => {
 
   const filteredOrders = useMemo(() => {
     return allOrders.filter((order) => {
-      // Handle Status filter
       const statusMatch =
         !filterOptions.Status.length ||
         filterOptions.Status.includes(order.Status);
 
-      // Handle CustomizeOption filter
       const customizeMatch =
         !filterOptions.CustomizeOption.length ||
         filterOptions.CustomizeOption.includes(order.CustomizeOption);
 
-      // Handle OrderDate filter
       const orderDateMatch = (() => {
         if (!filterOptions.OrderDate) return true;
         const inputDate = filterOptions.OrderDate.trim();
@@ -61,7 +58,6 @@ const AllOrders = () => {
         );
       })();
 
-      // Handle Duration filter
       const durationMatch = (() => {
         if (!filterOptions.Duration.start || !filterOptions.Duration.end)
           return true;
@@ -75,23 +71,19 @@ const AllOrders = () => {
         return orderCreatedAt >= startDate && orderCreatedAt <= endDate;
       })();
 
-      // Handle OrderID filter
       const orderIdMatch =
         !filterOptions.OrderID ||
         order.OrderID?.toLowerCase().includes(
           filterOptions.OrderID.toLowerCase()
         );
 
-      // Handle Quantity filter
       const quantityMatch =
         !filterOptions.Quantity || order.Quantity == filterOptions.Quantity;
 
-      // Handle FinalCost filter dynamically
       const finalCostMatch = (() => {
         if (!filterOptions.FinalCost) return true;
         const cost = parseFloat(order.FinalCost);
 
-        // Find the selected range dynamically
         const selectedRange = OrderFilterData.find(
           (filter) => filter.title === "FinalCost"
         )?.Options.find((range) => range === filterOptions.FinalCost);
@@ -99,7 +91,6 @@ const AllOrders = () => {
         if (!selectedRange) return true;
 
         if (selectedRange.includes("+")) {
-          // Handle cases like "1999+"
           const min = parseFloat(selectedRange.replace("+", ""));
           return cost >= min;
         }

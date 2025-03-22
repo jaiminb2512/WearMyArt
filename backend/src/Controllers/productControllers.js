@@ -211,11 +211,21 @@ const disContinueProducts = async (req, res) => {
       await FoundProduct.save();
     }
 
+    if (Products.length != 1) {
+      return apiResponse(
+        res,
+        true,
+        null,
+        "Products are discontinued successfully",
+        200
+      );
+    }
+
     return apiResponse(
       res,
       true,
       null,
-      "Products are discontinued successfully",
+      "Product is discontinued successfully",
       200
     );
   } catch (error) {
@@ -243,11 +253,21 @@ const reContinueProducts = async (req, res) => {
       await FoundProduct.save();
     }
 
+    if (Products.length != 1) {
+      return apiResponse(
+        res,
+        true,
+        null,
+        "Products are recontinued successfully",
+        200
+      );
+    }
+
     return apiResponse(
       res,
       true,
       null,
-      "Products are discontinued successfully",
+      "Product is recontinued successfully",
       200
     );
   } catch (error) {

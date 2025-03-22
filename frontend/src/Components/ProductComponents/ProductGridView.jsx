@@ -7,6 +7,7 @@ import ModeEditIcon from "@mui/icons-material/ModeEdit";
 import BlockIcon from "@mui/icons-material/Block";
 import ControlPointIcon from "@mui/icons-material/ControlPoint";
 import { useSelector } from "react-redux";
+import MTooltipButton from "../MTooltipButton";
 
 const ProductGridView = ({
   products,
@@ -14,6 +15,8 @@ const ProductGridView = ({
   allProducts = false,
   handleOpenDialog = null,
   count,
+  handleDiscontinueProducts = null,
+  handleReContinueProducts = null,
 }) => {
   const navigate = useNavigate();
 
@@ -59,34 +62,33 @@ const ProductGridView = ({
 
                   {allProducts ? (
                     <div className="flex gap-3">
-                      <Button
+                      <MTooltipButton
+                        title="Edit Product"
                         variant="contained"
                         color="primary"
                         onClick={() => handleOpenDialog(product)}
                       >
                         <ModeEditIcon />
-                      </Button>
+                      </MTooltipButton>
 
                       {product.isDiscontinued ? (
-                        <Button
+                        <MTooltipButton
+                          title="Recontinue Product"
                           variant="contained"
                           color="secondary"
-                          onClick={() =>
-                            console.log("ReContinue product:", product._id)
-                          }
+                          onClick={() => handleReContinueProducts(product._id)}
                         >
                           <ControlPointIcon />
-                        </Button>
+                        </MTooltipButton>
                       ) : (
-                        <Button
+                        <MTooltipButton
+                          title="Discontinue Product"
                           variant="contained"
                           color="error"
-                          onClick={() =>
-                            console.log("Discontinue product:", product._id)
-                          }
+                          onClick={() => handleDiscontinueProducts(product._id)}
                         >
                           <BlockIcon />
-                        </Button>
+                        </MTooltipButton>
                       )}
                     </div>
                   ) : (

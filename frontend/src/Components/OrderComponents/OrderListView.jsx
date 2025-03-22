@@ -18,23 +18,39 @@ const OrderListView = ({ Orders, loading, allOrders = false, count }) => {
 
   if (!Orders || Orders.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center gap-4 h-[70vh] ">
-        <div className="bg-gray-100 rounded-full p-8 flex items-center justify-center">
-          <ShoppingBagIcon className="w-64 h-64 text-gray-500" />
-        </div>
-        <p className="text-gray-600 text-lg font-medium">
-          Your order list is empty. Start shopping now!
-        </p>
-        <MTooltip title="Start shopping">
-          <Button
-            variant="contained"
-            color="success"
-            className="mt-4 bg-green-500 hover:bg-green-600 text-white px-8 py-3 rounded-xl shadow-md transition-all duration-300"
-            onClick={() => navigate("/products")}
-          >
-            Start shopping
-          </Button>
-        </MTooltip>
+      <div>
+        {allOrders ? (
+          <div className="flex flex-col items-center justify-center gap-4 h-[70vh] ">
+            <MTooltip title="No Order Found">
+              <Button
+                variant="outlined"
+                color="success"
+                className="mt-4 bg-green-500 hover:bg-green-600 text-white px-8 py-3 rounded-xl shadow-md transition-all duration-300"
+              >
+                No Order Found
+              </Button>
+            </MTooltip>
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center gap-4 h-[70vh]">
+            <div className="bg-gray-100 rounded-full p-8 flex items-center justify-center">
+              <ShoppingBagIcon className="w-64 h-64 text-gray-500" />
+            </div>
+            <p className="text-gray-600 text-lg font-medium">
+              Your order list is empty. Start shopping now!
+            </p>
+            <MTooltip title="Start shopping">
+              <Button
+                variant="contained"
+                color="success"
+                className="mt-4 bg-green-500 hover:bg-green-600 text-white px-8 py-3 rounded-xl shadow-md transition-all duration-300"
+                onClick={() => navigate("/products")}
+              >
+                Start shopping
+              </Button>
+            </MTooltip>
+          </div>
+        )}
       </div>
     );
   }

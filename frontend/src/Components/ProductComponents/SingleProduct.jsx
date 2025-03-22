@@ -5,12 +5,14 @@ import { Button } from "@mui/material";
 import ModeEditIcon from "@mui/icons-material/ModeEdit";
 import BlockIcon from "@mui/icons-material/Block";
 import ControlPointIcon from "@mui/icons-material/ControlPoint";
-import MTooltip from "../MTooltip";
+import MTooltipButton from "../MTooltipButton";
 
 const SingleProduct = ({
   Product,
   allProducts = false,
   handleOpenDialog = null,
+  handleDiscontinueProducts = null,
+  handleReContinueProducts = null,
 }) => {
   const {
     _id,
@@ -88,45 +90,39 @@ const SingleProduct = ({
 
         {allProducts ? (
           <div className="flex gap-3 mt-4">
-            <MTooltip title="Update Product">
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={() => handleOpenDialog(Product)}
-                className="flex gap-2 justify-center items-center"
-                fullWidth
-              >
-                <ModeEditIcon />
-                <span className="hidden sm:block">Update Product</span>
-              </Button>
-            </MTooltip>
+            <MTooltipButton
+              title="Update Product"
+              variant="contained"
+              color="primary"
+              onClick={() => handleOpenDialog(Product)}
+              className="flex gap-2 justify-center items-center"
+            >
+              <ModeEditIcon />
+              <span className="hidden sm:block">Update Product</span>
+            </MTooltipButton>
 
             {isDiscontinued ? (
-              <MTooltip title="ReContinue Product">
-                <Button
-                  variant="contained"
-                  color="secondary"
-                  onClick={() => console.log("ReContinue product:", _id)}
-                  className="flex gap-2 justify-center items-center"
-                  fullWidth
-                >
-                  <ControlPointIcon />
-                  <span className="hidden sm:block">ReContinue Product</span>
-                </Button>
-              </MTooltip>
+              <MTooltipButton
+                title="Recontinue Product"
+                variant="contained"
+                color="secondary"
+                onClick={() => handleReContinueProducts(_id)}
+                className="flex gap-2 justify-center items-center"
+              >
+                <ControlPointIcon />
+                <span className="hidden sm:block">ReContinue Product</span>
+              </MTooltipButton>
             ) : (
-              <MTooltip title="Discontinue Product">
-                <Button
-                  variant="contained"
-                  color="error"
-                  onClick={() => console.log("Discontinue product:", _id)}
-                  className="flex gap-2 justify-center items-center"
-                  fullWidth
-                >
-                  <BlockIcon />
-                  <span className="hidden sm:block">Discontinue Product</span>
-                </Button>
-              </MTooltip>
+              <MTooltipButton
+                title="Discontinue Product"
+                variant="contained"
+                color="error"
+                onClick={() => handleDiscontinueProducts(_id)}
+                className="flex gap-2 justify-center items-center"
+              >
+                <BlockIcon />
+                <span className="hidden sm:block">Discontinue Product</span>
+              </MTooltipButton>
             )}
           </div>
         ) : (

@@ -8,6 +8,8 @@ const ProductListView = ({
   handleOpenDialog = null,
   count = null,
   singleProduct = null,
+  handleDiscontinueProducts = null,
+  handleReContinueProducts = null,
 }) => {
   if (isLoading) {
     return (
@@ -37,6 +39,8 @@ const ProductListView = ({
             Product={product}
             allProducts={allProducts}
             handleOpenDialog={handleOpenDialog}
+            handleDiscontinueProducts={handleDiscontinueProducts}
+            handleReContinueProducts={handleReContinueProducts}
           />
         ))}
       </div>

@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { ThemeProvider, createTheme } from "@mui/material/styles";
+import { ThemeProvider } from "@mui/material/styles";
 import { darkTheme, lightTheme } from "./Theme/theme";
 import { CssBaseline, Box } from "@mui/material";
 

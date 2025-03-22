@@ -1,11 +1,15 @@
-import React, { useState } from "react";
-import { useFetchData } from "../utils/apiRequest";
+import React from "react";
+import { useApiMutation, useFetchData } from "../utils/apiRequest";
 import ApiURLS from "../Data/ApiURLS";
 import { Button } from "@mui/material";
 import MTable from "../Components/MTable";
 
 const AllUsers = () => {
-  const { data: AllUsers = [], isLoading } = useFetchData(
+  const {
+    data: AllUsers = [],
+    isLoading,
+    refetch,
+  } = useFetchData(
     "AllUsers",
     ApiURLS.GetAllUser.url,
     ApiURLS.GetAllUser.method,
@@ -15,8 +19,30 @@ const AllUsers = () => {
     }
   );
 
-  const handleBlockClick = (id, currentBlockStatus) => {
-    console.log("User ID:", id, "Current Block Status:", currentBlockStatus);
+  const blockUserMutation = useApiMutation(
+    ApiURLS.BlockUsers.url,
+    ApiURLS.BlockUsers.method,
+    {
+      onSuccess: () => refetch(),
+    }
+  );
+
+  const unBlockUserMutation = useApiMutation(
+    ApiURLS.UnblockUsers.url,
+    ApiURLS.UnblockUsers.method,
+    {
+      onSuccess: () => refetch(),
+    }
+  );
+
+  const handleBlockClick = async (id) => {
+    console.log("Blocking User ID:", id);
+    await blockUserMutation.mutateAsync({ userIds: [id] });
+  };
+
+  const handleUnBlockClick = async (id) => {
+    console.log("Unblocking User ID:", id);
+    await unBlockUserMutation.mutateAsync({ userIds: [id] });
   };
 
   const columns = [
@@ -31,7 +57,11 @@ const AllUsers = () => {
         <Button
           variant="contained"
           color={params.row.isBlocked ? "primary" : "error"}
-          onClick={() => handleBlockClick(params.row.id, !params.row.isBlocked)}
+          onClick={() =>
+            params.row.isBlocked
+              ? handleUnBlockClick(params.row.id)
+              : handleBlockClick(params.row.id)
+          }
         >
           {params.row.isBlocked ? "Unblock" : "Block"}
         </Button>
@@ -48,7 +78,7 @@ const AllUsers = () => {
   }));
 
   return (
-    <div className="flex-1 flex flex-col ">
+    <div className="flex-1 flex flex-col">
       <MTable columns={columns} rows={rows} isLoading={isLoading} />
     </div>
   );

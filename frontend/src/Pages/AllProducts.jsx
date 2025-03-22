@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { useFetchData } from "../utils/apiRequest";
+import { useApiMutation, useFetchData } from "../utils/apiRequest";
 import ApiURLS from "../Data/ApiURLS";
 import { Dialog, DialogContent } from "@mui/material";
 import ProductForm from "../Components/ProductComponents/ProductForm";
@@ -22,6 +22,30 @@ const AllProducts = () => {
       cacheTime: 10 * 60 * 1000, // 10 Minutes
     }
   );
+  const discontinueProductsMutation = useApiMutation(
+    ApiURLS.DiscontinueProducts.url,
+    ApiURLS.DiscontinueProducts.method,
+    {
+      onSuccess: () => refetch(),
+    }
+  );
+
+  const reContinueProducts = useApiMutation(
+    ApiURLS.RecontinueProducts.url,
+    ApiURLS.RecontinueProducts.method,
+    {
+      onSuccess: () => refetch(),
+    }
+  );
+
+  const handleDiscontinueProducts = async (id) => {
+    console.log("ReContinue product:", id);
+    await discontinueProductsMutation.mutateAsync({ Products: [id] });
+  };
+  const handleReContinueProducts = async (id) => {
+    console.log("Discontinue product:", id);
+    await reContinueProducts.mutateAsync({ Products: [id] });
+  };
 
   const [userStock, setUserStock] = useState(10);
   const [openDialog, setOpenDialog] = useState(false);
@@ -132,7 +156,6 @@ const AllProducts = () => {
         </div>
       )}
 
-      {/* Main Content */}
       <div
         className={`flex-1 flex flex-col overflow-y-scroll scrollbar-hide transition-all duration-300
       ${FilterBarOpen ? "sm:ml-[20vw]" : "ml-0"}`}
@@ -149,7 +172,6 @@ const AllProducts = () => {
           </div>
         </div>
 
-        {/* Product Listing */}
         <div className="p-4 mt-17 mb-10 ml-3">
           {listView ? (
             <ProductGridView
@@ -158,6 +180,8 @@ const AllProducts = () => {
               allProducts={true}
               handleOpenDialog={handleOpenDialog}
               count={filteredProducts.length}
+              handleDiscontinueProducts={handleDiscontinueProducts}
+              handleReContinueProducts={handleReContinueProducts}
             />
           ) : (
             <ProductListView
@@ -166,12 +190,13 @@ const AllProducts = () => {
               isLoading={isLoading}
               handleOpenDialog={handleOpenDialog}
               count={filteredProducts.length}
+              handleDiscontinueProducts={handleDiscontinueProducts}
+              handleReContinueProducts={handleReContinueProducts}
             />
           )}
         </div>
       </div>
 
-      {/* Bottom Bar for Mobile */}
       <div className="fixed bottom-0 block sm:hidden h-[10vh] w-full">
         <ProductBottomBar
           setFilterOptions={setFilterOptions}
@@ -181,7 +206,6 @@ const AllProducts = () => {
         />
       </div>
 
-      {/* Dialog for Adding/Editing Product */}
       <Dialog
         open={openDialog}
         onClose={handleCloseDialog}

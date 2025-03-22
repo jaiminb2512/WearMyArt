@@ -11,6 +11,10 @@ import {
   FaVectorSquare,
   FaCopy,
 } from "react-icons/fa";
+import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+import CreditCardIcon from "@mui/icons-material/CreditCard";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import AssuredWorkloadIcon from "@mui/icons-material/AssuredWorkload";
 
 export const CustomizeTshirtProcessData = [
   {
@@ -233,4 +237,10 @@ export const socialData = [
   "Twitter",
   "YouTube",
   "Pinterest",
+];
+
+export const BuyProductSteps = [
+  { label: "Shopping Cart", icon: ShoppingCartIcon },
+  { label: "Checkout", icon: CreditCardIcon },
+  { label: "Order Complete", icon: AssuredWorkloadIcon },
 ];
