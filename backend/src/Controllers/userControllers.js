@@ -271,6 +271,28 @@ const loginUser = async (req, res) => {
   }
 };
 
+const autoLogin = async (req, res) => {
+  try {
+    const { FullName, Email, isAdmin } = req.user;
+
+    const userResponse = {
+      FullName,
+      Email,
+      isAdmin,
+    };
+
+    return apiResponse(
+      res,
+      true,
+      { user: userResponse },
+      "User Successfully Login",
+      200
+    );
+  } catch (error) {
+    return apiResponse(res, false, null, error.message, 500);
+  }
+};
+
 const makeAdmin = async (req, res) => {
   try {
     const { id } = req.params;
@@ -736,4 +758,5 @@ export {
   unblockUsers,
   getAllUsers,
   otpVerifyForForgotPassword,
+  autoLogin,
 };

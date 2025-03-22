@@ -17,6 +17,7 @@ import {
   unblockUsers,
   getAllUsers,
   otpVerifyForForgotPassword,
+  autoLogin,
 } from "../controllers/userControllers.js";
 
 const router = Router();
@@ -28,6 +29,7 @@ router.post("/activate-user", activateUser);
 // Login
 router.post("/sending-mail-for-login", sendingMailForLoginUser);
 router.post("/login", loginUser);
+router.post("/auto-login", tokenVerification, autoLogin);
 
 router.post("/sending-mail-for-forgot-password", sendingMailForForgotPassword);
 router.post("/otp-verify-for-forgot-password", otpVerifyForForgotPassword);

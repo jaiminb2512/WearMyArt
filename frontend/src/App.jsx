@@ -28,20 +28,50 @@ import Orders from "./Pages/Orders";
 import Cart from "./Pages/Cart";
 import { toggleSmScreen } from "./Redux/OpenCloseSlice";
 import OrderDetails from "./Pages/OrderDetails";
+import ApiURLS from "./Data/ApiURLS";
+import { useApiMutation } from "./utils/apiRequest";
+import { login } from "./Redux/UserSlice";
 
 const queryClient = new QueryClient();
 
 const AppLayout = () => {
   const location = useLocation();
+  const autoLoginMutation = useApiMutation(
+    ApiURLS.AutoLogin.url,
+    ApiURLS.AutoLogin.method
+  );
+
+  const { user } = useSelector((state) => state.user);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const autoLogin = async () => {
+      const userData = await autoLoginMutation.mutateAsync({});
+
+      dispatch(login(userData.user));
+    };
+
+    if (!user) {
+      autoLogin();
+    }
+  }, []);
+
   const showSidebar = location.pathname.includes("/dashboard");
 
   const [hideText, setHideText] = useState(false);
   let sidebarWidth = showSidebar ? (hideText ? 60 : 240) : 0;
 
   const { SmScreen } = useSelector((state) => state.OpenClose);
-  const dispatch = useDispatch();
 
   const ScreenWidth = window.screen.width;
+
+  useEffect(() => {
+    if (user?.isAdmin) {
+      dispatch(toggleSmScreen(true));
+    } else {
+      dispatch(toggleSmScreen(false));
+    }
+  }, []);
 
   useEffect(() => {
     if (ScreenWidth < 635) {

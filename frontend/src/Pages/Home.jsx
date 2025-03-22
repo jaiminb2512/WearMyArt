@@ -8,11 +8,8 @@ import Social from "../Components/HomeComponents/Social";
 import FAQ from "../Components/FAQ";
 import TshirtPrintingSteps from "../Components/HomeComponents/TshirtPrintingSteps";
 import FeaturesSection from "../Components/HomeComponents/FeaturesSection";
-import { useSelector } from "react-redux";
 
 const Home = () => {
-  const { user } = useSelector((state) => state.user);
-  console.log(user);
   return (
     <>
       <Hero />

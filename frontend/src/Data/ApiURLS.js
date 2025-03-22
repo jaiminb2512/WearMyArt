@@ -1,6 +1,7 @@
 const ApiURLS = {
   // User
   Login: { url: "/api/user/login", method: "POST" },
+  AutoLogin: { url: "/api/user/auto-login", method: "POST" },
   Register: { url: "/api/user/register", method: "POST" },
   ActivateUser: { url: "/api/user/activate-user", method: "POST" },
   SendingMailForLogin: {
