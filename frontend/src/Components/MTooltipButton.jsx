@@ -11,6 +11,7 @@ const MTooltipButton = ({
   onClick,
   children,
   arrow = true,
+  startIcon = null,
 }) => {
   return (
     <Tooltip title={title} arrow={arrow} placement={placement}>
@@ -19,6 +20,7 @@ const MTooltipButton = ({
         color={color}
         className={className}
         onClick={onClick}
+        startIcon={startIcon}
       >
         {children}
       </Button>

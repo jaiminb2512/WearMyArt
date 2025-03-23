@@ -111,7 +111,6 @@ const Orders = () => {
             Orders={filteredOrders}
             loading={isLoading}
             count={filteredOrders.length}
-            MyOrders={true}
           />
         </div>
       </div>

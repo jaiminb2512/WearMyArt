@@ -123,7 +123,7 @@ const AppLayout = () => {
             <Route path="/product/:id" element={<Product />} />
             <Route path="/dashboard/order-details" element={<OrderDetails />} />
             <Route path="/customize-product" element={<CustomizeProduct />} />
-            <Route path="/dashboard/Profile" element={<Profile />} />
+            <Route path="/dashboard/profile" element={<Profile />} />
             <Route path="/dashboard/orders" element={<Orders />} />
             <Route path="/dashboard/cart" element={<Cart />} />
             <Route path="/dashboard/all-products" element={<AllProducts />} />

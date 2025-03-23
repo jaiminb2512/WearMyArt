@@ -6,7 +6,7 @@ import Button from "@mui/material/Button";
 import MTooltip from "../MTooltip";
 import { useSelector } from "react-redux";
 
-const OrderListView = ({ Orders, loading, count }) => {
+const OrderListView = ({ Orders, loading, count = null }) => {
   const navigate = useNavigate();
 
   const { user } = useSelector((state) => state.user);
@@ -71,7 +71,9 @@ const OrderListView = ({ Orders, loading, count }) => {
 
   return (
     <section>
-      <h1 className="relative text-lg font-bold hidden sm:block">{`${count} Orders`}</h1>
+      {count && (
+        <h1 className="relative text-lg font-bold hidden sm:block">{`${count} Orders`}</h1>
+      )}
       <div className="grid gap-8">
         {Orders.map((order) => {
           const { _id, CustomerImg, FinalProductImg, CustomizeOption } = order;

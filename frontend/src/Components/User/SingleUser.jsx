@@ -3,7 +3,6 @@ import { Avatar, Button, Typography } from "@mui/material";
 import MTooltip from "../MTooltip";
 
 const SingleUser = ({ user }) => {
-  console.log(user);
   const getInitials = (name) => {
     if (!name) return "U";
     return name
@@ -18,6 +17,12 @@ const SingleUser = ({ user }) => {
   };
 
   const initials = user?.FullName ? getInitials(user.FullName) : "U";
+
+  // Determine if isBlocked is iterable and has values
+  const isUserBlocked = Array.isArray(user?.isBlocked)
+    ? user.isBlocked.length > 0
+    : Boolean(user?.isBlocked);
+
   return (
     <div className="flex gap-10 rounded-lg overflow-hidden p-3 flex-col sm:flex-row">
       <div className="w-full sm:w-1/2 flex justify-end">
@@ -46,19 +51,23 @@ const SingleUser = ({ user }) => {
         <Typography variant="h6" color="text.secondary">
           {user?.Email || "No Email Provided"}
         </Typography>
-        <div className="w-full">
-          <MTooltip title={user.isBlocked ? "Unblock" : "Block"}>
-            <Button
-              variant="contained"
-              color={user.isBlocked ? "secondary" : "error"}
-              onClick={() => handleBlockClick(user.id, !user.isBlocked)}
-              sx={{ mt: 1 }}
-              className="w-fit"
-            >
-              {user.isBlocked ? "Unblock" : "Block"}
-            </Button>
-          </MTooltip>
-        </div>
+
+        {/* Show button only if isBlocked has values */}
+        {isUserBlocked && (
+          <div className="w-full">
+            <MTooltip title={isUserBlocked ? "Unblock" : "Block"}>
+              <Button
+                variant="contained"
+                color={isUserBlocked ? "secondary" : "error"}
+                onClick={() => handleBlockClick(user.id, !isUserBlocked)}
+                sx={{ mt: 1 }}
+                className="w-fit"
+              >
+                {isUserBlocked ? "Unblock" : "Block"}
+              </Button>
+            </MTooltip>
+          </div>
+        )}
       </div>
     </div>
   );

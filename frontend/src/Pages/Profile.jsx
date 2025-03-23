@@ -1,9 +1,43 @@
-import React from "react";
+import React, { useState } from "react";
 import { useSelector } from "react-redux";
-import { Avatar, Box, Typography, Stack } from "@mui/material";
+import {
+  Switch,
+  Avatar,
+  Box,
+  Typography,
+  Stack,
+  Button,
+  Card,
+  CardContent,
+  Divider,
+  TextField,
+} from "@mui/material";
+import { Email, Person, Lock, Edit, Save } from "@mui/icons-material";
+import MTooltipButton from "../Components/MTooltipButton";
+import { useNavigate } from "react-router-dom";
+import { useFetchData } from "../utils/apiRequest";
+import ApiURLS from "../Data/ApiURLS";
+import OrderListView from "../Components/OrderComponents/OrderListView";
 
 const Profile = () => {
   const { user } = useSelector((state) => state.user);
+  const [isTwoStepEnabled, setIsTwoStepEnabled] = useState(false);
+  const [orderOpen, setOrderOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [fullName, setFullName] = useState(user?.FullName || "Unknown User");
+
+  const handleToggle = () => {
+    setIsTwoStepEnabled((prev) => !prev);
+  };
+
+  const handleEdit = () => {
+    setIsEditing(true);
+  };
+
+  const handleSave = () => {
+    setIsEditing(false);
+    // You can add a function here to update the name in the backend
+  };
 
   const getInitials = (name) => {
     if (!name) return "U";
@@ -14,39 +48,164 @@ const Profile = () => {
       .toUpperCase();
   };
 
-  const initials = user?.name ? getInitials(user.name) : "U";
+  const initials = user?.FullName ? getInitials(user.FullName) : "U";
+
+  const navigate = useNavigate();
+
+  const {
+    data: MyOrders = [],
+    isLoading,
+    refetch,
+  } = useFetchData(
+    "MyOrders",
+    ApiURLS.GetAllOwnOrders.url,
+    ApiURLS.GetAllOwnOrders.method,
+    {
+      staleTime: 5 * 60 * 1000, // 5 Minutes
+      cacheTime: 10 * 60 * 1000, // 10 Minutes
+    }
+  );
+
+  const handleMyOrder = () => {
+    setOrderOpen(true);
+  };
 
   return (
-    <Box
-      height="100vh"
-      bgcolor="background.default"
-      className="flex justify-center items-center h-full gap-[5vw]"
-    >
-      <Avatar
-        sx={{
-          width: 300,
-          height: 300,
-          bgcolor: "primary.main",
-          fontSize: 60,
-          fontWeight: "bold",
-        }}
-      >
-        {initials}
-      </Avatar>
+    <div className="flex flex-col gap-2 justify-center items-center w-full px-[5vw] mt-15 h-full">
+      <div className="w-full p-3 shadow-md flex justify-center items-center h-full">
+        <div className="w-1/3 h-full flex justify-center items-center">
+          <Avatar
+            sx={{
+              width: 200,
+              height: 200,
+              bgcolor: "primary.main",
+              fontSize: 48,
+              fontWeight: "bold",
+              borderRadius: "50%",
+            }}
+          >
+            {initials}
+          </Avatar>
+        </div>
 
-      <div>
-        {user?.isAdmin && (
-          <Typography variant="h6" color="error" fontWeight="bold">
-            Admin
-          </Typography>
-        )}
+        <div className="w-2/3">
+          {user?.isAdmin && (
+            <Typography
+              variant="h6"
+              color="error"
+              textAlign="center"
+              fontWeight="bold"
+            >
+              Admin
+            </Typography>
+          )}
 
-        <Typography variant="h5">{user?.FullName || "Unknown User"}</Typography>
-        <Typography variant="h6" color="text.secondary">
-          {user?.Email || "No Email Provided"}
-        </Typography>
+          <Stack spacing={2}>
+            <Box display="flex" alignItems="center" gap={1}>
+              <Person color="primary" />
+              {isEditing ? (
+                <TextField
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  variant="outlined"
+                  size="small"
+                />
+              ) : (
+                <Typography variant="h6">{fullName}</Typography>
+              )}
+              {isEditing && (
+                <MTooltipButton
+                  title="Save"
+                  variant="contained"
+                  color="success"
+                  size="small"
+                  startIcon={<Save />}
+                  onClick={handleSave}
+                >
+                  Save
+                </MTooltipButton>
+              )}
+            </Box>
+
+            <Box display="flex" alignItems="center" gap={1}>
+              <Email color="primary" />
+              <Typography variant="body1" color="text.secondary">
+                {user?.Email || "No Email Provided"}
+              </Typography>
+            </Box>
+          </Stack>
+
+          <Divider sx={{ my: 2 }} />
+
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
+            <Stack direction="row" alignItems="center" spacing={1}>
+              <Lock color="warning" />
+              <Typography variant="body1">
+                {isTwoStepEnabled
+                  ? "Two-Step Verification Enabled"
+                  : "Two-Step Verification Disabled"}
+              </Typography>
+            </Stack>
+            <Switch
+              checked={isTwoStepEnabled}
+              onChange={handleToggle}
+              sx={{
+                "& .MuiSwitch-switchBase.Mui-checked": { color: "orange" },
+                "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": {
+                  backgroundColor: "orange",
+                },
+              }}
+            />
+          </Box>
+
+          <Divider sx={{ my: 2 }} />
+
+          <div className="flex gap-3 justify-center items-center flex-wrap">
+            <MTooltipButton
+              title="Edit Profile"
+              variant="contained"
+              color="primary"
+              fullWidth
+              startIcon={<Edit />}
+              onClick={handleEdit}
+            >
+              Edit Profile
+            </MTooltipButton>
+            <MTooltipButton
+              title="Change Password"
+              variant="contained"
+              color="primary"
+              fullWidth
+              startIcon={<Edit />}
+              onClick={() => navigate("/forgot-password")}
+            >
+              Change Password
+            </MTooltipButton>
+            <MTooltipButton
+              title="My Orders"
+              variant="contained"
+              color="primary"
+              fullWidth
+              startIcon={<Edit />}
+              onClick={() => handleMyOrder()}
+            >
+              My Orders
+            </MTooltipButton>
+          </div>
+        </div>
       </div>
-    </Box>
+      {orderOpen && (
+        <div className="w-full mt-[5vh]">
+          <OrderListView Orders={MyOrders} loading={isLoading} />
+        </div>
+      )}
+    </div>
   );
 };
 
