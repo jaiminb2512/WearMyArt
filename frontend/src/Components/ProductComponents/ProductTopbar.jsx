@@ -10,7 +10,7 @@ import MTooltip from "../MTooltip";
 const ProductTopbar = ({ setListView, listView, count, handleOpenDialog }) => {
   const { FilterBarOpen } = useSelector((state) => state.OpenClose);
   const { user } = useSelector((state) => state.user);
-  const { isAdmin } = user;
+  let isAdmin = user?.isAdmin || false;
   const dispatch = useDispatch();
 
   return (

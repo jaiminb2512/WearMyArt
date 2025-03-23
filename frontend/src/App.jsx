@@ -50,7 +50,6 @@ const AppLayout = () => {
   useEffect(() => {
     const autoLogin = async () => {
       const userData = await autoLoginMutation.mutateAsync({});
-
       dispatch(login(userData.user));
     };
 

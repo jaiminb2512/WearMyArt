@@ -21,6 +21,7 @@ router.post(
   upload.array("ProductImages", 5),
   addProduct
 );
+
 router.put(
   "/update-product",
   (req, res, next) => tokenVerification(req, res, next, true),

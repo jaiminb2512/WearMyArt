@@ -17,7 +17,7 @@ const Product = () => {
   const [quantity, setQuantity] = useState(1);
   const [warning, setWarning] = useState("");
   const { user } = useSelector((state) => state.user);
-  const { isAdmin } = user;
+  const { isAdmin } = user || false;
 
   const navigate = useNavigate();
   const {
@@ -109,9 +109,11 @@ const Product = () => {
     navigate("/customizeProduct");
   };
 
+  console.log(isAdmin);
+
   return (
-    <div className="product-page-container mx-auto mt-12 p-4">
-      <div className="flex flex-col sm:flex-row gap-10 justify-center">
+    <div className="product-page-container mx-auto mt-12 p-4 h-full">
+      <div className="flex flex-col sm:flex-row gap-10 justify-center h-full">
         <ProductImages imgs={product.ImgURL} />
         <div className="product-data space-y-4">
           <div>

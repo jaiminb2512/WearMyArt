@@ -19,8 +19,7 @@ const ProductGridView = ({
   const navigate = useNavigate();
 
   const { user } = useSelector((state) => state.user);
-  const { isAdmin } = user;
-
+  let isAdmin = user?.isAdmin || false;
   const redirectToProduct = (id) => {
     navigate(`/product/${id}`);
   };
