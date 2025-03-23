@@ -8,15 +8,15 @@ import { Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import MTooltipButton from "../Components/MTooltipButton";
 import { useDispatch } from "react-redux";
-import { addProducts, addTotalCost } from "../Redux/BuyProductSlice";
+import {
+  addProducts,
+  addTotalCost,
+  resetCartState,
+} from "../Redux/BuyProductSlice";
 
 const Cart = () => {
   const dispatch = useDispatch();
-  const {
-    data: MyCart = [],
-    isLoading,
-    refetch,
-  } = useFetchData(
+  const { data: MyCart = [], isLoading } = useFetchData(
     "MyCart",
     ApiURLS.GetCartOrder.url,
     ApiURLS.GetCartOrder.method,
@@ -26,13 +26,9 @@ const Cart = () => {
     }
   );
 
-  const SetTotalCost = () => {
-    const total = MyCart.reduce((sum, item) => {
-      return sum + item.orderData.Quantity * item.orderData.FinalCost;
-    }, 0);
-
-    dispatch(addTotalCost(total));
-  };
+  useEffect(() => {
+    dispatch(resetCartState());
+  }, []);
 
   useEffect(() => {
     dispatch(addProducts(MyCart));
@@ -89,15 +85,10 @@ const Cart = () => {
                   ({MyCart.length})
                 </Typography>
               </div>
-              <CartListView
-                MyCart={MyCart}
-                isLoading={isLoading}
-                refetch={refetch}
-                SetTotalCost={SetTotalCost}
-              />
+              <CartListView />
             </div>
             <div className="w-full md:w-[40%] rounded-lg md:pt-6 mb-6 sm:mb-0">
-              <CheckoutSummary activeStep={0} />
+              <CheckoutSummary />
             </div>
           </div>
         </div>

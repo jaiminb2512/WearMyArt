@@ -45,7 +45,8 @@ const sendOrderConfirmationEmail = async (
   orderDetailsArray,
   finalProductImgs
 ) => {
-  let Total = 0;
+  let Total = 50;
+  let ProductTotal = 0;
   let ordersHtml = "";
 
   orderDetailsArray.forEach((orderDetails, index) => {
@@ -62,9 +63,6 @@ const sendOrderConfirmationEmail = async (
     if (orderDetails.Font) {
       orderHtml += `<p><strong>Font:</strong> ${orderDetails.Font}</p>`;
     }
-    if (orderDetails.FontSize !== undefined) {
-      orderHtml += `<p><strong>Font Size:</strong> ${orderDetails.FontSize}px</p>`;
-    }
     if (orderDetails.Text) {
       orderHtml += `<p><strong>Text:</strong> ${orderDetails.Text}</p>`;
     }
@@ -74,16 +72,17 @@ const sendOrderConfirmationEmail = async (
     if (orderDetails.Quantity) {
       orderHtml += `<p><strong>Quantity:</strong> ${orderDetails.Quantity}</p>`;
     }
+    orderHtml += `<p><strong>Price Per Product:</strong> ₹${orderDetails.FinalCost}</p>`;
 
-    // Close the order-info div
+    ProductTotal = orderDetails.Quantity * orderDetails.FinalCost;
     orderHtml += `
       </div>
     </div>
-    <p><strong>Total Cost for this order:</strong> $${orderDetails.FinalCost}</p>
+    <p><strong>Total Cost for this order:</strong> ₹${ProductTotal}</p>
         </div>
   `;
 
-    Total += orderDetails.FinalCost;
+    Total += orderDetails.FinalCost * orderDetails.Quantity;
     ordersHtml += orderHtml;
   });
 
@@ -114,6 +113,9 @@ const sendOrderConfirmationEmail = async (
         .Total-cost{
             font-size: 20px;
         }
+        .Shipping-cost{
+            font-size: 10px;
+        }
 
          @media (max-width: 768px) {
           .order-container{
@@ -126,6 +128,7 @@ const sendOrderConfirmationEmail = async (
       <p>We are excited to let you know that your orders have been successfully placed. Here are your order details:</p>
 
       ${ordersHtml}
+      <p class="Shipping-cost">Shipping Charge is: ₹50.00</p>
       <p class="Total-cost"><strong>Total Amount is: </strong> ${Total}</p>
       <p class="thank-you">Thank you for choosing WearMyArt! If you have any questions, feel free to contact us.</p>
     </div>

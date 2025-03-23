@@ -45,7 +45,7 @@ const CartListView = () => {
   };
 
   const handleRemoveCartItem = async (orderKeys) => {
-    await removeCartMutation.mutateAsync({ orderKey: orderKeys });
+    await removeCartMutation.mutateAsync({ orderKeys });
   };
 
   const handleSelectItem = (item) => {
@@ -121,7 +121,7 @@ const CartListView = () => {
                         onClick={() =>
                           handleQuantityChange(
                             item.key,
-                            item.orderData.Quantity - 1
+                            Number(item.orderData.Quantity) - 1
                           )
                         }
                       >
@@ -133,7 +133,7 @@ const CartListView = () => {
                         onClick={() =>
                           handleQuantityChange(
                             item.key,
-                            item.orderData.Quantity + 1
+                            Number(item.orderData.Quantity) + 1
                           )
                         }
                       >

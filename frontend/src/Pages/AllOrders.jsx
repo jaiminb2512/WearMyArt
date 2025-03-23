@@ -1,10 +1,10 @@
 import React, { useMemo, useState } from "react";
-import { useFetchData } from "../utils/apiRequest";
 import ApiURLS from "../Data/ApiURLS";
 import OrderListView from "../Components/OrderComponents/OrderListView";
 import OrderFilter from "../Components/OrderComponents/OrderFilter";
 import OrderTopBar from "../Components/OrderComponents/OrderTopBar";
 import OrderBottomBar from "../Components/OrderComponents/OrderBottomBar";
+import { useFetchData } from "../utils/apiRequest";
 import { useSelector } from "react-redux";
 import { OrderFilterData } from "../Data/FilterData";
 
@@ -119,7 +119,6 @@ const AllOrders = () => {
             <OrderFilter
               setFilterOptions={setFilterOptions}
               filterOptions={filterOptions}
-              allOrders={true}
             />
           </div>
         </div>

@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import MTooltipButton from "../MTooltipButton";
 import { setActiveStep } from "../../Redux/BuyProductSlice";
-import { useApiMutation, useFetchData } from "../../utils/apiRequest";
+import { useApiMutation } from "../../utils/apiRequest";
 import ApiURLS from "../../Data/ApiURLS";
 
 const CheckoutSummary = () => {
@@ -13,15 +13,6 @@ const CheckoutSummary = () => {
     (state) => state.BuyProduct
   );
 
-  console.log("selectedItems", selectedItems);
-  console.log("Products", Products);
-
-  // let Items = selectedItems || Products;
-  // if (selectedItems.length > 0) {
-  //   Items = selectedItems;
-  // } else {
-  //   Items = Products;
-  // }
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -31,13 +22,13 @@ const CheckoutSummary = () => {
   };
 
   const handleBack = () => {
-    navigate(-1);
     dispatch(setActiveStep(activeStep - 1));
+    navigate(-1);
   };
 
   const handleConfirmOrder = () => {
-    navigate("/dashboard/complete-order");
     dispatch(setActiveStep(activeStep + 1));
+    navigate("/dashboard/complete-order");
   };
 
   const { mutateAsync: cartToOrderMutation } = useApiMutation(
@@ -45,19 +36,15 @@ const CheckoutSummary = () => {
     ApiURLS.CartToOrder.method
   );
 
-  const handleFinish = async () => {
-    try {
-      const orderKeys =
-        selectedItems.length > 0
-          ? selectedItems.map((item) => item.key)
-          : Products.map((item) => item.key);
-      console.log("keys", orderKeys);
-      const response = await cartToOrderMutation({ keys: orderKeys });
+  const handlePayAmount = async () => {
+    const orderKeys =
+      selectedItems.length > 0
+        ? selectedItems.map((item) => item.key)
+        : Products.map((item) => item.key);
+    await cartToOrderMutation({ keys: orderKeys });
 
-      navigate("/dashboard/order-success");
-    } catch (error) {
-      console.error("Error in handleFinish:", error);
-    }
+    navigate("/dashboard/order-success");
+    dispatch(setActiveStep(activeStep + 1));
   };
 
   return (
@@ -134,14 +121,14 @@ const CheckoutSummary = () => {
         )}
         {activeStep == 2 && (
           <MTooltipButton
-            title="Finish"
+            title="Pay Amount"
             variant="contained"
             fullWidth
             color="success"
             className="py-3 text-lg bg-gray-300 text-gray-600 cursor-not-allowed mb-4"
-            onClick={() => handleFinish()}
+            onClick={() => handlePayAmount()}
           >
-            Finish
+            Pay Amount
           </MTooltipButton>
         )}
       </div>

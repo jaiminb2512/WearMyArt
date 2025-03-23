@@ -1,16 +1,23 @@
 import React, { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useFetchData } from "../utils/apiRequest";
+import { useApiMutation, useFetchData } from "../utils/apiRequest";
 import ApiURLS from "../Data/ApiURLS";
 import ProductImages from "../Components/ProductComponents/ProductImages";
-import { TbReplace } from "react-icons/tb";
-import { Button, CircularProgress } from "@mui/material";
+import { Button, CircularProgress, Dialog, DialogContent } from "@mui/material";
 import CustomizeBtn from "../Components/ProductComponents/CustomizeBtn";
+import { useSelector } from "react-redux";
+import MTooltipButton from "../Components/MTooltipButton";
+import ModeEditIcon from "@mui/icons-material/ModeEdit";
+import BlockIcon from "@mui/icons-material/Block";
+import ControlPointIcon from "@mui/icons-material/ControlPoint";
+import ProductForm from "../Components/ProductComponents/ProductForm";
 
 const Product = () => {
   const { id } = useParams();
   const [quantity, setQuantity] = useState(1);
   const [warning, setWarning] = useState("");
+  const { user } = useSelector((state) => state.user);
+  const { isAdmin } = user;
 
   const navigate = useNavigate();
   const {
@@ -25,6 +32,38 @@ const Product = () => {
       enabled: !!id,
     }
   );
+
+  const discontinueProductsMutation = useApiMutation(
+    ApiURLS.DiscontinueProducts.url,
+    ApiURLS.DiscontinueProducts.method
+  );
+
+  const reContinueProducts = useApiMutation(
+    ApiURLS.RecontinueProducts.url,
+    ApiURLS.RecontinueProducts.method
+  );
+
+  const handleDiscontinueProducts = async (id) => {
+    console.log("ReContinue product:", id);
+    await discontinueProductsMutation.mutateAsync({ Products: [id] });
+  };
+  const handleReContinueProducts = async (id) => {
+    console.log("Discontinue product:", id);
+    await reContinueProducts.mutateAsync({ Products: [id] });
+  };
+
+  const [openDialog, setOpenDialog] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+
+  const handleOpenDialog = (product = null) => {
+    setSelectedProduct(product);
+    setOpenDialog(true);
+  };
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+    setSelectedProduct(null);
+  };
 
   const increaseQuantity = () => {
     if (!product) return;
@@ -93,13 +132,6 @@ const Product = () => {
           </div>
           <p className="text-md">Size: {product.Size}</p>
           <p className="text-md">Sleeve: {product.Sleeve}</p>
-          <h1>Benefits:</h1>
-          <div className="border-b border-gray-300 pb-4 flex gap-5">
-            <div className="text-center">
-              <TbReplace className="text-5xl mx-auto bg-gray-200 p-2 rounded-full" />
-              <p>7 Days Replacement</p>
-            </div>
-          </div>
           <div className="text-lg space-y-2">
             <p>
               Available:{" "}
@@ -112,31 +144,89 @@ const Product = () => {
             </p>
           </div>
           <hr className="border-black w-5/6" />
-          <div className="flex items-center space-x-4">
-            <p className="text-lg">Quantity:</p>
+          {!isAdmin && (
+            <div className="flex items-center space-x-4">
+              <p className="text-lg">Quantity:</p>
 
-            <div className="flex justify-center items-center gap-3">
-              <Button
-                onClick={decreaseQuantity}
-                className="bg-gray-300 rounded-md"
-                variant="outlined"
-              >
-                -
-              </Button>
-              <span className="text-lg">{quantity}</span>
-              <Button
-                onClick={increaseQuantity}
-                variant="outlined"
-                className="bg-gray-300 px-0 py-0 rounded-md"
-              >
-                +
-              </Button>
+              <div className="flex justify-center items-center gap-3">
+                <Button
+                  onClick={decreaseQuantity}
+                  className="bg-gray-300 rounded-md"
+                  variant="outlined"
+                >
+                  -
+                </Button>
+                <span className="text-lg">{quantity}</span>
+                <Button
+                  onClick={increaseQuantity}
+                  variant="outlined"
+                  className="bg-gray-300 px-0 py-0 rounded-md"
+                >
+                  +
+                </Button>
+              </div>
             </div>
-          </div>
+          )}
           {warning && <p className="text-red-500">{warning}</p>}
-          <div className="w-full">
-            <CustomizeBtn variant={"contained"} product={product} />
-          </div>
+          {isAdmin ? (
+            <div className="flex gap-3">
+              <MTooltipButton
+                title="Edit Product"
+                variant="contained"
+                color="primary"
+                onClick={() => handleOpenDialog(product)}
+              >
+                <ModeEditIcon />
+              </MTooltipButton>
+
+              {product.isDiscontinued ? (
+                <MTooltipButton
+                  title="Recontinue Product"
+                  variant="contained"
+                  color="secondary"
+                  onClick={() => handleReContinueProducts(product._id)}
+                >
+                  <ControlPointIcon />
+                </MTooltipButton>
+              ) : (
+                <MTooltipButton
+                  title="Discontinue Product"
+                  variant="contained"
+                  color="error"
+                  onClick={() => handleDiscontinueProducts(product._id)}
+                >
+                  <BlockIcon />
+                </MTooltipButton>
+              )}
+            </div>
+          ) : (
+            <div className="w-full flex gap-3">
+              <CustomizeBtn variant={"contained"} product={product} />
+            </div>
+          )}
+
+          <Dialog
+            open={openDialog}
+            onClose={handleCloseDialog}
+            maxWidth="md"
+            fullWidth
+            aria-labelledby="product-form-dialog"
+            PaperProps={{
+              style: {
+                maxHeight: "95vh",
+              },
+            }}
+          >
+            <DialogContent>
+              <ProductForm
+                product={selectedProduct}
+                onClose={handleCloseDialog}
+                handleCloseDialog={handleCloseDialog}
+                isEdit={!!selectedProduct}
+                title={selectedProduct ? "Edit Product" : "Add New Product"}
+              />
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
     </div>

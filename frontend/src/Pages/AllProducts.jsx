@@ -24,18 +24,12 @@ const AllProducts = () => {
   );
   const discontinueProductsMutation = useApiMutation(
     ApiURLS.DiscontinueProducts.url,
-    ApiURLS.DiscontinueProducts.method,
-    {
-      onSuccess: () => refetch(),
-    }
+    ApiURLS.DiscontinueProducts.method
   );
 
   const reContinueProducts = useApiMutation(
     ApiURLS.RecontinueProducts.url,
-    ApiURLS.RecontinueProducts.method,
-    {
-      onSuccess: () => refetch(),
-    }
+    ApiURLS.RecontinueProducts.method
   );
 
   const handleDiscontinueProducts = async (id) => {
@@ -47,14 +41,8 @@ const AllProducts = () => {
     await reContinueProducts.mutateAsync({ Products: [id] });
   };
 
-  const [userStock, setUserStock] = useState(10);
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
-
-  const handleStockChange = (event) => {
-    const value = parseInt(event.target.value, 10);
-    setUserStock(isNaN(value) ? 0 : value);
-  };
 
   const handleOpenDialog = (product = null) => {
     setSelectedProduct(product);

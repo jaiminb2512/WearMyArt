@@ -378,7 +378,7 @@ const updateCartQuantity = async (req, res) => {
 
     const redisClient = await connectRedis();
 
-    await redisClient.hSet("cart", orderKey, Quantity);
+    await redisClient.hSet(orderKey, "Quantity", Quantity);
 
     return apiResponse(
       res,
@@ -396,19 +396,14 @@ const removeCart = async (req, res) => {
   try {
     const { orderKeys } = req.body;
 
-    for (const orderKey in orderKeys) {
+    for (const orderKey of orderKeys) {
       if (!orderKey) {
         return apiResponse(res, false, null, "OrderKey is required", 400);
       }
 
       const redisClient = await connectRedis();
 
-      const exists = await redisClient.hExists("cart", orderKey);
-      if (!exists) {
-        return apiResponse(res, false, null, "Order not found in cart", 404);
-      }
-
-      await redisClient.hDel("cart", orderKey);
+      await redisClient.del(orderKey);
     }
 
     return apiResponse(
@@ -438,41 +433,75 @@ const cartToOrder = async (req, res) => {
       if (!orderData || Object.keys(orderData).length === 0) {
         continue;
       }
-
       const {
         ProductId,
         CustomerImg = "",
         Font = "",
         TextStyle = "",
-        FontSize = 0,
         Text = "",
         Color = "",
         Quantity = 1,
         FinalCost,
         FinalProductImg = "",
+        CustomizeOption = "",
       } = orderData;
 
-      const newOrder = new Order({
-        ProductId,
-        CustomerId,
-        CustomerImg,
-        Font,
-        TextStyle,
-        FontSize: Number(FontSize),
-        Text,
-        Color,
-        FinalProductImg,
-        Quantity: Number(Quantity),
-        FinalCost: Number(FinalCost),
-        Status: "Process",
-      });
+      if (CustomizeOption == "Photo") {
+        const newOrder = new Order({
+          ProductId,
+          CustomerImg,
+          CustomerId,
+          Quantity,
+          FinalCost,
+          FinalProductImg,
+          CustomizeOption,
+        });
+        const SavedOrder = await newOrder.save();
+        Orders.push(SavedOrder);
 
-      const SavedOrder = await newOrder.save();
-      Orders.push(SavedOrder);
+        await redisClient.del(key);
+      } else if (CustomizeOption == "Text") {
+        const newOrder = new Order({
+          ProductId,
+          CustomerId,
+          Font,
+          TextStyle,
+          Text,
+          Color,
+          Quantity,
+          FinalCost,
+          FinalProductImg,
+          CustomizeOption,
+        });
+        const SavedOrder = await newOrder.save();
+        Orders.push(SavedOrder);
 
-      await redisClient.del(key);
+        await redisClient.del(key);
+      } else {
+        const newOrder = new Order({
+          ProductId,
+          CustomerId,
+          CustomerImg,
+          Font,
+          TextStyle,
+          Text,
+          Color,
+          FinalProductImg,
+          Quantity: Number(Quantity),
+          FinalCost: Number(FinalCost),
+          CustomizeOption,
+        });
+
+        const SavedOrder = await newOrder.save();
+        Orders.push(SavedOrder);
+
+        await redisClient.del(key);
+      }
     }
 
+    if (Orders.length == 0) {
+      return apiResponse(res, false, null, "Orders can not be Empty", 400);
+    }
     await sendOrderConfirmationEmail(
       Email,
       FullName,
@@ -522,9 +551,6 @@ const getAllCartOrder = async (req, res) => {
 const getAllOrder = async (req, res) => {
   try {
     const orders = await Order.find({});
-    // .populate("ProductId")
-    // .populate("CustomerId")
-    // .exec();
 
     return apiResponse(
       res,
