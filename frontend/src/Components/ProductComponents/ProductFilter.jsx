@@ -26,7 +26,7 @@ const ProductFilter = ({
   setFilterOpen = null,
 }) => {
   const { user } = useSelector((state) => state.user);
-  const { isAdmin } = user;
+  const isAdmin = user?.isAdmin || false;
   const handleCheckboxChange = (category, option) => {
     setFilterOptions((prevFilters) => {
       const updatedOptions = prevFilters[category].includes(option)

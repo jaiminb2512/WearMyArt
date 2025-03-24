@@ -2,8 +2,9 @@ import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import ImageUploadStep from "./ImageUploadStep";
 import Modal from "@mui/material/Modal";
-import { Box } from "@mui/material";
+import { Box, Button } from "@mui/material";
 import { setSelectedLayer } from "../../Redux/TempProductSlice";
+import { AddCircleOutline, UploadFile, Delete } from "@mui/icons-material";
 
 const Layers = ({ addText, deleteSelected, saveDesign, addImage }) => {
   const { SelectedLayer, CustomizeOption } = useSelector(
@@ -12,7 +13,6 @@ const Layers = ({ addText, deleteSelected, saveDesign, addImage }) => {
   const dispatch = useDispatch();
 
   const [openModal, setOpenModal] = useState(false);
-
   useEffect(() => {
     if (CustomizeOption === "Text") {
       dispatch(setSelectedLayer("Text"));
@@ -27,22 +27,24 @@ const Layers = ({ addText, deleteSelected, saveDesign, addImage }) => {
     dispatch(setSelectedLayer(layerType));
   };
 
-  const handleOpenModal = () => setOpenModal(true);
+  const handleOpenModal = () => {
+    setOpenModal(true);
+  };
   const handleCloseModal = () => setOpenModal(false);
 
   return (
-    <div className="flex flex-col w-40 w-full">
-      {CustomizeOption === "Both" && (
-        <h2 className="font-bold text-lg">Layers</h2>
-      )}
+    <div className="flex flex-col w-full h-full p-4">
+      <h1 className="text-lg">Layer</h1>
 
-      {CustomizeOption === "Both" && (
-        <div className="flex gap-2 my-4">
+      {CustomizeOption == "Both" && <p>Select a layer to edit</p>}
+
+      {CustomizeOption == "Both" && (
+        <div className="flex flex-col gap-2 my-4">
           <button
             className={`px-4 py-2 rounded-lg shadow-md transition border w-full ${
               SelectedLayer === "Text"
-                ? "bg-blue-500 text-white"
-                : "bg-white border-blue-500 text-blue-500"
+                ? "bg-gray-500 text-white"
+                : "bg-white border-green-500 text-green-500"
             }`}
             onClick={() => handleLayerChange("Text")}
           >
@@ -52,7 +54,7 @@ const Layers = ({ addText, deleteSelected, saveDesign, addImage }) => {
           <button
             className={`px-4 py-2 rounded-lg shadow-md transition border w-full ${
               SelectedLayer === "Photo"
-                ? "bg-green-500 text-white"
+                ? "bg-gray-500 text-white"
                 : "bg-white border-green-500 text-green-500"
             }`}
             onClick={() => handleLayerChange("Photo")}
@@ -62,41 +64,50 @@ const Layers = ({ addText, deleteSelected, saveDesign, addImage }) => {
         </div>
       )}
 
-      {/* Action Buttons */}
-      <div className="flex gap-2">
+      <div className="flex flex-col gap-2 w-full">
         {SelectedLayer === "Text" && (
-          <>
-            <button
-              onClick={addText}
-              className="bg-gray-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-gray-600 transition"
-            >
-              ➕ Add Text
-            </button>
-            <button
-              onClick={deleteSelected}
-              className="bg-gray-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-gray-600 transition"
-            >
-              ❌ Delete
-            </button>
-          </>
+          <div
+            className="w-full flex items-center gap-5 cursor-pointer"
+            onClick={addText}
+          >
+            <div className="w-[50px] h-[50px] bg-gray-200 border flex justify-center items-center rounded-xl">
+              <h1 className="text-3xl">T</h1>
+            </div>
+            <p>Add Text</p>
+          </div>
         )}
 
         {SelectedLayer === "Photo" && (
-          <div>
-            <button
+          <div className="flex flex-col gap-2">
+            <div
+              className="w-full flex items-center gap-5"
               onClick={handleOpenModal}
-              className="bg-green-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-green-600 transition"
             >
-              📷 Upload Image
-            </button>
-            <button
+              <div className="w-[50px] h-[50px] bg-gray-200 border flex justify-center items-center rounded-xl">
+                <UploadFile />
+              </div>
+              <p>Upload Image</p>
+            </div>
+            <div
+              className="w-full flex items-center gap-5 cursor-pointer"
               onClick={addImage}
-              className="bg-green-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-green-600 transition"
             >
-              📷 Add to the canvas
-            </button>
+              <div className="w-[50px] h-[50px] bg-gray-200 border flex justify-center items-center rounded-xl">
+                <h1 className="text-3xl">📷 </h1>
+              </div>
+              <p>Add to the canvas</p>
+            </div>
           </div>
         )}
+        <div
+          className="flex items-center gap-5 cursor-pointer"
+          onClick={deleteSelected}
+        >
+          <div className="w-[50px] h-[50px] bg-gray-200 border flex justify-center items-center rounded-xl">
+            <Delete />
+          </div>
+          <p>Delete</p>
+        </div>
       </div>
 
       {/* <button
@@ -106,7 +117,6 @@ const Layers = ({ addText, deleteSelected, saveDesign, addImage }) => {
         Save Design
       </button> */}
 
-      {/* Modal for image upload */}
       <Modal open={openModal} onClose={handleCloseModal}>
         <Box className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-5 rounded-lg shadow-lg">
           <ImageUploadStep onClose={handleCloseModal} addImage={addImage} />

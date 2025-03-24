@@ -71,7 +71,7 @@ export const isCustomer = [
 export const sidebarCustomer = [
   {
     name: "Profile",
-    path: "/dashboard/profile",
+    path: "/profile",
     icon: AccountCircleIcon,
   },
   {
@@ -110,10 +110,6 @@ export const sidebarAdmin = [
 ];
 
 export const sidebarBottom = [
-  {
-    name: "Settings",
-    icon: SettingsIcon,
-  },
   {
     name: "Log Out",
     icon: ExitToAppIcon,

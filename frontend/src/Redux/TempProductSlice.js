@@ -4,17 +4,20 @@ const initialState = {
   CustomerImg: null,
   ProductImg: null,
   Quantity: 1,
-  FinalCost: 0,
   FinalProductImg: null,
   ProductId: null,
-  Font: null,
+  Font: "",
   Text: "WearMyArt",
   Color: "#000000",
   Price: 0,
   TextStyle: [],
-  SelectedLayer: "Text",
-  CustomizeOption: "",
+  SelectedLayer: "Both",
+  CustomizeOption: "Both",
   SelectedSize: "Original",
+  EditingCost: 0,
+  TextEditingCost: 0,
+  TextActive: false,
+  ImgActive: false,
 };
 
 const tempProductSlice = createSlice({
@@ -31,15 +34,15 @@ const tempProductSlice = createSlice({
       const { value: selectedStyle, price: stylePrice } = action.payload;
 
       if (!state.TextStyle.includes(selectedStyle)) {
-        // Add style if not already selected
         state.TextStyle.push(selectedStyle);
-        state.FinalCost += stylePrice;
+        state.EditingCost += stylePrice;
+        state.TextEditingCost += stylePrice;
       } else {
-        // Remove style if already selected
         state.TextStyle = state.TextStyle.filter(
           (style) => style !== selectedStyle
         );
-        state.FinalCost -= stylePrice;
+        state.EditingCost -= stylePrice;
+        state.TextEditingCost -= stylePrice;
       }
     },
 
@@ -49,14 +52,44 @@ const tempProductSlice = createSlice({
 
     setText: (state, action) => {
       state.Text = action.payload;
+      state.TextEditingCost += action.payload;
     },
 
     setColor: (state, action) => {
       state.Color = action.payload;
     },
 
-    setFinalCost: (state, action) => {
-      state.FinalCost = action.payload;
+    setEditingCost: (state, action) => {
+      state.EditingCost = action.payload;
+      if (state.SelectedLayer == "Text") {
+        state.TextEditingCost += action.payload;
+      }
+    },
+
+    deletingText: (state) => {
+      if (
+        state.EditingCost > 0 &&
+        state.TextEditingCost > 0 &&
+        state.TextEditingCost <= state.EditingCost
+      )
+        state.EditingCost -= state.TextEditingCost;
+      state.TextEditingCost = 0;
+      state.Font = "";
+      state.Text = "WearMyArt";
+      state.Color = "#000000";
+      state.TextActive = false;
+      state.TextStyle = [];
+    },
+
+    setTextActive: (state) => {
+      state.TextActive = true;
+    },
+    setImgActive: (state, action) => {
+      state.ImgActive = action.payload;
+      if (action.payload == true) state.EditingCost += 50;
+      else {
+        if (state.EditingCost > 0) state.EditingCost -= 50;
+      }
     },
 
     incQuantity: (state) => {
@@ -98,7 +131,6 @@ export const {
   setFont,
   setText,
   setColor,
-  setFinalCost,
   incQuantity,
   decQuantity,
   setFinalProductImg,
@@ -107,6 +139,10 @@ export const {
   updateProductData,
   setSelectedSize,
   resetTempProduct,
+  setEditingCost,
+  deletingText,
+  setImgActive,
+  setTextActive,
 } = tempProductSlice.actions;
 
 export default tempProductSlice.reducer;

@@ -18,7 +18,8 @@ const Navbar = () => {
         <div className="sm:hidden flex justify-center items-center w-12">
           <MTooltip title={SideBarOpen ? "Close Sidebar" : "Open Sidebar"}>
             <Button
-              className="p-2 flex items-center justify-center w-12 h-10 cursor-pointer bg-gray-200 rounded hidden sm:block"
+              // className="p-2 flex items-center justify-center w-12 h-10 cursor-pointer bg-gray-200 rounded hidden sm:block"
+              className="p-2 flex items-center justify-center w-12 h-10 cursor-pointer bg-gray-200 rounded sm:block"
               onClick={() => dispatch(toggleSidebar(!SideBarOpen))}
             >
               {SideBarOpen ? <MenuOpenIcon /> : <MenuIcon />}

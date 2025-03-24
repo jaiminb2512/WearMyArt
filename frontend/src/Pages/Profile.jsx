@@ -7,12 +7,18 @@ import {
   Typography,
   Stack,
   Button,
-  Card,
-  CardContent,
   Divider,
   TextField,
 } from "@mui/material";
-import { Email, Person, Lock, Edit, Save } from "@mui/icons-material";
+import {
+  Email,
+  Person,
+  Lock,
+  Edit,
+  Save,
+  Block,
+  CheckCircle,
+} from "@mui/icons-material";
 import MTooltipButton from "../Components/MTooltipButton";
 import { useNavigate } from "react-router-dom";
 import { useFetchData } from "../utils/apiRequest";
@@ -22,12 +28,17 @@ import OrderListView from "../Components/OrderComponents/OrderListView";
 const Profile = () => {
   const { user } = useSelector((state) => state.user);
   const [isTwoStepEnabled, setIsTwoStepEnabled] = useState(false);
+  const [isUserActive, setIsUserActive] = useState(user?.isActive ?? true);
   const [orderOpen, setOrderOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [fullName, setFullName] = useState(user?.FullName || "Unknown User");
 
-  const handleToggle = () => {
+  const handleToggleTwoStep = () => {
     setIsTwoStepEnabled((prev) => !prev);
+  };
+
+  const handleToggleUserStatus = () => {
+    setIsUserActive((prev) => !prev);
   };
 
   const handleEdit = () => {
@@ -36,7 +47,6 @@ const Profile = () => {
 
   const handleSave = () => {
     setIsEditing(false);
-    // You can add a function here to update the name in the backend
   };
 
   const getInitials = (name) => {
@@ -52,17 +62,13 @@ const Profile = () => {
 
   const navigate = useNavigate();
 
-  const {
-    data: MyOrders = [],
-    isLoading,
-    refetch,
-  } = useFetchData(
+  const { data: MyOrders = [], isLoading } = useFetchData(
     "MyOrders",
     ApiURLS.GetAllOwnOrders.url,
     ApiURLS.GetAllOwnOrders.method,
     {
-      staleTime: 5 * 60 * 1000, // 5 Minutes
-      cacheTime: 10 * 60 * 1000, // 10 Minutes
+      staleTime: 5 * 60 * 1000,
+      cacheTime: 10 * 60 * 1000,
     }
   );
 
@@ -81,7 +87,6 @@ const Profile = () => {
               bgcolor: "primary.main",
               fontSize: 48,
               fontWeight: "bold",
-              borderRadius: "50%",
             }}
           >
             {initials}
@@ -90,12 +95,7 @@ const Profile = () => {
 
         <div className="w-2/3">
           {user?.isAdmin && (
-            <Typography
-              variant="h6"
-              color="error"
-              textAlign="center"
-              fontWeight="bold"
-            >
+            <Typography variant="h6" color="error" fontWeight="bold">
               Admin
             </Typography>
           )}
@@ -138,11 +138,9 @@ const Profile = () => {
           <Divider sx={{ my: 2 }} />
 
           <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
+            display="flex"
+            alignItems="center"
+            justifyContent="space-between"
           >
             <Stack direction="row" alignItems="center" spacing={1}>
               <Lock color="warning" />
@@ -152,21 +150,32 @@ const Profile = () => {
                   : "Two-Step Verification Disabled"}
               </Typography>
             </Stack>
-            <Switch
-              checked={isTwoStepEnabled}
-              onChange={handleToggle}
-              sx={{
-                "& .MuiSwitch-switchBase.Mui-checked": { color: "orange" },
-                "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": {
-                  backgroundColor: "orange",
-                },
-              }}
-            />
+            <Switch checked={isTwoStepEnabled} onChange={handleToggleTwoStep} />
           </Box>
 
           <Divider sx={{ my: 2 }} />
 
-          <div className="flex gap-3 justify-center items-center flex-wrap">
+          <Box
+            display="flex"
+            alignItems="center"
+            justifyContent="space-between"
+          >
+            <Stack direction="row" alignItems="center" spacing={1}>
+              {isUserActive ? (
+                <CheckCircle color="success" />
+              ) : (
+                <Block color="error" />
+              )}
+              <Typography variant="body1">
+                {isUserActive ? "User is Active" : "User is Deactivated"}
+              </Typography>
+            </Stack>
+            <Switch checked={isUserActive} onChange={handleToggleUserStatus} />
+          </Box>
+
+          <Divider sx={{ my: 2 }} />
+
+          <div className="flex gap-3 items-center flex-wrap">
             <MTooltipButton
               title="Edit Profile"
               variant="contained"
@@ -187,16 +196,18 @@ const Profile = () => {
             >
               Change Password
             </MTooltipButton>
-            <MTooltipButton
-              title="My Orders"
-              variant="contained"
-              color="primary"
-              fullWidth
-              startIcon={<Edit />}
-              onClick={() => handleMyOrder()}
-            >
-              My Orders
-            </MTooltipButton>
+            {!user?.isAdmin && (
+              <MTooltipButton
+                title="My Orders"
+                variant="contained"
+                color="primary"
+                fullWidth
+                startIcon={<Edit />}
+                onClick={handleMyOrder}
+              >
+                My Orders
+              </MTooltipButton>
+            )}
           </div>
         </div>
       </div>

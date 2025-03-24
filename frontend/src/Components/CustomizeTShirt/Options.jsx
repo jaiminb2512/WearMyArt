@@ -17,24 +17,23 @@ import {
   setFont,
   setTextStyle,
   setColor,
-  setFinalCost,
-  setCustomerImg,
+  setEditingCost,
   setSelectedSize,
 } from "../../Redux/tempProductSlice";
+import LocalSeeIcon from "@mui/icons-material/LocalSee";
 
-const Options = ({ addText, deleteSelected, saveDesign }) => {
+const Options = () => {
   const dispatch = useDispatch();
 
   const tempProduct = useSelector((state) => state.tempProduct);
-  const { CustomizeOption, CustomerImg, SelectedLayer, SelectedSize } =
-    tempProduct;
+  const { CustomerImg, SelectedLayer, SelectedSize } = tempProduct;
 
   const productCustomization = useSelector((state) => state.tempProduct);
   const [color, setColorState] = useState(
     productCustomization.Color || "#aabbcc"
   );
   const [showPicker, setShowPicker] = useState(false);
-  const [selectedFont, setSelectedFont] = useState(null);
+  const selectedFont = productCustomization.Font;
   const selectedTextStyles = productCustomization.TextStyle || [];
 
   const pickerRef = useRef(null);
@@ -69,15 +68,14 @@ const Options = ({ addText, deleteSelected, saveDesign }) => {
   }, []);
 
   const handleFontChange = (event, newValue) => {
-    setSelectedFont(newValue);
     dispatch(setFont(newValue?.value || ""));
 
     if (newValue) {
       let newCost =
-        productCustomization.FinalCost -
+        productCustomization.EditingCost -
         (fontOptions[productCustomization.Font] || 0) +
         fontOptions[newValue.value];
-      dispatch(setFinalCost(newCost));
+      dispatch(setEditingCost(newCost));
     }
   };
 
@@ -100,15 +98,26 @@ const Options = ({ addText, deleteSelected, saveDesign }) => {
     dispatch(setSelectedSize(size));
   };
 
-  console.log(SelectedLayer);
-
   return (
-    <div>
-      <p>FinalCost : {productCustomization.FinalCost}</p>
+    <div className="w-full">
+      <p>EditingCost : {productCustomization.EditingCost}</p>
 
-      {/* Conditional Rendering for Photo Layer */}
       {SelectedLayer === "Photo" && (
         <div className="p-4">
+          <div className="flex justify-center items-center">
+            {CustomerImg ? (
+              <img
+                src={CustomerImg}
+                alt="Uploaded Preview"
+                className="mt-4 max-h-[150px] w-auto object-contain rounded-lg shadow-md"
+                loading="lazy"
+              />
+            ) : (
+              <p className="h-[150px] flex justify-center items-center">
+                <LocalSeeIcon className="h-full" />
+              </p>
+            )}
+          </div>
           <h2 className="font-bold text-lg mb-2">Size</h2>
           <div className="flex gap-2 flex-wrap">
             {sizeOptions.map((size) => (
@@ -128,7 +137,6 @@ const Options = ({ addText, deleteSelected, saveDesign }) => {
         </div>
       )}
 
-      {/* Text Customization */}
       {SelectedLayer !== "Photo" && (
         <>
           <div className="p-4">

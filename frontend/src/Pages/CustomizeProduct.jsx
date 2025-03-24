@@ -79,61 +79,35 @@ const CustomizeProduct = () => {
   };
 
   return (
-    <div className="w-full p-5">
-      {/* <Stepper
-        activeStep={activeStep}
-        alternativeLabel
-        className="w-full max-w-3xl mx-auto p-5"
-      >
-        {steps.map((step, index) => (
-          <Step key={index}>
-            <StepLabel icon={step.icon}>
-              <div
-                className={`border-b-4 pb-2 ${
-                  activeStep === index
-                    ? "border-black"
-                    : index < activeStep
-                    ? "border-blue-500"
-                    : "border-gray-300"
-                }`}
-              >
-                {step.label}
-              </div>
-            </StepLabel>
-          </Step>
-        ))}
-      </Stepper> */}
+    <div className="mt-5 rounded-lg text-center flex flex-col justify-center w-full h-full items-center px-[5vw]">
+      {steps[activeStep]?.label === "Customize Design" && <ImageEditStep />}
+      {steps[activeStep]?.label === "Review & Confirm" && <ConfirmOrder />}
 
-      <div className="mt-5 rounded-lg text-center flex flex-col justify-center w-full h-full items-center px-[5vw]">
-        {steps[activeStep]?.label === "Customize Design" && <ImageEditStep />}
-        {steps[activeStep]?.label === "Review & Confirm" && <ConfirmOrder />}
+      <div className="mt-4 flex justify-between w-full max-w-5xl mx-auto">
+        {activeStep > 0 && (
+          <Button
+            disabled={activeStep === 0}
+            onClick={handleBack}
+            variant="contained"
+          >
+            Back
+          </Button>
+        )}
+        {activeStep < steps.length - 1 && (
+          <Button
+            onClick={handleNext}
+            variant="contained"
+            // disabled={nextAllowed}
+          >
+            Next
+          </Button>
+        )}
 
-        <div className="mt-4 flex justify-between w-full max-w-5xl mx-auto p-5">
-          {activeStep > 0 && (
-            <Button
-              disabled={activeStep === 0}
-              onClick={handleBack}
-              variant="contained"
-            >
-              Back
-            </Button>
-          )}
-          {activeStep < steps.length - 1 && (
-            <Button
-              onClick={handleNext}
-              variant="contained"
-              // disabled={nextAllowed}
-            >
-              Next
-            </Button>
-          )}
-
-          {activeStep === steps.length - 1 && (
-            <Button variant="contained" color="success">
-              Place Order
-            </Button>
-          )}
-        </div>
+        {activeStep === steps.length - 1 && (
+          <Button variant="contained" color="success">
+            Place Order
+          </Button>
+        )}
       </div>
     </div>
   );

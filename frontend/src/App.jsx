@@ -83,7 +83,7 @@ const AppLayout = () => {
     }
   }, [ScreenWidth]);
 
-  console.log(SmScreen);
+  // console.log(SmScreen);
 
   sidebarWidth = SmScreen ? 0 : sidebarWidth;
 

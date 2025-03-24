@@ -4,12 +4,13 @@ import React, {
   forwardRef,
   useImperativeHandle,
 } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import * as fabric from "fabric";
 
 const Workspace = forwardRef((props, ref) => {
   const tempProduct = useSelector((state) => state.tempProduct);
   const { Font, Text, Color, CustomerImg } = tempProduct;
+  const dispatch = useDispatch();
 
   const ProductImg = tempProduct?.ImgURL?.[0]
     ? `${import.meta.env.VITE_BASE_URL}${tempProduct.ImgURL[0]}`
@@ -119,7 +120,7 @@ const Workspace = forwardRef((props, ref) => {
     const canvas = fabricRef.current;
 
     const imgObj = new Image();
-    imgObj.src = CustomerImg; // Directly assign the data URL
+    imgObj.src = CustomerImg;
 
     imgObj.onload = () => {
       const fabricImage = new fabric.Image(imgObj, {
@@ -136,18 +137,17 @@ const Workspace = forwardRef((props, ref) => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center space-y-4 mt-4">
-      {/* Canvas Area */}
-      <div className="relative border shadow-lg rounded-lg p-2">
+    <div className="flex flex-col items-center justify-center h-full w-full">
+      <div className="relative shadow-lg rounded-lg p-2">
         <img
           src={ProductImg}
           alt="T-shirt"
-          className="absolute w-[350px] h-[350px] object-cover rounded-md"
+          className="absolute w-[300px] h-[300px] object-cover rounded-md"
           style={{ zIndex: -1 }}
         />
         <canvas
-          width="350"
-          height="350"
+          width="300"
+          height="300"
           ref={canvaRef}
           className="border border-green"
         ></canvas>

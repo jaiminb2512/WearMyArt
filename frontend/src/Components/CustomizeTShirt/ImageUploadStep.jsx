@@ -13,9 +13,9 @@ const ImageUploadStep = ({ onClose }) => {
     const file = event.target.files[0];
     if (!file) return;
 
-    const validImageTypes = ["image/png", "image/jpeg"];
+    const validImageTypes = ["image/png", "image/jpeg", "image/jpg"];
     if (!validImageTypes.includes(file.type)) {
-      setError("Only PNG and JPEG images are allowed.");
+      setError("Only PNG, JPG and JPEG images are allowed.");
       return;
     }
 
@@ -40,9 +40,7 @@ const ImageUploadStep = ({ onClose }) => {
 
   const handleConfirm = async () => {
     if (image) {
-      // First update Redux state
       dispatch(setCustomerImg(image));
-      // Finally close the modal
       if (onClose) onClose();
     }
   };

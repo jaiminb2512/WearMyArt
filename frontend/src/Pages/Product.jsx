@@ -109,8 +109,6 @@ const Product = () => {
     navigate("/customizeProduct");
   };
 
-  console.log(isAdmin);
-
   return (
     <div className="product-page-container mx-auto mt-12 p-4 h-full">
       <div className="flex flex-col sm:flex-row gap-10 justify-center h-full">
