@@ -9,9 +9,8 @@ import { useApiMutation } from "../../utils/apiRequest";
 import ApiURLS from "../../Data/ApiURLS";
 
 const CheckoutSummary = () => {
-  const { TotalCost, activeStep, selectedItems, Products } = useSelector(
-    (state) => state.BuyProduct
-  );
+  const { TotalCost, activeStep, selectedItems, Products, buyNow } =
+    useSelector((state) => state.BuyProduct);
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -36,15 +35,26 @@ const CheckoutSummary = () => {
     ApiURLS.CartToOrder.method
   );
 
-  const handlePayAmount = async () => {
+  const cartToOrder = async () => {
     const orderKeys =
       selectedItems.length > 0
         ? selectedItems.map((item) => item.key)
         : Products.map((item) => item.key);
     await cartToOrderMutation({ orderKeys });
+  };
 
-    navigate("/dashboard/order-success");
-    dispatch(setActiveStep(activeStep + 1));
+  const addOrder = async () => {
+    console.log("add Order");
+  };
+
+  const handlePayAmount = async () => {
+    if (buyNow) {
+      addOrder();
+    } else {
+      cartToOrder();
+    }
+    // navigate("/dashboard/order-success");
+    // dispatch(setActiveStep(activeStep + 1));
   };
 
   return (

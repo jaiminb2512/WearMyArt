@@ -5,6 +5,7 @@ const initialState = {
   selectedItems: [],
   TotalCost: 0,
   activeStep: 0,
+  buyNow: false,
 };
 
 const BuyProductSlice = createSlice({
@@ -33,6 +34,9 @@ const BuyProductSlice = createSlice({
     setActiveStep: (state, action) => {
       state.activeStep = action.payload;
     },
+    setBuyNow: (state, action) => {
+      state.buyNow = action.payload;
+    },
   },
 });
 
@@ -42,5 +46,6 @@ export const {
   addProducts,
   setActiveStep,
   resetCartState,
+  setBuyNow,
 } = BuyProductSlice.actions;
 export default BuyProductSlice.reducer;

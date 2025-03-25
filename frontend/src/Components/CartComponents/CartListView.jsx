@@ -10,7 +10,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { addSelectedItems, addTotalCost } from "../../Redux/BuyProductSlice";
 const CartListView = () => {
   const dispatch = useDispatch();
-  const { selectedItems, Products, activeStep } = useSelector(
+  const { selectedItems, Products, activeStep, buyNow } = useSelector(
     (state) => state.BuyProduct
   );
   let Items = Products;
@@ -79,6 +79,8 @@ const CartListView = () => {
     dispatch(addTotalCost(total));
   };
 
+  console.log(buyNow);
+
   return (
     <div className="w-full p-4 flex flex-col justify-center items-center">
       <table className="w-full">
@@ -102,9 +104,13 @@ const CartListView = () => {
               )}
               <td className="p-2 flex items-center gap-2 justify-center">
                 <img
-                  src={`${import.meta.env.VITE_BASE_URL}${
-                    item.orderData.FinalProductImg
-                  }`}
+                  src={
+                    buyNow
+                      ? item.orderData.FinalProductImg
+                      : `${import.meta.env.VITE_BASE_URL}${
+                          item.orderData.FinalProductImg
+                        }`
+                  }
                   alt="Product"
                   width="50"
                   height="50"

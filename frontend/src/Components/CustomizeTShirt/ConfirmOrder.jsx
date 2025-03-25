@@ -6,11 +6,14 @@ import {
   ShoppingCart,
   CheckCircle,
 } from "@mui/icons-material";
-import { Button, IconButton } from "@mui/material";
+import { IconButton } from "@mui/material";
 import MTooltipButton from "../MTooltipButton";
 import { useNavigate } from "react-router-dom";
-import { addProducts, addTotalCost } from "../../Redux/BuyProductSlice";
-import { useApiMutation } from "../../utils/apiRequest";
+import {
+  addProducts,
+  addTotalCost,
+  setBuyNow,
+} from "../../Redux/BuyProductSlice";
 import ApiURLS from "../../Data/ApiURLS";
 import axios from "axios";
 
@@ -81,7 +84,8 @@ const ConfirmOrder = () => {
   const handleCheckout = () => {
     const orderData = makeOrderData();
     dispatch(addProducts([orderData]));
-    // navigate("/dashboard/checkout");
+    dispatch(setBuyNow(true));
+    navigate("/dashboard/checkout");
   };
 
   // ApiURLS.AddToCartOrder.url,
@@ -89,7 +93,6 @@ const ConfirmOrder = () => {
 
   const handleAddToCart = async () => {
     const orderData = makeOrderData();
-    console.log("Order Data:", orderData);
 
     const formData = new FormData();
     formData.append("ProductId", orderData.orderData.ProductId);
@@ -151,7 +154,6 @@ const ConfirmOrder = () => {
         "Error adding item to cart:",
         error.response ? error.response.data : error.message
       );
-      // Optionally show an error message to the user
     }
   };
   return (

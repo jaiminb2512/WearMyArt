@@ -31,7 +31,9 @@ const CustomizeProduct = () => {
     const canvas = document.querySelector("canvas");
     if (!canvas) return false;
 
-    const ProductImg = `${import.meta.env.VITE_BASE_URL}${product?.ProductImg}`;
+    // const ProductImg = `${import.meta.env.VITE_BASE_URL}${product?.ProductImg}`;
+    const ProductImg =
+      "http://localhost:3000/uploads/ProductImages-1740638255560-756813806.jpg";
 
     const tempCanvas = document.createElement("canvas");
     tempCanvas.width = product.size;
@@ -66,6 +68,7 @@ const CustomizeProduct = () => {
   const handleNext = async () => {
     if (steps[activeStep]?.label === "Customize Design") {
       const saved = await handleSaveDesign();
+      console.log(saved);
       if (saved) {
         setActiveStep((prevStep) => prevStep + 1);
         navigate("/confirm-order");
