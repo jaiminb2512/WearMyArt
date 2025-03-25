@@ -5,6 +5,7 @@ import { useSelector, useDispatch } from "react-redux";
 import ConfirmOrder from "../Components/CustomizeTShirt/ConfirmOrder";
 import { setFinalProductImg } from "../redux/tempProductSlice";
 import ImageEditStep from "../Components/CustomizeTShirt/ImageEditeStep";
+import { useNavigate } from "react-router-dom";
 
 const steps = [
   { label: "Customize Design", icon: <DesignServices /> },
@@ -15,6 +16,7 @@ const CustomizeProduct = () => {
   const [activeStep, setActiveStep] = useState(0);
   const [nextAllowed, setNextAllowed] = useState(false);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const product = useSelector((state) => state.tempProduct);
 
   useEffect(() => {
@@ -29,13 +31,11 @@ const CustomizeProduct = () => {
     const canvas = document.querySelector("canvas");
     if (!canvas) return false;
 
-    const ProductImg = product?.ImgURL?.[0]
-      ? `${import.meta.env.VITE_BASE_URL}${product.ImgURL[0]}`
-      : "http://localhost:3000/uploads/ProductImages-1740638255560-756813806.jpg";
+    const ProductImg = `${import.meta.env.VITE_BASE_URL}${product?.ProductImg}`;
 
     const tempCanvas = document.createElement("canvas");
-    tempCanvas.width = 300;
-    tempCanvas.height = 300;
+    tempCanvas.width = product.size;
+    tempCanvas.height = product.size;
     const ctx = tempCanvas.getContext("2d");
 
     const designImage = canvas.toDataURL({ format: "png", quality: 1 });
@@ -46,13 +46,13 @@ const CustomizeProduct = () => {
 
     return new Promise((resolve) => {
       bgImage.onload = () => {
-        ctx.drawImage(bgImage, 0, 0, 300, 300);
+        ctx.drawImage(bgImage, 0, 0, product.size, product.size);
 
         const designImg = new Image();
         designImg.src = designImage;
 
         designImg.onload = () => {
-          ctx.drawImage(designImg, 0, 0, 300, 300);
+          ctx.drawImage(designImg, 0, 0, product.size, product.size);
 
           const finalImage = tempCanvas.toDataURL("image/png");
 
@@ -68,6 +68,7 @@ const CustomizeProduct = () => {
       const saved = await handleSaveDesign();
       if (saved) {
         setActiveStep((prevStep) => prevStep + 1);
+        navigate("/confirm-order");
       }
     } else {
       setActiveStep((prevStep) => prevStep + 1);
@@ -81,7 +82,6 @@ const CustomizeProduct = () => {
   return (
     <div className="mt-5 rounded-lg text-center flex flex-col justify-center w-full h-full items-center px-[5vw]">
       {steps[activeStep]?.label === "Customize Design" && <ImageEditStep />}
-      {steps[activeStep]?.label === "Review & Confirm" && <ConfirmOrder />}
 
       <div className="mt-4 flex justify-between w-full max-w-5xl mx-auto">
         {activeStep > 0 && (

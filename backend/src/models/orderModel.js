@@ -43,7 +43,7 @@ const OrderSchema = new Schema(
       enum: ["Pending", "Process", "Ready", "Shipped", "Completed", "Rejected"],
       default: "Pending",
     },
-    CustomizeOption: {
+    CustomizedType: {
       type: String,
       enum: ["Photo", "Text", "Both"],
       required: true,

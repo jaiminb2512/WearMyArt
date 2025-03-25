@@ -34,6 +34,7 @@ import { useApiMutation } from "./utils/apiRequest";
 import { login } from "./Redux/UserSlice";
 import CheckOut from "./Pages/CheckOut";
 import CompleteOrder from "./Components/PurchaseComponents/CompleteOrder";
+import ConfirmOrder from "./Components/CustomizeTShirt/ConfirmOrder";
 
 const queryClient = new QueryClient();
 
@@ -114,6 +115,7 @@ const AppLayout = () => {
             <Route path="/register" element={<Auth />} />
             <Route path="/forgot-password" element={<Auth />} />
             <Route path="/products" element={<Products />} />
+            <Route path="/confirm-order" element={<ConfirmOrder />} />
             <Route path="/dashboard/checkout" element={<CheckOut />} />
             <Route
               path="/dashboard/complete-order"

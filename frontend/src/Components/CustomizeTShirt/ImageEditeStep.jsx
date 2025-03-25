@@ -31,7 +31,6 @@ const ImageEditStep = () => {
       dispatch(deletingText());
     }
     if (SelectedLayer == "Photo") {
-      console.log("photo");
       dispatch(setImgActive(false));
     }
   };
@@ -48,22 +47,29 @@ const ImageEditStep = () => {
     dispatch(setImgActive(true));
   };
 
-  console.log("Photo", ImgActive);
   return (
-    <div className="flex min-h-[50vh] w-full md:h-[75vh] gap-2 justify-center border p-3">
-      <div className="w-[25%] border rounded-lg">
-        <Layers
-          addText={handleAddText}
-          deleteSelected={handleDeleteSelected}
-          saveDesign={handleSaveDesign}
-          addImage={handleAddImage}
-        />
+    <div className="flex flex-col sm:flex-col md:flex-row h-ful w-full gap-4 p-4 border">
+      <div className="w-full md:w-1/2 order-1 sm:order-1 md:order-2 overflow-hidden">
+        <div className="md:border md:rounded-lg h-[50vh] md:h-[75vh] overflow-hidden">
+          <Workspace ref={workspaceRef} />
+        </div>
       </div>
-      <div className="w-[50%] border rounded-lg">
-        <Workspace ref={workspaceRef} />
+
+      <div className="w-full md:w-1/4 order-3 sm:order-3 md:order-3">
+        <div className="border rounded-lg h-full">
+          <Options />
+        </div>
       </div>
-      <div className="w-[25%] border rounded-lg">
-        <Options />
+
+      <div className="w-full md:w-1/4 order-2 sm:order-2 md:order-1">
+        <div className="border rounded-lg h-full">
+          <Layers
+            addText={handleAddText}
+            deleteSelected={handleDeleteSelected}
+            saveDesign={handleSaveDesign}
+            addImage={handleAddImage}
+          />
+        </div>
       </div>
     </div>
   );

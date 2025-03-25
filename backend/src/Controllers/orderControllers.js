@@ -7,12 +7,12 @@ import deleteFiles from "../utils/deleteFiles.js";
 
 const addOrder = async (req, res) => {
   try {
-    const { CustomizeOption, Quantity, FinalCost, ProductId } = req.body;
+    const { CustomizedType, Quantity, FinalCost, ProductId } = req.body;
     const FinalProductImg = `/uploads/${req.files["FinalProductImg"][0].filename}`;
     const CustomerId = req.user._id;
 
-    if (!CustomizeOption) {
-      return apiResponse(res, false, null, "CustomizeOption is required", 400);
+    if (!CustomizedType) {
+      return apiResponse(res, false, null, "CustomizedType is required", 400);
     }
     const { Size } = productValidate(ProductId, res, Quantity);
 
@@ -32,7 +32,7 @@ const addOrder = async (req, res) => {
 
     const { Email, FullName } = req.user;
 
-    if (CustomizeOption === "Text") {
+    if (CustomizedType === "Text") {
       const { Font, Text, Color, TextStyle } = req.body;
 
       const newOrder = new Order({
@@ -45,7 +45,7 @@ const addOrder = async (req, res) => {
         Quantity,
         FinalCost,
         FinalProductImg,
-        CustomizeOption: "Text",
+        CustomizedType: "Text",
       });
 
       await newOrder.save();
@@ -58,7 +58,7 @@ const addOrder = async (req, res) => {
       );
 
       return apiResponse(res, true, newOrder, "Order is Successfully placed");
-    } else if (CustomizeOption === "Photo") {
+    } else if (CustomizedType === "Photo") {
       const CustomerImg = `/uploads/${req.files["CustomerImg"][0].filename}`;
 
       if (!CustomerImg) {
@@ -72,7 +72,7 @@ const addOrder = async (req, res) => {
         Quantity,
         FinalCost,
         FinalProductImg,
-        CustomizeOption: "Photo",
+        CustomizedType: "Photo",
       });
 
       await newOrder.save();
@@ -91,7 +91,7 @@ const addOrder = async (req, res) => {
         "Order is Successfully placed",
         200
       );
-    } else if (CustomizeOption === "Both") {
+    } else if (CustomizedType === "Both") {
       const { Font, Text, Color, TextStyle } = req.body;
       const FinalProductImg = `/uploads/${req.files["FinalProductImg"][0].filename}`;
       const CustomerImg = `/uploads/${req.files["CustomerImg"][0].filename}`;
@@ -132,7 +132,7 @@ const addOrder = async (req, res) => {
         TextStyle,
         Text,
         Color,
-        CustomizeOption: "Both",
+        CustomizedType: "Both",
       });
 
       await newOrder.save();
@@ -164,14 +164,15 @@ const addOrder = async (req, res) => {
 
 const addToCartOrder = async (req, res) => {
   try {
-    const { CustomizeOption, Quantity, FinalCost, ProductId } = req.body;
-    console.log(req.files.FinalProductImg[0].filename);
+    const { CustomizedType, Quantity, FinalCost, ProductId } = req.body;
+    console.log(req.body);
+    console.log(req.files);
     const FinalProductImg = `/uploads/${req.files.FinalProductImg[0].filename}`;
 
     const CustomerId = req.user._id;
 
-    if (!CustomizeOption) {
-      return apiResponse(res, false, null, "CustomizeOption is required", 400);
+    if (!CustomizedType) {
+      return apiResponse(res, false, null, "CustomizedType is required", 400);
     }
     const { Size } = productValidate(ProductId, res, Quantity);
 
@@ -186,7 +187,7 @@ const addToCartOrder = async (req, res) => {
 
     const redisClient = await connectRedis();
 
-    if (CustomizeOption === "Text") {
+    if (CustomizedType === "Text") {
       const { Font, TextStyle, Text, Color } = req.body;
 
       if (!(ProductId || Font || TextStyle || Text || Color)) {
@@ -205,7 +206,7 @@ const addToCartOrder = async (req, res) => {
         Quantity: Number(Quantity) || 1,
         FinalCost: Number(FinalCost),
         FinalProductImg: String(FinalProductImg || ""),
-        CustomizeOption: "Text",
+        CustomizedType: "Text",
       });
 
       console.log("here is the order");
@@ -226,7 +227,7 @@ const addToCartOrder = async (req, res) => {
         `Order is successfully added to cart`,
         200
       );
-    } else if (CustomizeOption === "Photo") {
+    } else if (CustomizedType === "Photo") {
       const CustomerImg = `/uploads/${req.files.CustomerImg[0].filename}`;
 
       if (!CustomerImg) {
@@ -241,7 +242,7 @@ const addToCartOrder = async (req, res) => {
         Quantity: Number(Quantity) || 1,
         FinalCost: Number(FinalCost),
         FinalProductImg: String(FinalProductImg || ""),
-        CustomizeOption: "Photo",
+        CustomizedType: "Photo",
       });
 
       return apiResponse(
@@ -255,12 +256,12 @@ const addToCartOrder = async (req, res) => {
           Quantity,
           FinalCost,
           FinalProductImg,
-          CustomizeOption,
+          CustomizedType,
         },
         `Order is successfully added to cart`,
         200
       );
-    } else if (CustomizeOption === "Both") {
+    } else if (CustomizedType === "Both") {
       const { Font, Text, Color, TextStyle } = req.body;
       const FinalProductImg = `/uploads/${req.files.FinalProductImg[0].filename}`;
       const CustomerImg = `/uploads/${req.files.CustomerImg[0].filename}`;
@@ -302,7 +303,7 @@ const addToCartOrder = async (req, res) => {
         TextStyle: String(TextStyle || ""),
         Text: String(Text || ""),
         Color: String(Color || ""),
-        CustomizeOption: "Both",
+        CustomizedType: "Both",
       });
 
       const newOrder = new Order({
@@ -316,7 +317,7 @@ const addToCartOrder = async (req, res) => {
         TextStyle,
         Text,
         Color,
-        CustomizeOption: "Both",
+        CustomizedType: "Both",
       });
 
       return apiResponse(
@@ -334,7 +335,7 @@ const addToCartOrder = async (req, res) => {
           TextStyle,
           Text,
           Color,
-          CustomizeOption: "Both",
+          CustomizedType: "Both",
         },
         "Order is Successfully placed",
         200
@@ -420,15 +421,15 @@ const removeCart = async (req, res) => {
 
 const cartToOrder = async (req, res) => {
   try {
-    const { keys } = req.body;
+    const { orderKeys } = req.body;
     const CustomerId = req.user._id;
     const redisClient = await connectRedis();
     const Orders = [];
 
     const { Email, FullName } = req.user;
 
-    for (const key of keys) {
-      const orderData = await redisClient.hGetAll(key);
+    for (const orderKey of orderKeys) {
+      const orderData = await redisClient.hGetAll(orderKey);
 
       if (!orderData || Object.keys(orderData).length === 0) {
         continue;
@@ -443,10 +444,10 @@ const cartToOrder = async (req, res) => {
         Quantity = 1,
         FinalCost,
         FinalProductImg = "",
-        CustomizeOption = "",
+        CustomizedType = "",
       } = orderData;
 
-      if (CustomizeOption == "Photo") {
+      if (CustomizedType == "Photo") {
         const newOrder = new Order({
           ProductId,
           CustomerImg,
@@ -454,13 +455,13 @@ const cartToOrder = async (req, res) => {
           Quantity,
           FinalCost,
           FinalProductImg,
-          CustomizeOption,
+          CustomizedType,
         });
         const SavedOrder = await newOrder.save();
         Orders.push(SavedOrder);
 
-        await redisClient.del(key);
-      } else if (CustomizeOption == "Text") {
+        await redisClient.del(orderKey);
+      } else if (CustomizedType == "Text") {
         const newOrder = new Order({
           ProductId,
           CustomerId,
@@ -471,12 +472,12 @@ const cartToOrder = async (req, res) => {
           Quantity,
           FinalCost,
           FinalProductImg,
-          CustomizeOption,
+          CustomizedType,
         });
         const SavedOrder = await newOrder.save();
         Orders.push(SavedOrder);
 
-        await redisClient.del(key);
+        await redisClient.del(orderKey);
       } else {
         const newOrder = new Order({
           ProductId,
@@ -489,13 +490,13 @@ const cartToOrder = async (req, res) => {
           FinalProductImg,
           Quantity: Number(Quantity),
           FinalCost: Number(FinalCost),
-          CustomizeOption,
+          CustomizedType,
         });
 
         const SavedOrder = await newOrder.save();
         Orders.push(SavedOrder);
 
-        await redisClient.del(key);
+        await redisClient.del(orderKey);
       }
     }
 

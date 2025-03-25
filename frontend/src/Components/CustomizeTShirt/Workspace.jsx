@@ -3,22 +3,73 @@ import React, {
   useEffect,
   forwardRef,
   useImperativeHandle,
+  useState,
 } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import * as fabric from "fabric";
+import {
+  clearProductData,
+  setFinalProductImg,
+  setSize,
+} from "../../Redux/tempProductSlice";
 
 const Workspace = forwardRef((props, ref) => {
+  useEffect(() => {
+    clearProductData();
+  }, []);
+
   const tempProduct = useSelector((state) => state.tempProduct);
   const { Font, Text, Color, CustomerImg } = tempProduct;
   const dispatch = useDispatch();
 
-  const ProductImg = tempProduct?.ImgURL?.[0]
-    ? `${import.meta.env.VITE_BASE_URL}${tempProduct.ImgURL[0]}`
-    : "http://localhost:3000/uploads/ProductImages-1740638255560-756813806.jpg";
+  const [canvasSize, setCanvasSize] = useState({
+    width: 300,
+    height: 300,
+  });
+
+  const ProductImg =
+    // `${import.meta.env.VITE_BASE_URL}${tempProduct?.ProductImg}` ||
+    "http://localhost:3000/uploads/ProductImages-1740638255560-756813806.jpg";
 
   const canvaRef = useRef(null);
   const fabricRef = useRef(null);
   const selectedObject = useRef(null);
+  const containerRef = useRef(null);
+
+  const updateCanvasSize = () => {
+    if (!containerRef.current) return;
+
+    const containerWidth = containerRef.current.clientWidth;
+    const containerHeight = containerRef.current.clientHeight;
+
+    const size = Math.min(containerWidth, containerHeight, 600);
+    dispatch(setSize(size));
+
+    setCanvasSize({
+      width: size,
+      height: size,
+    });
+
+    if (fabricRef.current) {
+      try {
+        fabricRef.current.setWidth(size);
+        fabricRef.current.setHeight(size);
+        fabricRef.current.renderAll();
+      } catch (error) {
+        console.error("Error resizing canvas:", error);
+      }
+    }
+  };
+
+  useEffect(() => {
+    updateCanvasSize();
+
+    window.addEventListener("resize", updateCanvasSize);
+
+    return () => {
+      window.removeEventListener("resize", updateCanvasSize);
+    };
+  }, []);
 
   useImperativeHandle(ref, () => ({
     addText,
@@ -30,8 +81,14 @@ const Workspace = forwardRef((props, ref) => {
   useEffect(() => {
     if (!canvaRef.current) return;
 
+    if (fabricRef.current) {
+      fabricRef.current.dispose();
+    }
+
     const canvas = new fabric.Canvas(canvaRef.current, {
       selection: true,
+      width: canvasSize.width,
+      height: canvasSize.height,
     });
 
     fabricRef.current = canvas;
@@ -51,17 +108,18 @@ const Workspace = forwardRef((props, ref) => {
     return () => {
       canvas.dispose();
     };
-  }, []);
+  }, [canvasSize]);
 
   const addText = () => {
     if (!fabricRef.current || !Text) return;
 
     const canvas = fabricRef.current;
     const text = new fabric.Text(Text, {
-      left: 50,
-      top: 50,
+      left: canvasSize.width * 0.15,
+      top: canvasSize.height * 0.15,
       fontFamily: Font,
       fill: Color,
+      fontSize: canvasSize.width * 0.05,
     });
 
     canvas.add(text);
@@ -85,20 +143,20 @@ const Workspace = forwardRef((props, ref) => {
     const designImage = fabricCanvas.toDataURL({ format: "png", quality: 1 });
 
     const finalCanvas = document.createElement("canvas");
-    finalCanvas.width = 300;
-    finalCanvas.height = 300;
+    finalCanvas.width = canvasSize.width;
+    finalCanvas.height = canvasSize.height;
     const ctx = finalCanvas.getContext("2d");
 
     const bgImage = new Image();
     bgImage.crossOrigin = "Anonymous";
     bgImage.src = ProductImg;
     bgImage.onload = () => {
-      ctx.drawImage(bgImage, 0, 0, 300, 300);
+      ctx.drawImage(bgImage, 0, 0, canvasSize.width, canvasSize.height);
 
       const designImg = new Image();
       designImg.src = designImage;
       designImg.onload = () => {
-        ctx.drawImage(designImg, 0, 0, 300, 300);
+        ctx.drawImage(designImg, 0, 0, canvasSize.width, canvasSize.height);
 
         const finalImage = finalCanvas.toDataURL("image/png");
         const link = document.createElement("a");
@@ -124,10 +182,10 @@ const Workspace = forwardRef((props, ref) => {
 
     imgObj.onload = () => {
       const fabricImage = new fabric.Image(imgObj, {
-        left: 50,
-        top: 50,
-        scaleX: 0.5,
-        scaleY: 0.5,
+        left: canvasSize.width * 0.15,
+        top: canvasSize.height * 0.15,
+        scaleX: canvasSize.width / (imgObj.width * 2),
+        scaleY: canvasSize.height / (imgObj.height * 2),
       });
 
       canvas.add(fabricImage);
@@ -137,19 +195,28 @@ const Workspace = forwardRef((props, ref) => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-full w-full">
-      <div className="relative shadow-lg rounded-lg p-2">
+    <div
+      ref={containerRef}
+      className="flex flex-col items-center justify-center h-full w-full p-2"
+    >
+      <div className="relative shadow-lg rounded-lg p-2 flex justify-center items-center w-full h-full">
         <img
           src={ProductImg}
           alt="T-shirt"
-          className="absolute w-[300px] h-[300px] object-cover rounded-md"
-          style={{ zIndex: -1 }}
+          style={{
+            position: "absolute",
+            width: canvasSize.width,
+            height: canvasSize.height,
+            objectFit: "cover",
+            borderRadius: "0.375rem",
+            zIndex: -1,
+          }}
         />
         <canvas
-          width="300"
-          height="300"
+          width={canvasSize.width}
+          height={canvasSize.height}
           ref={canvaRef}
-          className="border border-green"
+          className="border border-green "
         ></canvas>
       </div>
     </div>

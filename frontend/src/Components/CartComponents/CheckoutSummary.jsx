@@ -41,7 +41,7 @@ const CheckoutSummary = () => {
       selectedItems.length > 0
         ? selectedItems.map((item) => item.key)
         : Products.map((item) => item.key);
-    await cartToOrderMutation({ keys: orderKeys });
+    await cartToOrderMutation({ orderKeys });
 
     navigate("/dashboard/order-success");
     dispatch(setActiveStep(activeStep + 1));

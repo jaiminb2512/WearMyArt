@@ -22,6 +22,8 @@ const CartListView = () => {
     Items = Products;
   }
 
+  console.log(Products);
+
   const updateCartMutation = useApiMutation(
     ApiURLS.UpdateCartQuantity.url,
     ApiURLS.UpdateCartQuantity.method

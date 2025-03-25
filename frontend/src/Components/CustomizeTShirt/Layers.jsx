@@ -33,7 +33,7 @@ const Layers = ({ addText, deleteSelected, saveDesign, addImage }) => {
   const handleCloseModal = () => setOpenModal(false);
 
   return (
-    <div className="flex flex-col w-full h-full p-4">
+    <div className="flex flex-col w-full  p-4">
       <h1 className="text-lg">Layer</h1>
 
       {CustomizeOption == "Both" && <p>Select a layer to edit</p>}
