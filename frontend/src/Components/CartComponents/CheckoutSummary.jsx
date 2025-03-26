@@ -7,6 +7,8 @@ import MTooltipButton from "../MTooltipButton";
 import { setActiveStep } from "../../Redux/BuyProductSlice";
 import { useApiMutation } from "../../utils/apiRequest";
 import ApiURLS from "../../Data/ApiURLS";
+import axios from "axios";
+import { showToast } from "../../Redux/ToastSlice";
 
 const CheckoutSummary = () => {
   const { TotalCost, activeStep, selectedItems, Products, buyNow } =
@@ -41,10 +43,50 @@ const CheckoutSummary = () => {
         ? selectedItems.map((item) => item.key)
         : Products.map((item) => item.key);
     await cartToOrderMutation({ orderKeys });
+
+    navigate("/dashboard/order-success");
+    dispatch(setActiveStep(activeStep + 1));
   };
 
   const addOrder = async () => {
-    console.log("add Order");
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}${ApiURLS.AddOrder.url}`,
+        Products[0].orderData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+          withCredentials: true,
+        }
+      );
+
+      if (response.data.success) {
+        //  dispatch(clearProductData());
+        dispatch(
+          showToast({
+            message: response.data.message || "Product added successfully",
+            variant: "success",
+          })
+        );
+        navigate("/products");
+      } else {
+        dispatch(
+          showToast({
+            message: response.data.message || "Failed Place Order",
+            variant: "error",
+          })
+        );
+      }
+    } catch (error) {
+      console.error("Error placing Order:", error.message);
+      dispatch(
+        showToast({
+          message: error?.response?.data?.message || "Some error occurred",
+          variant: "error",
+        })
+      );
+    }
   };
 
   const handlePayAmount = async () => {
@@ -53,8 +95,6 @@ const CheckoutSummary = () => {
     } else {
       cartToOrder();
     }
-    // navigate("/dashboard/order-success");
-    // dispatch(setActiveStep(activeStep + 1));
   };
 
   return (

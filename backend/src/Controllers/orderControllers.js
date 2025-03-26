@@ -8,7 +8,9 @@ import deleteFiles from "../utils/deleteFiles.js";
 const addOrder = async (req, res) => {
   try {
     const { CustomizedType, Quantity, FinalCost, ProductId } = req.body;
-    const FinalProductImg = `/uploads/${req.files["FinalProductImg"][0].filename}`;
+
+    const FinalProductImg = `/uploads/${req.files.FinalProductImg[0].filename}`;
+
     const CustomerId = req.user._id;
 
     if (!CustomizedType) {
@@ -59,7 +61,16 @@ const addOrder = async (req, res) => {
 
       return apiResponse(res, true, newOrder, "Order is Successfully placed");
     } else if (CustomizedType === "Photo") {
-      const CustomerImg = `/uploads/${req.files["CustomerImg"][0].filename}`;
+      if (!req.files.CustomerImg[0]) {
+        return apiResponse(
+          res,
+          false,
+          null,
+          "Customer Img is not itreble",
+          400
+        );
+      }
+      const CustomerImg = `/uploads/${req.files.CustomerImg[0].filename}`;
 
       if (!CustomerImg) {
         return apiResponse(res, false, null, "Customer Img is required", 400);
@@ -93,8 +104,7 @@ const addOrder = async (req, res) => {
       );
     } else if (CustomizedType === "Both") {
       const { Font, Text, Color, TextStyle } = req.body;
-      const FinalProductImg = `/uploads/${req.files["FinalProductImg"][0].filename}`;
-      const CustomerImg = `/uploads/${req.files["CustomerImg"][0].filename}`;
+      const CustomerImg = `/uploads/${req.files.CustomerImg[0].filename}`;
 
       if (!CustomerImg && !FinalProductImg) {
         return apiResponse(
@@ -153,10 +163,6 @@ const addOrder = async (req, res) => {
       );
     }
   } catch (error) {
-    deleteFiles([
-      `/uploads/${req.files["FinalProductImg"][0].filename}`,
-      `/uploads/${req.files["CustomerImg"][0].filename}`,
-    ]);
     console.log(error.message);
     return apiResponse(res, false, null, error.message, 500);
   }
@@ -165,8 +171,6 @@ const addOrder = async (req, res) => {
 const addToCartOrder = async (req, res) => {
   try {
     const { CustomizedType, Quantity, FinalCost, ProductId } = req.body;
-    console.log(req.body);
-    console.log(req.files);
     const FinalProductImg = `/uploads/${req.files.FinalProductImg[0].filename}`;
 
     const CustomerId = req.user._id;
@@ -209,7 +213,6 @@ const addToCartOrder = async (req, res) => {
         CustomizedType: "Text",
       });
 
-      console.log("here is the order");
       return apiResponse(
         res,
         true,
@@ -263,7 +266,6 @@ const addToCartOrder = async (req, res) => {
       );
     } else if (CustomizedType === "Both") {
       const { Font, Text, Color, TextStyle } = req.body;
-      const FinalProductImg = `/uploads/${req.files.FinalProductImg[0].filename}`;
       const CustomerImg = `/uploads/${req.files.CustomerImg[0].filename}`;
 
       if (!CustomerImg && !FinalProductImg) {

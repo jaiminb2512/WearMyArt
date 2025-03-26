@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Workspace from "./Workspace";
 import Options from "./Options";
 import Layers from "./Layers";
 import { useDispatch, useSelector } from "react-redux";
 import {
   deletingText,
+  resetTempProduct,
   setImgActive,
   setTextActive,
 } from "../../Redux/tempProductSlice";
@@ -12,9 +13,10 @@ import {
 const ImageEditStep = () => {
   const workspaceRef = React.useRef();
   const dispatch = useDispatch();
-  const { SelectedLayer, TextActive, ImgActive } = useSelector(
-    (state) => state.tempProduct
-  );
+  useEffect(() => {
+    resetTempProduct();
+  }, []);
+  const { SelectedLayer } = useSelector((state) => state.tempProduct);
 
   const handleAddText = () => {
     if (workspaceRef.current) {

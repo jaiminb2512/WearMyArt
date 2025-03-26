@@ -18,15 +18,15 @@ export default function AuthPage() {
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gradient-to-b from-[#C5F1E1] to-white p-4">
-      <div className="relative flex flex-col md:flex-row bg-white rounded-2xl shadow-xl overflow-hidden md:w-3/5 h-[80vh] md:h-[70vh] xl:h-[65vh] w-full ">
+      <div className="relative flex flex-col md:flex-row bg-white rounded-2xl shadow-xl overflow-hidden md:w-4/5 xl:w-3/5 h-[80vh] md:h-[70vh] xl:h-[65vh] w-full ">
         <motion.div
           initial={{ x: 0 }}
           animate={{ x: "0%" }}
           transition={{ duration: 0.5 }}
-          className="md:w-2/5 md:h-full w-full h-1/3 bg-gradient-to-b from-[#8edfc1] to-[#15ec9e] text-white flex flex-col justify-center items-center p-6 relative"
+          className="md:w-2/5 h-[250px] md:h-full w-full bg-gradient-to-b from-[#8edfc1] to-[#15ec9e] text-white flex flex-col justify-center items-center p-6 relative"
         >
-          <div className="absolute -top-32 -left-32 hidden sm:block md:w-80 md:h-80 bg-green-200 rounded-full"></div>
-          <div className="absolute -bottom-32 -right-32 hidden sm:block md:w-80 md:h-80 bg-green-200 rounded-full"></div>
+          <div className="absolute -top-32 -left-32 hidden xl:block md:w-80 md:h-80 bg-green-200 rounded-full"></div>
+          <div className="absolute -bottom-32 -right-32 hidden xl:block md:w-80 md:h-80 bg-green-200 rounded-full"></div>
 
           <motion.div
             key={location.pathname}

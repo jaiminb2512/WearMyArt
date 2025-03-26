@@ -14,15 +14,12 @@ const CartListView = () => {
     (state) => state.BuyProduct
   );
   let Items = Products;
-  console.log(activeStep);
 
   if (activeStep == 2 && selectedItems.length > 0) {
     Items = selectedItems;
   } else {
     Items = Products;
   }
-
-  console.log(Products);
 
   const updateCartMutation = useApiMutation(
     ApiURLS.UpdateCartQuantity.url,
@@ -79,7 +76,7 @@ const CartListView = () => {
     dispatch(addTotalCost(total));
   };
 
-  console.log(buyNow);
+  console.log(Items);
 
   return (
     <div className="w-full p-4 flex flex-col justify-center items-center">
@@ -116,7 +113,6 @@ const CartListView = () => {
                   height="50"
                   className="rounded"
                 />
-                <span>{item.orderData.CustomizeOption}</span>
               </td>
               <td className="p-2">
                 <div className="flex justify-center items-center gap-2">

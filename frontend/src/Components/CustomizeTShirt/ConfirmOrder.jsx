@@ -14,8 +14,10 @@ import {
   addTotalCost,
   setBuyNow,
 } from "../../Redux/BuyProductSlice";
+import { clearProductData } from "../../Redux/TempProductSlice";
 import ApiURLS from "../../Data/ApiURLS";
 import axios from "axios";
+import { showToast } from "../../Redux/ToastSlice";
 
 const ConfirmOrder = () => {
   const dispatch = useDispatch();
@@ -37,125 +39,113 @@ const ConfirmOrder = () => {
     return TotalCost;
   };
 
-  const totalCost = calculateSubTotal();
-  console.log(totalCost);
+  const base64ToBlob = (base64, mimeType) => {
+    let byteCharacters = atob(base64.split(",")[1]);
+    let byteNumbers = new Array(byteCharacters.length);
+    for (let i = 0; i < byteCharacters.length; i++) {
+      byteNumbers[i] = byteCharacters.charCodeAt(i);
+    }
+    let byteArray = new Uint8Array(byteNumbers);
+    return new Blob([byteArray], { type: mimeType });
+  };
 
-  // const makeOrderData = () => {
   const makeOrderData = () => {
-    const baseOrderData = {
-      ProductId: tempProduct.ProductId,
-      Quantity: quantity,
-      FinalCost: tempProduct.EditingCost + tempProduct.Price,
-      FinalProductImg: tempProduct.FinalProductImg,
-      CustomizedType: tempProduct.CustomizeOption,
-    };
+    const formData = new FormData();
 
-    const textCustomizationData =
-      tempProduct.CustomizeOption === "Text" ||
-      tempProduct.CustomizeOption === "Both"
-        ? {
-            Font: tempProduct.Font,
-            TextStyle: JSON.stringify(tempProduct.TextStyle),
-            Text: tempProduct.Text,
-            Color: tempProduct.Color,
-          }
-        : {};
+    formData.append("ProductId", tempProduct.ProductId);
+    formData.append("Quantity", quantity);
+    formData.append("FinalCost", tempProduct.EditingCost + tempProduct.Price);
+    formData.append("CustomizedType", tempProduct.CustomizedType);
 
-    const imageCustomizationData =
-      tempProduct.CustomizeOption === "Photo" ||
-      tempProduct.CustomizeOption === "Both"
-        ? {
-            CustomerImg: tempProduct.CustomerImg,
-          }
-        : {};
+    if (
+      tempProduct.CustomizedType === "Text" ||
+      tempProduct.CustomizedType === "Both"
+    ) {
+      if (tempProduct.Font) formData.append("Font", tempProduct.Font);
+      if (tempProduct.TextStyle)
+        formData.append("TextStyle", JSON.stringify(tempProduct.TextStyle));
+      if (tempProduct.Text) formData.append("Text", tempProduct.Text);
+      if (tempProduct.Color) formData.append("Color", tempProduct.Color);
+    }
 
-    const completeOrderData = {
-      orderData: {
-        ...baseOrderData,
-        ...textCustomizationData,
-        ...imageCustomizationData,
-      },
-    };
+    if (
+      tempProduct.CustomizedType === "Photo" ||
+      tempProduct.CustomizedType === "Both"
+    ) {
+      if (tempProduct.CustomerImg) {
+        let customerBlob = base64ToBlob(tempProduct.CustomerImg, "image/png");
+        formData.append("CustomerImg", customerBlob, "customer.png");
+      }
+    }
 
-    console.log("Order Data:", completeOrderData);
-    return completeOrderData;
+    if (tempProduct.FinalProductImg) {
+      let finalBlob = base64ToBlob(tempProduct.FinalProductImg, "image/png");
+      formData.append("FinalProductImg", finalBlob, "final_product.png");
+    }
+
+    return formData;
   };
-
-  const handleCheckout = () => {
-    const orderData = makeOrderData();
-    dispatch(addProducts([orderData]));
-    dispatch(setBuyNow(true));
-    navigate("/dashboard/checkout");
+  const formDataToObject = (formData) => {
+    const obj = {};
+    formData.forEach((value, key) => {
+      obj[key] = value;
+    });
+    return obj;
   };
-
-  // ApiURLS.AddToCartOrder.url,
-  // ApiURLS.AddToCartOrder.method;
 
   const handleAddToCart = async () => {
-    const orderData = makeOrderData();
-
-    const formData = new FormData();
-    formData.append("ProductId", orderData.orderData.ProductId);
-    formData.append("Quantity", orderData.orderData.Quantity);
-    formData.append("FinalCost", orderData.orderData.FinalCost);
-    formData.append("CustomizedType", orderData.orderData.CustomizedType);
-
-    // Handle text customization fields
-    if (orderData.orderData.Font)
-      formData.append("Font", orderData.orderData.Font);
-    if (orderData.orderData.TextStyle)
-      formData.append("TextStyle", orderData.orderData.TextStyle);
-    if (orderData.orderData.Text)
-      formData.append("Text", orderData.orderData.Text);
-    if (orderData.orderData.Color)
-      formData.append("Color", orderData.orderData.Color);
-
-    // Convert base64 FinalProductImg to a File
-    if (tempProduct.FinalProductImg) {
-      const blob = await (await fetch(tempProduct.FinalProductImg)).blob();
-      const file = new File([blob], "finalProductImg.png", {
-        type: "image/png",
-      });
-      formData.append("FinalProductImg", file);
-    }
-
-    // Handle CustomerImg if it exists
-    if (tempProduct.CustomerImg) {
-      if (tempProduct.CustomerImg instanceof File) {
-        formData.append("CustomerImg", tempProduct.CustomerImg);
-      } else {
-        // If CustomerImg is a base64 string, convert it to a File
-        const blob = await (await fetch(tempProduct.CustomerImg)).blob();
-        const file = new File([blob], "customerImg.png", { type: "image/png" });
-        formData.append("CustomerImg", file);
-      }
-    }
-
     try {
-      const response = await axios({
-        method: ApiURLS.AddToCartOrder.method,
-        url: `${import.meta.env.VITE_BASE_URL}${ApiURLS.AddToCartOrder.url}`,
-        data: formData,
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-        withCredentials: true,
-      });
+      const orderDataArray = makeOrderData();
+      const orderData = formDataToObject(orderDataArray);
 
-      if (response.status === 200 || response.status === 201) {
-        console.log("Item added to cart successfully:", response.data);
-        // Optionally add a success notification or navigate
+      const response = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}${ApiURLS.AddToCartOrder.url}`,
+        orderData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+          withCredentials: true,
+        }
+      );
+
+      if (response.data.success) {
+        dispatch(clearProductData());
+        dispatch(
+          showToast({
+            message: response.data.message || "Product added successfully",
+            variant: "success",
+          })
+        );
+        navigate("/products");
       } else {
-        console.error("Failed to add item to cart:", response);
-        // Optionally show an error message to the user
+        dispatch(
+          showToast({
+            message: response.data.message || "Failed to add item to cart",
+            variant: "error",
+          })
+        );
       }
     } catch (error) {
-      console.error(
-        "Error adding item to cart:",
-        error.response ? error.response.data : error.message
+      console.error("Error adding item to cart:", error);
+      dispatch(
+        showToast({
+          message: error?.response?.data?.message || "Some error occurred",
+          variant: "error",
+        })
       );
     }
   };
+
+  const handleCheckout = async () => {
+    const orderDataArray = makeOrderData();
+    const orderData = formDataToObject(orderDataArray);
+    dispatch(addProducts([{ orderData }]));
+    dispatch(setBuyNow(true));
+    dispatch(clearProductData());
+    navigate("/dashboard/checkout");
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="grid md:grid-cols-2 gap-8 bg-white shadow-lg rounded-xl p-6">
@@ -254,7 +244,7 @@ const ConfirmOrder = () => {
               </div>
             </div>
 
-            <div className="space-y-2 border-t pt-4">
+            <div className="space-y-2 border-t pt-4 ">
               <div className="flex justify-between">
                 <span className="text-gray-600">Editing Cost</span>
                 <span className="font-medium">₹{tempProduct.EditingCost}</span>
@@ -270,7 +260,7 @@ const ConfirmOrder = () => {
             </div>
           </div>
 
-          <div className="flex space-x-4 gap-3">
+          <div className="flex space-x-4 gap-3 flex-col sm:flex-row justify-center items-center">
             <MTooltipButton
               title="Cancel Order"
               variant="outlined"

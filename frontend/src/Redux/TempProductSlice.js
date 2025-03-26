@@ -1,8 +1,8 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  CustomerImg: "",
-  ProductImg: "",
+  CustomerImg: null,
+  ProductImg: null,
   Quantity: 1,
   FinalProductImg: null,
   ProductId: null,
@@ -26,10 +26,9 @@ const tempProductSlice = createSlice({
   name: "tempProduct",
   initialState,
   reducers: {
-    clearProductData: () => {
+    clearProductData: (state) => {
       state.CustomerImg = "";
-      state.ProductImg =
-        "http://localhost:3000/uploads/ProductImages-1740638255560-756813806.jpg";
+      state.ProductImg = "";
       state.Quantity = 1;
       state.FinalProductImg = null;
       state.ProductId = null;
@@ -40,6 +39,25 @@ const tempProductSlice = createSlice({
       state.TextStyle = [];
       state.SelectedLayer = "Text";
       state.CustomizeOption = "Both";
+      state.SelectedSize = "Original";
+      state.EditingCost = 0;
+      state.TextEditingCost = 0;
+      state.TextActive = false;
+      state.ImgActive = false;
+      state.size = 300;
+      state.CustomizedType = "";
+    },
+
+    resetTempProduct: (state) => {
+      state.CustomerImg = "";
+      state.ProductImg = "";
+      state.Quantity = 1;
+      state.FinalProductImg = null;
+      state.Font = "";
+      state.Text = "WearMyArt";
+      state.Color = "#000000";
+      state.Price = 0;
+      state.TextStyle = [];
       state.SelectedSize = "Original";
       state.EditingCost = 0;
       state.TextEditingCost = 0;
@@ -121,6 +139,7 @@ const tempProductSlice = createSlice({
         state.CustomizedType = "Text";
       }
     },
+
     setImgActive: (state, action) => {
       state.ImgActive = action.payload;
       if (action.payload == true) {
@@ -170,7 +189,6 @@ const tempProductSlice = createSlice({
     setSelectedSize: (state, action) => {
       state.SelectedSize = action.payload;
     },
-    resetTempProduct: () => initialState,
   },
 });
 

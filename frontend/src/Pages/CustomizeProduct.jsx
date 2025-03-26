@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { Button } from "@mui/material";
 import { DesignServices, CheckCircle } from "@mui/icons-material";
 import { useSelector, useDispatch } from "react-redux";
-import ConfirmOrder from "../Components/CustomizeTShirt/ConfirmOrder";
 import { setFinalProductImg } from "../redux/tempProductSlice";
 import ImageEditStep from "../Components/CustomizeTShirt/ImageEditeStep";
 import { useNavigate } from "react-router-dom";
@@ -68,7 +67,7 @@ const CustomizeProduct = () => {
   const handleNext = async () => {
     if (steps[activeStep]?.label === "Customize Design") {
       const saved = await handleSaveDesign();
-      console.log(saved);
+      // console.log(saved);
       if (saved) {
         setActiveStep((prevStep) => prevStep + 1);
         navigate("/confirm-order");

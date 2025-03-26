@@ -26,7 +26,8 @@ const Options = () => {
   const dispatch = useDispatch();
 
   const tempProduct = useSelector((state) => state.tempProduct);
-  const { CustomerImg, SelectedLayer, SelectedSize } = tempProduct;
+  const { CustomerImg, SelectedLayer, SelectedSize, CustomizedType } =
+    tempProduct;
 
   const productCustomization = useSelector((state) => state.tempProduct);
   const [color, setColorState] = useState(
@@ -97,6 +98,8 @@ const Options = () => {
   const handleSizeChange = (size) => {
     dispatch(setSelectedSize(size));
   };
+
+  console.log(CustomizedType);
 
   return (
     <div className="w-full">

@@ -55,7 +55,6 @@ const ApiURLS = {
   },
 
   // Order
-  InitiateOrder: { url: "/api/order/initiate-order", method: "POST" },
   AddToCartOrder: { url: "/api/order/add-to-cart-order", method: "POST" },
   GetCartOrder: { url: "/api/order/get-cart-order", method: "GET" },
   CartToOrder: { url: "/api/order/cart-to-order", method: "POST" },
@@ -64,7 +63,6 @@ const ApiURLS = {
     method: "PATCH",
   },
   RemoveCart: { url: "/api/order/remove-cart", method: "DELETE" },
-
   AddOrder: { url: "/api/order/add-order", method: "POST" },
   UpdateOrderStatus: { url: "/api/order/update-state/:id", method: "PATCH" },
   GetSingleOrder: { url: "/api/order/single-order/:id", method: "GET" },

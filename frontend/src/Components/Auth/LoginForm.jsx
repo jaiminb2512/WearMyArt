@@ -159,7 +159,7 @@ const LoginForm = () => {
                   }}
                 />
               </div>
-              <div className="flex justify-between items-center">
+              <div className="flex justify-between items-center flex-wrap">
                 <FormControlLabel control={<Checkbox />} label="Remember me" />
                 <Typography
                   variant="body2"
