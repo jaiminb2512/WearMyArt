@@ -1,5 +1,5 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { FaRupeeSign } from "react-icons/fa";
 import CustomizeBtn from "./CustomizeBtn";
 import ModeEditIcon from "@mui/icons-material/ModeEdit";
@@ -7,6 +7,7 @@ import BlockIcon from "@mui/icons-material/Block";
 import ControlPointIcon from "@mui/icons-material/ControlPoint";
 import { useSelector } from "react-redux";
 import MTooltipButton from "../MTooltipButton";
+import Sidebar from "../Sidebar";
 
 const ProductGridView = ({
   products,
@@ -19,10 +20,13 @@ const ProductGridView = ({
   const navigate = useNavigate();
 
   const { user } = useSelector((state) => state.user);
+  const { FilterBarOpen, HideText } = useSelector((state) => state.OpenClose);
   let isAdmin = user?.isAdmin || false;
   const redirectToProduct = (id) => {
     navigate(`/product/${id}`);
   };
+  console.log(HideText);
+
   return (
     <div>
       <h1 className="text-lg font-bold hidden sm:block">{`${count} Products`}</h1>
@@ -30,7 +34,16 @@ const ProductGridView = ({
         {loading ? (
           <p>Loading products...</p>
         ) : products.length > 0 ? (
-          <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+          // <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+          <div
+            className={`grid gap-6 grid-cols-1 sm:grid-cols-2
+              ${
+                FilterBarOpen
+                  ? "md:grid-cols-2 lg:grid-cols-3"
+                  : "md:grid-cols-3 lg:grid-cols-4"
+              }  
+                `}
+          >
             {products.map((product) => (
               <div
                 key={product._id}

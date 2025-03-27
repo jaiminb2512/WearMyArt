@@ -28,35 +28,3 @@ const CompleteOrder = () => {
 };
 
 export default CompleteOrder;
-
-// [
-//   {
-//     key: "order:67b302978648f9218f4f3a88:1742978030486",
-//     orderData: {
-//       ProductId: "67c0082f61eb61ba3e8ce0f7",
-//       CustomerId: "67b302978648f9218f4f3a88",
-//       Font: "React",
-//       TextStyle: '["Bold","Italic"]',
-//       Text: "WearMyArt",
-//       Color: "#000000",
-//       Quantity: "1",
-//       FinalCost: "530",
-//       FinalProductImg: "/uploads/FinalProductImg-1742978030454-587261545.png",
-//       CustomizedType: "Text",
-//     },
-//   },
-// ];
-
-// [
-//   {
-//     ProductId: "67c0082f61eb61ba3e8ce0f7",
-//     Quantity: "1",
-//     FinalCost: "510",
-//     CustomizedType: "Text",
-//     Font: "Arial",
-//     TextStyle: '["Bold","Italic"]',
-//     Text: "WearMyArt",
-//     Color: "#000000",
-//     FinalProductImg: {},
-//   },
-// ];

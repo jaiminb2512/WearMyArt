@@ -6,7 +6,6 @@ import {
   Box,
   Typography,
   Stack,
-  Button,
   Divider,
   TextField,
 } from "@mui/material";
@@ -78,7 +77,7 @@ const Profile = () => {
 
   return (
     <div className="flex flex-col gap-2 justify-center items-center w-full px-[5vw] mt-15 h-full">
-      <div className="w-full p-3 shadow-md flex justify-center items-center h-full">
+      <div className="w-full p-3 shadow-md flex flex-col xl:flex-row justify-center items-center h-full">
         <div className="w-1/3 h-full flex justify-center items-center">
           <Avatar
             sx={{

@@ -129,8 +129,8 @@ const AllProducts = () => {
     <div className="flex h-screen">
       {FilterBarOpen && (
         <div
-          className={`fixed top-17 h-screen overflow-y-auto scrollbar-hide border-r transition-all duration-300
-      ${FilterBarOpen ? "w-[20vw] sm:block" : "w-0 sm:w-0"}`}
+          className={`fixed top-15 hidden h-screen overflow-y-auto scrollbar-hide border-r transition-all duration-300
+      ${FilterBarOpen ? "lg:w-[25vw] xl:w-[20vw] lg:block" : "w-0 sm:w-0"}`}
         >
           <div className="pl-[2vw] pt-[5vh] pr-5">
             <ProductFilter
@@ -143,10 +143,10 @@ const AllProducts = () => {
           </div>
         </div>
       )}
-
+      {/* SideBarOpen ? HideText ? "w-20" : "w-fit lg:w-[25vw] xl:w-[20vw]" : "w-0" */}
       <div
         className={`flex-1 flex flex-col overflow-y-scroll scrollbar-hide transition-all duration-300
-      ${FilterBarOpen ? "sm:ml-[20vw]" : "ml-0"}`}
+      ${FilterBarOpen ? "lg:ml-[25vw] xl:ml-[20vw]" : "ml-0"}`}
       >
         <div className="fixed top-15 z-20 bg-white shadow-2xl w-full transition-all duration-300">
           <div className="flex gap-1 items-center ml-2 backdrop-blur-3xl pt-3 pb-2 sm:h-15 w-full ">
@@ -158,7 +158,6 @@ const AllProducts = () => {
             />
           </div>
         </div>
-
         <div className="p-4 mt-17 mb-10 ml-3">
           {listView ? (
             <ProductGridView
@@ -181,8 +180,7 @@ const AllProducts = () => {
           )}
         </div>
       </div>
-
-      <div className="fixed bottom-0 block sm:hidden h-[10vh] w-full">
+      <div className="fixed bottom-0 block lg:hidden h-[10vh] w-full">
         <ProductBottomBar
           setFilterOptions={setFilterOptions}
           filterOptions={filterOptions}
@@ -190,7 +188,6 @@ const AllProducts = () => {
           sortOrder={sortOrder}
         />
       </div>
-
       <Dialog
         open={openDialog}
         onClose={handleCloseDialog}

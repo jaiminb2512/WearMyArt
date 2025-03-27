@@ -35,6 +35,7 @@ import { login } from "./Redux/UserSlice";
 import CheckOut from "./Pages/CheckOut";
 import CompleteOrder from "./Components/PurchaseComponents/CompleteOrder";
 import ConfirmOrder from "./Components/CustomizeTShirt/ConfirmOrder";
+import CustomizationOptions from "./Pages/CustomizationOptions";
 
 const queryClient = new QueryClient();
 
@@ -61,12 +62,10 @@ const AppLayout = () => {
 
   const showSidebar = location.pathname.includes("/dashboard");
 
-  const [hideText, setHideText] = useState(false);
-  let sidebarWidth = showSidebar ? (hideText ? 60 : 240) : 0;
-
-  const { SmScreen } = useSelector((state) => state.OpenClose);
-
-  const ScreenWidth = window.screen.width;
+  const { SmScreen, HideText, FilterBarOpen } = useSelector(
+    (state) => state.OpenClose
+  );
+  let sidebarWidth = showSidebar ? (HideText ? 60 : 240) : 0;
 
   useEffect(() => {
     if (user?.isAdmin) {
@@ -77,14 +76,21 @@ const AppLayout = () => {
   }, []);
 
   useEffect(() => {
-    if (ScreenWidth < 635) {
-      dispatch(toggleSmScreen(true));
-    } else {
-      dispatch(toggleSmScreen(false));
-    }
-  }, [ScreenWidth]);
+    const handleResize = () => {
+      const screenWidth = window.innerWidth;
 
-  // console.log(SmScreen);
+      if (screenWidth < 768) {
+        dispatch(toggleSmScreen(true));
+      } else {
+        dispatch(toggleSmScreen(false));
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    handleResize();
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   sidebarWidth = SmScreen ? 0 : sidebarWidth;
 
@@ -92,9 +98,7 @@ const AppLayout = () => {
     <>
       <Navbar />
       <Box sx={{ display: "flex" }}>
-        {showSidebar && (
-          <Sidebar hideText={hideText} setHideText={setHideText} />
-        )}
+        {showSidebar && <Sidebar />}
         <Box
           component="main"
           sx={{
@@ -104,7 +108,7 @@ const AppLayout = () => {
           className={`mt-15 ${
             sidebarWidth === 60
               ? "ml-[60px]"
-              : sidebarWidth === 240
+              : sidebarWidth === 240 && !FilterBarOpen
               ? "ml-[240px]"
               : "ml-0"
           }`}
@@ -120,6 +124,10 @@ const AppLayout = () => {
             <Route
               path="/dashboard/complete-order"
               element={<CompleteOrder />}
+            />
+            <Route
+              path="/dashboard/customization-options"
+              element={<CustomizationOptions />}
             />
             <Route path="/dashboard/order-success" element={<OrderSuccess />} />
             <Route path="/product/:id" element={<Product />} />

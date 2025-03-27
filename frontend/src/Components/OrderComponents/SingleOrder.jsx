@@ -19,7 +19,7 @@ const SingleOrder = ({
   const navigate = useNavigate();
 
   const { user } = useSelector((state) => state.user);
-  const { isAdmin } = user;
+  const isAdmin = user?.isAdmin || false;
 
   if (!order) {
     return (

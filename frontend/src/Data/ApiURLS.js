@@ -40,6 +40,7 @@ const ApiURLS = {
     method: "PATCH",
   },
   GetLowStockProducts: {
+    // remaining
     url: "/api/product/get-low-stock-products",
     method: "GET",
   },
@@ -64,7 +65,7 @@ const ApiURLS = {
   },
   RemoveCart: { url: "/api/order/remove-cart", method: "DELETE" },
   AddOrder: { url: "/api/order/add-order", method: "POST" },
-  UpdateOrderStatus: { url: "/api/order/update-state/:id", method: "PATCH" },
+  UpdateOrderStatus: { url: "/api/order/update-state/:id", method: "PATCH" }, // remains
   GetSingleOrder: { url: "/api/order/single-order/:id", method: "GET" },
   GetAllOrders: { url: "/api/order/get-all-orders", method: "GET" },
 

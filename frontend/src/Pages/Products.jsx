@@ -83,7 +83,9 @@ const Products = () => {
     <div className="flex h-screen">
       <div
         className={`fixed top-17 h-screen overflow-y-auto scrollbar-hide transition-all duration-300
-      ${FilterBarOpen ? "w-[20vw] sm:block border-r" : "w-0 sm:w-0"}`}
+      ${
+        FilterBarOpen ? "sm:block w-[35vw] lg:w-[25vw] border-r" : "w-0 sm:w-0"
+      }`}
       >
         {FilterBarOpen && (
           <div className="pl-[2vw] pt-[5vh] pr-5">
@@ -101,7 +103,7 @@ const Products = () => {
 
       <div
         className={`flex-1 flex flex-col overflow-y-scroll scrollbar-hide transition-all duration-300
-      ${FilterBarOpen ? "sm:ml-[20vw]" : "sm:ml-0"}`}
+      ${FilterBarOpen ? "ml-[35vw] lg:ml-[25vw] xl:ml-[25vw]" : "ml-0"}`}
       >
         <div className="fixed top-15 w-full z-20 bg-white shadow-2xl">
           <div className="flex gap-1 items-center w-full sm:w-[80vw] ml-2 backdrop-blur-3xl pt-3 pb-2 h-15 ">

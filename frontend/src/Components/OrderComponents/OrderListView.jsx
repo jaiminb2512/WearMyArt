@@ -10,7 +10,7 @@ const OrderListView = ({ Orders, loading, count = null }) => {
   const navigate = useNavigate();
 
   const { user } = useSelector((state) => state.user);
-  const { isAdmin } = user;
+  const isAdmin = user?.isAdmin || false;
 
   if (loading) {
     return (
@@ -88,7 +88,7 @@ const OrderListView = ({ Orders, loading, count = null }) => {
 
           return (
             <div className="border rounded-2xl">
-              <SingleOrder isAdmin={true} key={_id} order={order} />;
+              <SingleOrder isAdmin={true} key={_id} order={order} />
             </div>
           );
         })}

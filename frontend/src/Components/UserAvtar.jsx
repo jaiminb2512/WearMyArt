@@ -34,6 +34,7 @@ export default function OpenIconSpeedDial() {
       <SpeedDial
         ariaLabel="User Actions"
         icon={<Avatar sx={{ bgcolor: "primary.main" }}>{userInitials}</Avatar>}
+        onClick={(e) => e.stopPropagation()}
       >
         {actions.map((action) => {
           const ActionIcon = action.icon;
@@ -47,6 +48,7 @@ export default function OpenIconSpeedDial() {
                   ? logOut()
                   : navigate(`${action.path}`)
               }
+              onMouseEnter={(e) => e.stopPropagation()}
             />
           );
         })}
@@ -55,6 +57,7 @@ export default function OpenIconSpeedDial() {
           key="theme-toggle"
           icon={<ThemeToggle />}
           tooltipTitle="Toggle Theme"
+          onClick={(e) => e.stopPropagation()}
         />
       </SpeedDial>
     </Box>

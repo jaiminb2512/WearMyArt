@@ -8,6 +8,7 @@ import PeopleIcon from "@mui/icons-material/People";
 import ListAltIcon from "@mui/icons-material/ListAlt";
 import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount";
 import SettingsIcon from "@mui/icons-material/Settings";
+import DashboardCustomizeIcon from "@mui/icons-material/DashboardCustomize";
 
 export const LoginData = [
   { name: "Log Out", icon: ExitToAppIcon, path: "/logout" },
@@ -22,7 +23,7 @@ export const LogoutData = [
 export const everyOne = [
   {
     name: "Profile",
-    path: "/dashboard/profile",
+    path: "/profile",
     icon: AccountCircleIcon,
   },
   {
@@ -47,6 +48,11 @@ export const isAdmin = [
     name: "Users",
     path: "/all-users",
     icon: PeopleIcon,
+  },
+  {
+    name: "Customize Options",
+    path: "/customization-options",
+    icon: ListAltIcon,
   },
 ];
 
@@ -89,7 +95,7 @@ export const sidebarCustomer = [
 export const sidebarAdmin = [
   {
     name: "Profile",
-    path: "/dashboard/profile",
+    path: "/profile",
     icon: AccountCircleIcon,
   },
   {
@@ -106,6 +112,11 @@ export const sidebarAdmin = [
     name: "Orders",
     path: "/all-orders",
     icon: ListAltIcon,
+  },
+  {
+    name: "Customize Options",
+    path: "/customization-options",
+    icon: DashboardCustomizeIcon,
   },
 ];
 

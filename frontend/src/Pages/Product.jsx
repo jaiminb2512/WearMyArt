@@ -3,7 +3,13 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useApiMutation, useFetchData } from "../utils/apiRequest";
 import ApiURLS from "../Data/ApiURLS";
 import ProductImages from "../Components/ProductComponents/ProductImages";
-import { Button, CircularProgress, Dialog, DialogContent } from "@mui/material";
+import {
+  CircularProgress,
+  Dialog,
+  DialogContent,
+  IconButton,
+} from "@mui/material";
+import { KeyboardArrowUp, KeyboardArrowDown } from "@mui/icons-material";
 import CustomizeBtn from "../Components/ProductComponents/CustomizeBtn";
 import { useSelector } from "react-redux";
 import MTooltipButton from "../Components/MTooltipButton";
@@ -11,6 +17,7 @@ import ModeEditIcon from "@mui/icons-material/ModeEdit";
 import BlockIcon from "@mui/icons-material/Block";
 import ControlPointIcon from "@mui/icons-material/ControlPoint";
 import ProductForm from "../Components/ProductComponents/ProductForm";
+import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount";
 
 const Product = () => {
   const { id } = useParams();
@@ -22,7 +29,7 @@ const Product = () => {
   const navigate = useNavigate();
   const {
     data: product,
-    isLoading,
+    isLoading: productLoading,
     error,
   } = useFetchData(
     ["product", id],
@@ -50,6 +57,16 @@ const Product = () => {
   const handleReContinueProducts = async (id) => {
     console.log("Discontinue product:", id);
     await reContinueProducts.mutateAsync({ Products: [id] });
+  };
+
+  const getAllCustomersOfProductsMutation = useApiMutation(
+    ApiURLS.GetAllCustomersOfProducts.url,
+    ApiURLS.GetAllCustomersOfProducts.method
+  );
+
+  const handleGetCustomers = async (id) => {
+    console.log(id);
+    await getAllCustomersOfProductsMutation.mutateAsync({ ProductId: id });
   };
 
   const [openDialog, setOpenDialog] = useState(false);
@@ -83,7 +100,7 @@ const Product = () => {
     }
   };
 
-  if (isLoading) {
+  if (productLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
         <CircularProgress />
@@ -108,6 +125,9 @@ const Product = () => {
   const redirectToOrder = () => {
     navigate("/customizeProduct");
   };
+
+  // ApiURLS.GetAllCustomersOfProducts.url,
+  //   ApiURLS.GetAllCustomersOfProducts.method,
 
   return (
     <div className="product-page-container mx-auto mt-12 p-4 h-full">
@@ -148,22 +168,18 @@ const Product = () => {
             <div className="flex items-center space-x-4">
               <p className="text-lg">Quantity:</p>
 
-              <div className="flex justify-center items-center gap-3">
-                <Button
+              <div className="flex items-center border rounded-lg">
+                <IconButton
+                  size="small"
                   onClick={decreaseQuantity}
-                  className="bg-gray-300 rounded-md"
-                  variant="outlined"
+                  disabled={quantity <= 1}
                 >
-                  -
-                </Button>
-                <span className="text-lg">{quantity}</span>
-                <Button
-                  onClick={increaseQuantity}
-                  variant="outlined"
-                  className="bg-gray-300 px-0 py-0 rounded-md"
-                >
-                  +
-                </Button>
+                  <KeyboardArrowDown />
+                </IconButton>
+                <span className="px-4 text-lg font-semibold">{quantity}</span>
+                <IconButton size="small" onClick={increaseQuantity}>
+                  <KeyboardArrowUp />
+                </IconButton>
               </div>
             </div>
           )}
@@ -198,6 +214,15 @@ const Product = () => {
                   <BlockIcon />
                 </MTooltipButton>
               )}
+
+              <MTooltipButton
+                title="Customer"
+                variant="contained"
+                color="success"
+                onClick={() => handleGetCustomers()}
+              >
+                <SupervisorAccountIcon />
+              </MTooltipButton>
             </div>
           ) : (
             <div className="w-full flex gap-3">

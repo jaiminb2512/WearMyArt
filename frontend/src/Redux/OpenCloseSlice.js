@@ -5,6 +5,7 @@ const initialState = {
   FilterBarOpen: false,
   TopBarOpen: false,
   SmScreen: false,
+  HideText: false,
 };
 
 const OpenCloseSlice = createSlice({
@@ -20,12 +21,23 @@ const OpenCloseSlice = createSlice({
     toggleFilterBar: (state) => {
       state.FilterBarOpen = !state.FilterBarOpen;
     },
+    toggleHideText: (state) => {
+      state.HideText = !state.HideText;
+    },
     toggleSmScreen: (state, action) => {
       state.SmScreen = action.payload;
+      state.SideBarOpen = !action.payload;
+      state.FilterBarOpen = !action.payload;
+      state.HideText = !action.payload;
     },
   },
 });
 
-export const { ToggleBar, toggleSidebar, toggleFilterBar, toggleSmScreen } =
-  OpenCloseSlice.actions;
+export const {
+  ToggleBar,
+  toggleSidebar,
+  toggleFilterBar,
+  toggleSmScreen,
+  toggleHideText,
+} = OpenCloseSlice.actions;
 export default OpenCloseSlice.reducer;

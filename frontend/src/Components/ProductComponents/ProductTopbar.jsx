@@ -18,7 +18,7 @@ const ProductTopbar = ({ setListView, listView, count, handleOpenDialog }) => {
       <div className="flex items-center gap-4 ">
         <MTooltip title={FilterBarOpen ? "Close Filter" : "Open Filter"}>
           <div
-            className="p-2 items-center justify-center w-12 h-10 cursor-pointer bg-gray-200 rounded hidden sm:block"
+            className="p-2 items-center justify-center w-12 h-10 cursor-pointer bg-gray-200 rounded hidden lg:block "
             onClick={() => dispatch(toggleFilterBar())}
           >
             {FilterBarOpen ? <MenuOpenIcon /> : <MenuIcon />}
