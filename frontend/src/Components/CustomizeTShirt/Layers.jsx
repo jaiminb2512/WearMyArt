@@ -106,7 +106,7 @@ const Layers = ({ addText, deleteSelected, saveDesign, addImage }) => {
           <div className="w-[50px] h-[50px] bg-gray-200 border flex justify-center items-center rounded-xl">
             <Delete />
           </div>
-          <p>Delete</p>
+          <p>Delete {SelectedLayer}</p>
         </div>
       </div>
 

@@ -6,7 +6,7 @@ const initialState = {
   Quantity: 1,
   FinalProductImg: null,
   ProductId: null,
-  Font: "",
+  Font: "Comic Sans MS",
   Text: "WearMyArt",
   Color: "#000000",
   Price: 0,
@@ -119,7 +119,7 @@ const tempProductSlice = createSlice({
       )
         state.EditingCost -= state.TextEditingCost;
       state.TextEditingCost = 0;
-      state.Font = "";
+      state.Font = "Comic Sans MS";
       state.Text = "WearMyArt";
       state.Color = "#000000";
       state.TextActive = false;

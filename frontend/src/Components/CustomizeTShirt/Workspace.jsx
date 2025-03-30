@@ -7,11 +7,8 @@ import React, {
 } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import * as fabric from "fabric";
-import {
-  clearProductData,
-  setFinalProductImg,
-  setSize,
-} from "../../Redux/tempProductSlice";
+import { clearProductData, setSize } from "../../Redux/tempProductSlice";
+import { showToast } from "../../Redux/ToastSlice";
 
 const Workspace = forwardRef((props, ref) => {
   useEffect(() => {
@@ -19,7 +16,16 @@ const Workspace = forwardRef((props, ref) => {
   }, []);
 
   const tempProduct = useSelector((state) => state.tempProduct);
-  const { Font, Text, Color, CustomerImg } = tempProduct;
+  const {
+    Font,
+    Text,
+    TextStyle,
+    Color,
+    CustomerImg,
+    TextActive,
+    ImgActive,
+    SelectedLayer,
+  } = tempProduct;
   const dispatch = useDispatch();
 
   const [canvasSize, setCanvasSize] = useState({
@@ -56,7 +62,7 @@ const Workspace = forwardRef((props, ref) => {
         fabricRef.current.setHeight(size);
         fabricRef.current.renderAll();
       } catch (error) {
-        console.error("Error resizing canvas:", error);
+        console.error("Error resizing canvas:", error.message);
       }
     }
   };
@@ -111,15 +117,36 @@ const Workspace = forwardRef((props, ref) => {
   }, [canvasSize]);
 
   const addText = () => {
+    if (TextActive) {
+      showToast({
+        message: "Text is already added",
+        variant: "error",
+      });
+      alert("Text is already added");
+      return;
+    }
     if (!fabricRef.current || !Text) return;
 
     const canvas = fabricRef.current;
+
     const text = new fabric.Text(Text, {
       left: canvasSize.width * 0.15,
       top: canvasSize.height * 0.15,
       fontFamily: Font,
       fill: Color,
-      fontSize: canvasSize.width * 0.05,
+      fontWeight: TextStyle.includes("Bold") ? "bold" : "normal",
+      fontStyle: TextStyle.includes("Italic") ? "italic" : "normal",
+      underline: TextStyle.includes("Underline"),
+      linethrough: TextStyle.includes("Strikethrough"),
+      overline: TextStyle.includes("Overline"),
+      charSpacing: TextStyle.includes("Wide Spacing")
+        ? 100
+        : TextStyle.includes("Narrow Spacing")
+        ? -50
+        : 0,
+      stroke: TextStyle.includes("Outline") ? "black" : "",
+      strokeWidth: TextStyle.includes("Outline") ? 2 : 0,
+      shadow: getTextShadow(TextStyle),
     });
 
     canvas.add(text);
@@ -127,11 +154,63 @@ const Workspace = forwardRef((props, ref) => {
     canvas.renderAll();
   };
 
+  // Function to get the appropriate shadow style
+  const getTextShadow = (styles) => {
+    if (styles.includes("Shadow")) {
+      return new fabric.Shadow({
+        color: "rgba(0,0,0,0.5)",
+        blur: 5,
+        offsetX: 2,
+        offsetY: 2,
+      });
+    }
+    if (styles.includes("Embossed")) {
+      return new fabric.Shadow({
+        color: "rgba(255,255,255,1)",
+        blur: 10,
+        offsetX: -2,
+        offsetY: -2,
+      });
+    }
+    if (styles.includes("Engraved")) {
+      return new fabric.Shadow({
+        color: "rgba(0,0,0,1)",
+        blur: 10,
+        offsetX: 10,
+        offsetY: 10,
+      });
+    }
+    if (styles.includes("Glow")) {
+      return new fabric.Shadow({
+        color: "rgba(255,255,0,0.8)",
+        blur: 20,
+        offsetX: 0,
+        offsetY: 0,
+      });
+    }
+    return null;
+  };
+
   const deleteSelected = () => {
-    if (!fabricRef.current || !selectedObject.current) return;
+    if (!fabricRef.current) return;
 
     const canvas = fabricRef.current;
-    canvas.remove(selectedObject.current);
+    const objects = canvas.getObjects();
+
+    if (SelectedLayer === "Text") {
+      objects.forEach((obj) => {
+        if (obj.type === "text") {
+          canvas.remove(obj);
+        }
+      });
+    } else if (SelectedLayer === "Photo") {
+      objects.forEach((obj) => {
+        if (obj.type === "image") {
+          canvas.remove(obj);
+        }
+      });
+    }
+
     canvas.renderAll();
     selectedObject.current = null;
   };
@@ -170,6 +249,14 @@ const Workspace = forwardRef((props, ref) => {
   };
 
   const addImage = () => {
+    if (ImgActive) {
+      showToast({
+        message: "Image is already added",
+        variant: "error",
+      });
+      alert("Image is already ");
+      return;
+    }
     if (!CustomerImg) {
       console.log("img not found");
       return;
@@ -193,6 +280,96 @@ const Workspace = forwardRef((props, ref) => {
       canvas.renderAll();
     };
   };
+
+  useEffect(() => {
+    if (!fabricRef.current) return;
+
+    const canvas = fabricRef.current;
+    const objects = canvas.getObjects();
+
+    objects.forEach((obj) => {
+      if (obj.type === "text") {
+        obj.set("fontFamily", Font);
+
+        obj.set("fontWeight", TextStyle.includes("Bold") ? "bold" : "normal");
+        obj.set(
+          "fontStyle",
+          TextStyle.includes("Italic") ? "italic" : "normal"
+        );
+        obj.set("underline", TextStyle.includes("Underline"));
+        obj.set("linethrough", TextStyle.includes("Strikethrough"));
+        obj.set("overline", TextStyle.includes("Overline"));
+
+        obj.set(
+          "charSpacing",
+          TextStyle.includes("Wide Spacing")
+            ? 100
+            : TextStyle.includes("Narrow Spacing")
+            ? -50
+            : 0
+        );
+
+        if (TextStyle.includes("Outline")) {
+          obj.set("stroke", "black");
+          obj.set("strokeWidth", 2);
+        } else {
+          obj.set("strokeWidth", 0);
+        }
+
+        if (TextStyle.includes("Shadow")) {
+          obj.set(
+            "shadow",
+            new fabric.Shadow({
+              color: "rgba(0,0,0,0.5)",
+              blur: 5,
+              offsetX: 2,
+              offsetY: 2,
+            })
+          );
+        } else {
+          obj.set("shadow", null);
+        }
+
+        if (TextStyle.includes("Embossed")) {
+          obj.set(
+            "shadow",
+            new fabric.Shadow({
+              color: "rgba(255,255,255,1)",
+              blur: 10,
+              offsetX: -2,
+              offsetY: -2,
+            })
+          );
+        }
+
+        if (TextStyle.includes("Engraved")) {
+          obj.set(
+            "shadow",
+            new fabric.Shadow({
+              color: "rgba(0,0,0,1)",
+              blur: 10,
+              offsetX: 10,
+              offsetY: 10,
+            })
+          );
+        }
+
+        if (TextStyle.includes("Glow")) {
+          obj.set(
+            "shadow",
+            new fabric.Shadow({
+              color: "rgba(255,255,0,0.8)",
+              blur: 20,
+              offsetX: 0,
+              offsetY: 0,
+            })
+          );
+        }
+      }
+    });
+
+    canvas.renderAll();
+  }, [Font, TextStyle]);
 
   return (
     <div

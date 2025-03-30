@@ -6,7 +6,6 @@ import { darkTheme, lightTheme } from "./Theme/theme";
 import { CssBaseline, Box } from "@mui/material";
 
 import Navbar from "./Components/Navbar";
-import Footer from "./Components/Footer";
 import Sidebar from "./Components/Sidebar";
 import UserAvatar from "./Components/UserAvtar";
 import ToastNotification from "./Components/ToastNotification";
@@ -36,6 +35,7 @@ import CheckOut from "./Pages/CheckOut";
 import CompleteOrder from "./Components/PurchaseComponents/CompleteOrder";
 import ConfirmOrder from "./Components/CustomizeTShirt/ConfirmOrder";
 import CustomizationOptions from "./Pages/CustomizationOptions";
+import AuthRoute from "./Components/AuthRoute";
 
 const queryClient = new QueryClient();
 
@@ -109,39 +109,58 @@ const AppLayout = () => {
             sidebarWidth === 60
               ? "ml-[60px]"
               : sidebarWidth === 240 && !FilterBarOpen
-              ? "ml-[240px]"
+              ? "ml-0 lg:ml-[25vw] xl:ml-[20vw]"
               : "ml-0"
           }`}
         >
           <Routes>
+            <Route element={<AuthRoute role="guest" />}>
+              <Route path="/login" element={<Auth />} />
+              <Route path="/register" element={<Auth />} />
+              <Route path="/forgot-password" element={<Auth />} />
+            </Route>
+
             <Route path="/" element={<Home />} />
-            <Route path="/login" element={<Auth />} />
-            <Route path="/register" element={<Auth />} />
-            <Route path="/forgot-password" element={<Auth />} />
             <Route path="/products" element={<Products />} />
-            <Route path="/confirm-order" element={<ConfirmOrder />} />
-            <Route path="/dashboard/checkout" element={<CheckOut />} />
-            <Route
-              path="/dashboard/complete-order"
-              element={<CompleteOrder />}
-            />
-            <Route
-              path="/dashboard/customization-options"
-              element={<CustomizationOptions />}
-            />
-            <Route path="/dashboard/order-success" element={<OrderSuccess />} />
             <Route path="/product/:id" element={<Product />} />
-            <Route path="/dashboard/order-details" element={<OrderDetails />} />
-            <Route path="/customize-product" element={<CustomizeProduct />} />
-            <Route path="/dashboard/profile" element={<Profile />} />
-            <Route path="/dashboard/orders" element={<Orders />} />
-            <Route path="/dashboard/cart" element={<Cart />} />
-            <Route path="/dashboard/all-products" element={<AllProducts />} />
-            <Route path="/dashboard/all-orders" element={<AllOrders />} />
-            <Route path="/dashboard/all-users" element={<AllUsers />} />
+
+            <Route element={<AuthRoute role="customer" />}>
+              <Route path="/confirm-order" element={<ConfirmOrder />} />
+              <Route path="/dashboard/checkout" element={<CheckOut />} />
+              <Route
+                path="/dashboard/complete-order"
+                element={<CompleteOrder />}
+              />
+              <Route
+                path="/dashboard/order-success"
+                element={<OrderSuccess />}
+              />
+              <Route
+                path="/dashboard/order-details"
+                element={<OrderDetails />}
+              />
+              <Route path="/customize-product" element={<CustomizeProduct />} />
+              <Route path="/dashboard/orders" element={<Orders />} />
+              <Route path="/dashboard/cart" element={<Cart />} />
+            </Route>
+
+            <Route element={<AuthRoute role="admin" />}>
+              <Route path="/dashboard/all-products" element={<AllProducts />} />
+              <Route path="/dashboard/all-orders" element={<AllOrders />} />
+              <Route path="/dashboard/all-users" element={<AllUsers />} />
+              <Route
+                path="/dashboard/customization-options"
+                element={<CustomizationOptions />}
+              />
+            </Route>
+
+            <Route element={<AuthRoute />}>
+              <Route path="/dashboard/profile" element={<Profile />} />
+            </Route>
+
             <Route path="*" element={<Errorpage />} />
           </Routes>
-          {/* <Footer /> */}
+          ;
         </Box>
       </Box>
       <ToastNotification />
@@ -153,7 +172,6 @@ const AppLayout = () => {
 function App() {
   const mode = useSelector((state) => state.theme.mode);
 
-  // Use predefined themes from Theme/theme.js
   const theme = useMemo(
     () => (mode === "dark" ? darkTheme : lightTheme),
     [mode]

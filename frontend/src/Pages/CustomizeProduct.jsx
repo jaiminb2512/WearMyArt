@@ -17,6 +17,7 @@ const CustomizeProduct = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const product = useSelector((state) => state.tempProduct);
+  console.log(product);
 
   useEffect(() => {
     if (steps[activeStep]?.label === "Customize Design") {
@@ -66,6 +67,10 @@ const CustomizeProduct = () => {
 
   const handleNext = async () => {
     if (steps[activeStep]?.label === "Customize Design") {
+      if (!product.CustomizedType) {
+        alert("Please select a customized type");
+        return;
+      }
       const saved = await handleSaveDesign();
       // console.log(saved);
       if (saved) {

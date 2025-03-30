@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useApiMutation, useFetchData } from "../utils/apiRequest";
 import ApiURLS from "../Data/ApiURLS";
 import { Dialog, DialogContent } from "@mui/material";
@@ -22,6 +22,15 @@ const AllProducts = () => {
       cacheTime: 10 * 60 * 1000, // 10 Minutes
     }
   );
+
+  const [allProducts, setAllProducts] = useState([]);
+
+  useEffect(() => {
+    if (AllProducts) {
+      setAllProducts(AllProducts);
+    }
+  }, [AllProducts]);
+
   const discontinueProductsMutation = useApiMutation(
     ApiURLS.DiscontinueProducts.url,
     ApiURLS.DiscontinueProducts.method
@@ -33,12 +42,33 @@ const AllProducts = () => {
   );
 
   const handleDiscontinueProducts = async (id) => {
-    console.log("ReContinue product:", id);
-    await discontinueProductsMutation.mutateAsync({ Products: [id] });
+    try {
+      console.log("Discontinuing product:", id);
+      await discontinueProductsMutation.mutateAsync({ Products: [id] });
+
+      setAllProducts((prevProducts) =>
+        prevProducts.map((product) =>
+          product._id === id ? { ...product, isDiscontinued: true } : product
+        )
+      );
+    } catch (error) {
+      console.error("Error discontinuing product:", error);
+    }
   };
+
   const handleReContinueProducts = async (id) => {
-    console.log("Discontinue product:", id);
-    await reContinueProducts.mutateAsync({ Products: [id] });
+    try {
+      console.log("Recontinuing product:", id);
+      await reContinueProducts.mutateAsync({ Products: [id] });
+
+      setAllProducts((prevProducts) =>
+        prevProducts.map((product) =>
+          product._id === id ? { ...product, isDiscontinued: false } : product
+        )
+      );
+    } catch (error) {
+      console.error("Error recontinuing product:", error);
+    }
   };
 
   const [openDialog, setOpenDialog] = useState(false);
@@ -86,44 +116,46 @@ const AllProducts = () => {
   };
 
   const filteredProducts = useMemo(() => {
-    return AllProducts.filter((product) => {
-      const sizeMatch =
-        !filterOptions.Size.length || filterOptions.Size.includes(product.Size);
-      const sleeveMatch =
-        !filterOptions.Sleeve.length ||
-        filterOptions.Sleeve.includes(product.Sleeve);
-      const customizeMatch =
-        !filterOptions.CustomizeOption.length ||
-        filterOptions.CustomizeOption.includes(product.CustomizeOption);
-      const colorMatch =
-        !filterOptions.Color.length ||
-        filterOptions.Color.includes(product.Color);
+    return allProducts
+      .filter((product) => {
+        const sizeMatch =
+          !filterOptions.Size.length ||
+          filterOptions.Size.includes(product.Size);
+        const sleeveMatch =
+          !filterOptions.Sleeve.length ||
+          filterOptions.Sleeve.includes(product.Sleeve);
+        const customizeMatch =
+          !filterOptions.CustomizeOption.length ||
+          filterOptions.CustomizeOption.includes(product.CustomizeOption);
+        const colorMatch =
+          !filterOptions.Color.length ||
+          filterOptions.Color.includes(product.Color);
+        const priceMatch =
+          !filterOptions.Price.length ||
+          filterOptions.Price.some((range) =>
+            isPriceInRange(product.Price, range)
+          );
 
-      const priceMatch =
-        !filterOptions.Price.length ||
-        filterOptions.Price.some((range) =>
-          isPriceInRange(product.Price, range)
+        const availabilityMatch =
+          filterOptions.Avalibility.includes("All") ||
+          (filterOptions.Avalibility.includes("Discontinued") &&
+            product.isDiscontinued) ||
+          (filterOptions.Avalibility.includes("Available") &&
+            !product.isDiscontinued);
+
+        return (
+          sizeMatch &&
+          sleeveMatch &&
+          customizeMatch &&
+          colorMatch &&
+          priceMatch &&
+          availabilityMatch
         );
-
-      const availabilityMatch =
-        filterOptions.Avalibility.includes("All") ||
-        (filterOptions.Avalibility.includes("Discontinued") &&
-          product.isDiscontinued) ||
-        (filterOptions.Avalibility.includes("Available") &&
-          !product.isDiscontinued);
-
-      return (
-        sizeMatch &&
-        sleeveMatch &&
-        customizeMatch &&
-        colorMatch &&
-        priceMatch &&
-        availabilityMatch
+      })
+      .sort((a, b) =>
+        sortOrder === "lowToHigh" ? a.Price - b.Price : b.Price - a.Price
       );
-    }).sort((a, b) =>
-      sortOrder === "lowToHigh" ? a.Price - b.Price : b.Price - a.Price
-    );
-  }, [filterOptions, AllProducts, sortOrder]);
+  }, [filterOptions, allProducts, sortOrder]);
 
   return (
     <div className="flex h-screen">
@@ -143,7 +175,6 @@ const AllProducts = () => {
           </div>
         </div>
       )}
-      {/* SideBarOpen ? HideText ? "w-20" : "w-fit lg:w-[25vw] xl:w-[20vw]" : "w-0" */}
       <div
         className={`flex-1 flex flex-col overflow-y-scroll scrollbar-hide transition-all duration-300
       ${FilterBarOpen ? "lg:ml-[25vw] xl:ml-[20vw]" : "ml-0"}`}

@@ -10,7 +10,7 @@ import {
 import React from "react";
 
 const MTable = ({ rows, columns, isLoading }) => {
-  const paginationModel = { page: 0, pageSize: 5 };
+  const paginationModel = { page: 0, pageSize: 10 };
 
   // Custom Toolbar with specific options
   const CustomToolbar = () => (

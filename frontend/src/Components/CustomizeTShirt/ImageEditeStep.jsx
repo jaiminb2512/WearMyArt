@@ -16,7 +16,7 @@ const ImageEditStep = () => {
   useEffect(() => {
     resetTempProduct();
   }, []);
-  const { SelectedLayer } = useSelector((state) => state.tempProduct);
+  const { SelectedLayer, Size } = useSelector((state) => state.tempProduct);
 
   const handleAddText = () => {
     if (workspaceRef.current) {

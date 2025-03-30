@@ -13,7 +13,7 @@ const CompleteOrder = () => {
       <div className="flex flex-col md:flex-row  w-full mt-24 mb-10 pl-[3vw] pr-[1vw]">
         <div className="w-full flex flex-col p-6 pl-4">
           <CartListView />
-          <div className="flex flex-col md:flex-row gap-3 mt-6 pl-5">
+          <div className="flex flex-col md:flex-row gap-3 mt-6 pl-5 w-full">
             <div className="w-full sm:w-1/2">
               <UserDetails />
             </div>

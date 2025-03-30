@@ -7,8 +7,15 @@ import InventoryIcon from "@mui/icons-material/Inventory";
 import PeopleIcon from "@mui/icons-material/People";
 import ListAltIcon from "@mui/icons-material/ListAlt";
 import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount";
-import SettingsIcon from "@mui/icons-material/Settings";
 import DashboardCustomizeIcon from "@mui/icons-material/DashboardCustomize";
+import DashboardSharpIcon from "@mui/icons-material/DashboardSharp";
+import HomeSharpIcon from "@mui/icons-material/HomeSharp";
+
+export const NavbarData = [
+  { name: "Home", icon: HomeSharpIcon, path: "/" },
+  { name: "Products", icon: InventoryIcon, path: "/products" },
+  { name: "Dashboard", icon: DashboardSharpIcon, path: "/dashboard/profile" },
+];
 
 export const LoginData = [
   { name: "Log Out", icon: ExitToAppIcon, path: "/logout" },

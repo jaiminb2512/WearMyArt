@@ -56,24 +56,20 @@ export const OrderFilterData = [
 ];
 
 export const AdminOrderFilterData = [
-  {
-    title: "Order Date",
-    type: "date",
-  },
-  {
-    title: "Duration",
-    type: "date",
-  },
+  // {
+  //   title: "Order Date",
+  //   type: "date",
+  // },
+  // {
+  //   title: "Duration",
+  //   type: "date",
+  // },
   {
     title: "Quantity",
     type: "input",
   },
   {
-    title: "Order ID",
-    type: "input",
-  },
-  {
-    title: "CustomizeOption",
+    title: "CustomizedType",
     Options: ["Photo", "Text", "Both"],
     type: "radio",
   },

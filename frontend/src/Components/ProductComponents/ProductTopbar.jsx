@@ -6,11 +6,14 @@ import MenuIcon from "@mui/icons-material/Menu";
 import { useDispatch, useSelector } from "react-redux";
 import { toggleFilterBar } from "../../Redux/OpenCloseSlice";
 import MTooltip from "../MTooltip";
+import { useLocation } from "react-router-dom";
 
 const ProductTopbar = ({ setListView, listView, count, handleOpenDialog }) => {
   const { FilterBarOpen } = useSelector((state) => state.OpenClose);
   const { user } = useSelector((state) => state.user);
   let isAdmin = user?.isAdmin || false;
+  const location = useLocation();
+  const allProducts = location.pathname.includes("/all-products");
   const dispatch = useDispatch();
 
   return (
@@ -56,7 +59,7 @@ const ProductTopbar = ({ setListView, listView, count, handleOpenDialog }) => {
           </MTooltip>
         </div>
 
-        {isAdmin && (
+        {isAdmin && allProducts && (
           <MTooltip title="Add Product">
             <Button
               variant="contained"

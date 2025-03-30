@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ApiURLS from "../Data/ApiURLS";
 import { useFetchData, useApiMutation } from "../utils/apiRequest";
 import {
@@ -51,7 +51,7 @@ const CustomizationOptions = () => {
     ApiURLS.AddCustomizationOptions.method
   );
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (customizationOptions) {
       setLocalOptions(customizationOptions);
     }

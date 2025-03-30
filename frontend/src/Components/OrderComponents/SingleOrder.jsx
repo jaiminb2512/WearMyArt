@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 import { Button } from "@mui/material";
 import ProductImages from "../ProductComponents/ProductImages";
 import BlockIcon from "@mui/icons-material/Block";
@@ -7,31 +8,37 @@ import MenuIcon from "@mui/icons-material/Menu";
 import ModeEditIcon from "@mui/icons-material/ModeEdit";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import Inventory2Icon from "@mui/icons-material/Inventory2";
-import MTooltip from "../MTooltip";
-import { useSelector } from "react-redux";
+import MTooltipButton from "../MTooltipButton";
+import ApiURLS from "../../Data/ApiURLS.js";
+import { useApiMutation } from "../../utils/apiRequest.js";
+import { statusFlow } from "../../Data/Content.js";
 
 const SingleOrder = ({
   order,
-  OrderDetails = false,
   handleFetchUser = null,
   handleFetchProduct = null,
 }) => {
   const navigate = useNavigate();
-
   const { user } = useSelector((state) => state.user);
   const isAdmin = user?.isAdmin || false;
+
+  const [localStatus, setLocalStatus] = useState(order?.Status);
+
+  const location = useLocation();
+  const showOrderDetails = location.pathname.includes("/order-details");
 
   if (!order) {
     return (
       <div className="text-center text-gray-500 mt-10">
         <p>No order details available.</p>
-        <Button
+        <MTooltipButton
+          title="Go Back"
           variant="contained"
           onClick={() => navigate(-1)}
           className="mt-4"
         >
           Go Back
-        </Button>
+        </MTooltipButton>
       </div>
     );
   }
@@ -42,7 +49,6 @@ const SingleOrder = ({
     FinalProductImg,
     Quantity,
     FinalCost,
-    Status,
     createdAt,
     CustomizeOption,
     Font,
@@ -63,9 +69,34 @@ const SingleOrder = ({
     return isNaN(date) ? "N/A" : date.toLocaleDateString();
   };
 
-  const handleRedirect = (order) => {
+  const handleRedirect = () => {
     navigate("/dashboard/order-details", { state: { order } });
   };
+
+  const updateOrderStatus = useApiMutation(
+    `${ApiURLS.UpdateOrderStatus.url.replace(":id", _id)}`,
+    ApiURLS.UpdateOrderStatus.method,
+    {
+      onSuccess: (data) => {
+        setLocalStatus(data?.status || localStatus);
+      },
+    }
+  );
+
+  const handleNextStage = () => {
+    const currentIndex = statusFlow.findIndex((s) => s.name === localStatus);
+    if (currentIndex !== -1 && currentIndex < statusFlow.length - 1) {
+      const nextStatus = statusFlow[currentIndex + 1].name;
+      setLocalStatus(nextStatus);
+      updateOrderStatus.mutate({ status: nextStatus });
+    }
+  };
+
+  const currentStatus = statusFlow.find((s) => s.name === localStatus);
+  const currentIndex = statusFlow.findIndex((s) => s.name === localStatus);
+  const nextStatus = statusFlow[currentIndex + 1]?.name || "Completed";
+  const NextIcon = statusFlow[currentIndex + 1]?.icon;
+  const nextColor = statusFlow[currentIndex + 1]?.color || "default";
 
   return (
     <div className="w-full h-full mx-auto p-4 rounded-lg flex flex-col gap-6">
@@ -76,17 +107,9 @@ const SingleOrder = ({
         <div className="w-full sm:w-2/3 flex flex-col gap-2 justify-center">
           <p className="text-lg font-light">Order ID: {_id}</p>
           <p>
-            <span className="font-medium">Status:</span>{" "}
-            <span
-              className={`font-bold ${
-                Status === "Completed"
-                  ? "text-green-600"
-                  : Status === "Rejected"
-                  ? "text-red-600"
-                  : "text-yellow-600"
-              }`}
-            >
-              {Status}
+            <span className="font-medium">Status:</span>
+            <span className={`font-bold text-${currentStatus?.color}-600`}>
+              {currentStatus?.name}
             </span>
           </p>
           <p>
@@ -111,91 +134,95 @@ const SingleOrder = ({
           )}
 
           <p>
-            <span className="font-medium">Order Date:</span>{" "}
+            <span className="font-medium">Order Date:</span>
             {formatDate(createdAt)}
           </p>
 
-          <div className="flex gap-2 items-center mt-4 w-2/3">
-            {OrderDetails ? (
-              <div className="flex gap-3 justify-center items-center">
-                <div className="w-full sm:w-auto">
-                  <MTooltip title="Customer Details">
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={handleFetchUser}
-                      className="sm:w-[200px]"
-                    >
-                      <div className="flex gap-2 items-center justify-center">
-                        <PersonAddIcon />
-                        <span className="hidden sm:block">
-                          Customer Details
-                        </span>
-                      </div>
-                    </Button>
-                  </MTooltip>
-                </div>
-                <div className="w-full">
-                  <MTooltip title="Product Details">
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={handleFetchProduct}
-                      className="sm:w-[200px]"
-                    >
-                      <div className="flex gap-2 items-center justify-center">
-                        <Inventory2Icon />
-                        <span className="hidden sm:block">Product Details</span>
-                      </div>
-                    </Button>
-                  </MTooltip>
-                </div>
-              </div>
-            ) : (
-              <div className="w-full">
-                <MTooltip title="Order Details">
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={() => handleRedirect(order)}
-                    className={` ${Status} === "Pending" ? "sm:w-[150px]" : "`}
-                  >
-                    <div className="flex gap-2 items-center justify-center">
-                      <MenuIcon />
-                      <span className="hidden sm:block">Order Details</span>
-                    </div>
-                  </Button>
-                </MTooltip>
-              </div>
+          <div className="flex flex-wrap gap-3 items-center mt-4 w-full justify-center sm:justify-start">
+            {isAdmin && showOrderDetails && (
+              <>
+                <MTooltipButton
+                  title="Customer Details"
+                  variant="contained"
+                  color="primary"
+                  onClick={handleFetchUser}
+                  className="min-w-[180px] text-center"
+                  startIcon={<PersonAddIcon />}
+                >
+                  Customer Details
+                </MTooltipButton>
+
+                <MTooltipButton
+                  title="Product Details"
+                  variant="contained"
+                  color="primary"
+                  onClick={handleFetchProduct}
+                  className="min-w-[180px] text-center"
+                  startIcon={<Inventory2Icon />}
+                >
+                  Product Details
+                </MTooltipButton>
+              </>
+            )}
+            {!showOrderDetails && (
+              <MTooltipButton
+                title="Order Details"
+                variant="contained"
+                color="primary"
+                onClick={handleRedirect}
+                className="min-w-[180px] text-center"
+                startIcon={<MenuIcon />}
+              >
+                Order Details
+              </MTooltipButton>
             )}
 
-            {isAdmin && Status === "Pending" && (
-              <div className="flex gap-3 w-fit">
-                <MTooltip title="Accept Order">
-                  <Button
-                    variant="contained"
-                    color="success"
-                    className="sm:w-[150px]"
-                  >
-                    <div className="flex gap-2 items-center justify-center">
-                      <ModeEditIcon />
-                      <span className="hidden sm:block">Accept Order</span>
-                    </div>
-                  </Button>
-                </MTooltip>
-                <MTooltip title="Reject Order">
-                  <Button
-                    variant="contained"
-                    color="error"
-                    className="sm:w-[150px]"
-                  >
-                    <div className="flex gap-2 items-center justify-center">
-                      <BlockIcon />
-                      <span className="hidden sm:block">Reject Order</span>
-                    </div>
-                  </Button>
-                </MTooltip>
-              </div>
+            {isAdmin &&
+              localStatus !== "Completed" &&
+              localStatus !== "Rejected" &&
+              localStatus !== "Pending" && (
+                <MTooltipButton
+                  title={`Next to ${nextStatus}`}
+                  variant="contained"
+                  color={nextColor}
+                  className="min-w-[180px] text-center"
+                  startIcon={NextIcon ? <NextIcon /> : null}
+                  onClick={handleNextStage}
+                >
+                  Move to {nextStatus} State
+                </MTooltipButton>
+              )}
+
+            {isAdmin && localStatus === "Pending" && (
+              <>
+                <MTooltipButton
+                  title="Accept Order"
+                  variant="contained"
+                  color="success"
+                  className="min-w-[180px] text-center"
+                  startIcon={<ModeEditIcon />}
+                  onClick={() => {
+                    setLocalStatus("Process");
+                    updateOrderStatus.mutate({ status: "Process" });
+                  }}
+                >
+                  Accept Order
+                </MTooltipButton>
+
+                <MTooltipButton
+                  title="Reject Order"
+                  variant="contained"
+                  color="error"
+                  className="min-w-[180px] text-center"
+                  startIcon={<BlockIcon />}
+                  onClick={() => {
+                    setLocalStatus("Rejected");
+                    updateOrderStatus.mutate({ status: "Rejected" });
+                  }}
+                >
+                  Reject Order
+                </MTooltipButton>
+              </>
             )}
           </div>
         </div>

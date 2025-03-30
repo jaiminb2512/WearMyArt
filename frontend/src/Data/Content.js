@@ -16,6 +16,12 @@ import CreditCardIcon from "@mui/icons-material/CreditCard";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import AssuredWorkloadIcon from "@mui/icons-material/AssuredWorkload";
 
+import PendingActionsIcon from "@mui/icons-material/PendingActions";
+import BuildIcon from "@mui/icons-material/Build";
+import LocalShippingIcon from "@mui/icons-material/LocalShipping";
+import CancelIcon from "@mui/icons-material/Cancel";
+import DoneAllIcon from "@mui/icons-material/DoneAll";
+
 export const CustomizeTshirtProcessData = [
   {
     id: 1,
@@ -243,4 +249,13 @@ export const BuyProductSteps = [
   { label: "Shopping Cart", icon: ShoppingCartIcon },
   { label: "Checkout", icon: CreditCardIcon },
   { label: "Order Complete", icon: AssuredWorkloadIcon },
+];
+
+export const statusFlow = [
+  { name: "Pending", icon: PendingActionsIcon, color: "warning" },
+  { name: "Process", icon: BuildIcon, color: "primary" },
+  { name: "Ready", icon: DoneAllIcon, color: "info" },
+  { name: "Shipped", icon: LocalShippingIcon, color: "secondary" },
+  { name: "Completed", icon: CheckCircleIcon, color: "success" },
+  { name: "Rejected", icon: CancelIcon, color: "error" },
 ];

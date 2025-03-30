@@ -9,6 +9,7 @@ import FAQ from "../Components/FAQ";
 import TshirtPrintingSteps from "../Components/HomeComponents/TshirtPrintingSteps";
 import FeaturesSection from "../Components/HomeComponents/FeaturesSection";
 import { useSelector } from "react-redux";
+import Footer from "../Components/Footer";
 
 const Home = () => {
   const { isAdmin } = useSelector((state) => state.user);
@@ -24,6 +25,7 @@ const Home = () => {
       <FeaturesSection />
       <FAQ />
       <Social />
+      <Footer />
     </>
   );
 };

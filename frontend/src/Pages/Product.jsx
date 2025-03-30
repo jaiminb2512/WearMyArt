@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useApiMutation, useFetchData } from "../utils/apiRequest";
 import ApiURLS from "../Data/ApiURLS";
@@ -40,23 +40,36 @@ const Product = () => {
     }
   );
 
+  const [Product, setProduct] = useState(null);
+
+  useEffect(() => {
+    if (product) {
+      setProduct(product);
+    }
+  }, [product]);
+
   const discontinueProductsMutation = useApiMutation(
     ApiURLS.DiscontinueProducts.url,
     ApiURLS.DiscontinueProducts.method
   );
 
-  const reContinueProducts = useApiMutation(
+  const reContinueProductsMutation = useApiMutation(
     ApiURLS.RecontinueProducts.url,
     ApiURLS.RecontinueProducts.method
   );
 
   const handleDiscontinueProducts = async (id) => {
-    console.log("ReContinue product:", id);
     await discontinueProductsMutation.mutateAsync({ Products: [id] });
+    setProduct((prevProduct) =>
+      prevProduct ? { ...prevProduct, isDiscontinued: true } : prevProduct
+    );
   };
+
   const handleReContinueProducts = async (id) => {
-    console.log("Discontinue product:", id);
-    await reContinueProducts.mutateAsync({ Products: [id] });
+    await reContinueProductsMutation.mutateAsync({ Products: [id] });
+    setProduct((prevProduct) =>
+      prevProduct ? { ...prevProduct, isDiscontinued: false } : prevProduct
+    );
   };
 
   const getAllCustomersOfProductsMutation = useApiMutation(
@@ -65,7 +78,6 @@ const Product = () => {
   );
 
   const handleGetCustomers = async (id) => {
-    console.log(id);
     await getAllCustomersOfProductsMutation.mutateAsync({ ProductId: id });
   };
 
@@ -84,7 +96,6 @@ const Product = () => {
 
   const increaseQuantity = () => {
     if (!product) return;
-
     if (quantity < product.Stock) {
       setQuantity(quantity + 1);
       setWarning("");
@@ -116,42 +127,39 @@ const Product = () => {
     );
   }
 
-  if (!product) {
+  if (!Product) {
     return <div className="text-center mt-10 text-xl">No product found</div>;
   }
 
-  const inStock = product.Stock > 0;
+  const inStock = Product.Stock > 0;
 
   const redirectToOrder = () => {
     navigate("/customizeProduct");
   };
 
-  // ApiURLS.GetAllCustomersOfProducts.url,
-  //   ApiURLS.GetAllCustomersOfProducts.method,
-
   return (
     <div className="product-page-container mx-auto mt-12 p-4 h-full">
       <div className="flex flex-col sm:flex-row gap-10 justify-center h-full">
-        <ProductImages imgs={product.ImgURL} />
+        <ProductImages imgs={Product.ImgURL} />
         <div className="product-data space-y-4">
           <div>
-            {product.DiscountedPrice ? (
+            {Product.DiscountedPrice ? (
               <div>
                 <p className="text-lg font-bold">
-                  Price: <del className="text-red-500">{product.Price}</del>
+                  Price: <del className="text-red-500">{Product.Price}</del>
                 </p>
                 <p className="text-xl font-semibold text-blue-600">
-                  Deal of the Day: {product.DiscountedPrice}
+                  Deal of the Day: {Product.DiscountedPrice}
                 </p>
               </div>
             ) : (
               <p className="text-xl font-semibold text-blue-600">
-                Price: {product.Price}
+                Price: {Product.Price}
               </p>
             )}
           </div>
-          <p className="text-md">Size: {product.Size}</p>
-          <p className="text-md">Sleeve: {product.Sleeve}</p>
+          <p className="text-md">Size: {Product.Size}</p>
+          <p className="text-md">Sleeve: {Product.Sleeve}</p>
           <div className="text-lg space-y-2">
             <p>
               Available:{" "}
@@ -190,17 +198,17 @@ const Product = () => {
                 title="Edit Product"
                 variant="contained"
                 color="primary"
-                onClick={() => handleOpenDialog(product)}
+                onClick={() => handleOpenDialog(Product)}
               >
                 <ModeEditIcon />
               </MTooltipButton>
 
-              {product.isDiscontinued ? (
+              {Product.isDiscontinued ? (
                 <MTooltipButton
                   title="Recontinue Product"
                   variant="contained"
                   color="secondary"
-                  onClick={() => handleReContinueProducts(product._id)}
+                  onClick={() => handleReContinueProducts(Product._id)}
                 >
                   <ControlPointIcon />
                 </MTooltipButton>
@@ -209,7 +217,7 @@ const Product = () => {
                   title="Discontinue Product"
                   variant="contained"
                   color="error"
-                  onClick={() => handleDiscontinueProducts(product._id)}
+                  onClick={() => handleDiscontinueProducts(Product._id)}
                 >
                   <BlockIcon />
                 </MTooltipButton>
@@ -226,7 +234,7 @@ const Product = () => {
             </div>
           ) : (
             <div className="w-full flex gap-3">
-              <CustomizeBtn variant={"contained"} product={product} />
+              <CustomizeBtn variant={"contained"} product={Product} />
             </div>
           )}
 
@@ -235,18 +243,11 @@ const Product = () => {
             onClose={handleCloseDialog}
             maxWidth="md"
             fullWidth
-            aria-labelledby="product-form-dialog"
-            PaperProps={{
-              style: {
-                maxHeight: "95vh",
-              },
-            }}
           >
             <DialogContent>
               <ProductForm
                 product={selectedProduct}
                 onClose={handleCloseDialog}
-                handleCloseDialog={handleCloseDialog}
                 isEdit={!!selectedProduct}
                 title={selectedProduct ? "Edit Product" : "Add New Product"}
               />

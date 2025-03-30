@@ -12,6 +12,8 @@ const OrderListView = ({ Orders, loading, count = null }) => {
   const { user } = useSelector((state) => state.user);
   const isAdmin = user?.isAdmin || false;
 
+  console.log(Orders);
+
   if (loading) {
     return (
       <div className="flex justify-center items-center">
@@ -58,16 +60,6 @@ const OrderListView = ({ Orders, loading, count = null }) => {
       </div>
     );
   }
-
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    if (isNaN(date)) return "N/A";
-    return date.toLocaleDateString();
-  };
-
-  const handleRedirect = (order) => {
-    navigate("/dashboard/order", { state: { order } });
-  };
 
   return (
     <section>

@@ -27,19 +27,20 @@ const AllOrders = () => {
     Duration: { start: "", end: "" },
     Quantity: "",
     FinalCost: "",
-    OrderID: "",
-    CustomizeOption: [],
+    CustomizedType: [],
   });
 
   const filteredOrders = useMemo(() => {
+    if (!Array.isArray(allOrders)) return [];
+
     return allOrders.filter((order) => {
       const statusMatch =
         !filterOptions.Status.length ||
         filterOptions.Status.includes(order.Status);
 
       const customizeMatch =
-        !filterOptions.CustomizeOption.length ||
-        filterOptions.CustomizeOption.includes(order.CustomizeOption);
+        !filterOptions.CustomizedType.length ||
+        filterOptions.CustomizedType.includes(order.CustomizedType);
 
       const orderDateMatch = (() => {
         if (!filterOptions.OrderDate) return true;
@@ -71,30 +72,20 @@ const AllOrders = () => {
         return orderCreatedAt >= startDate && orderCreatedAt <= endDate;
       })();
 
-      const orderIdMatch =
-        !filterOptions.OrderID ||
-        order.OrderID?.toLowerCase().includes(
-          filterOptions.OrderID.toLowerCase()
-        );
-
       const quantityMatch =
         !filterOptions.Quantity || order.Quantity == filterOptions.Quantity;
 
       const finalCostMatch = (() => {
         if (!filterOptions.FinalCost) return true;
         const cost = parseFloat(order.FinalCost);
-
         const selectedRange = OrderFilterData.find(
           (filter) => filter.title === "FinalCost"
         )?.Options.find((range) => range === filterOptions.FinalCost);
-
         if (!selectedRange) return true;
-
         if (selectedRange.includes("+")) {
           const min = parseFloat(selectedRange.replace("+", ""));
           return cost >= min;
         }
-
         const [min, max] = selectedRange.split("-").map(Number);
         return cost >= min && cost <= max;
       })();
@@ -103,7 +94,6 @@ const AllOrders = () => {
         statusMatch &&
         orderDateMatch &&
         durationMatch &&
-        orderIdMatch &&
         customizeMatch &&
         quantityMatch &&
         finalCostMatch
@@ -146,7 +136,7 @@ const AllOrders = () => {
         </div>
       </div>
 
-      <div className="fixed bottom-0 block lg:hidden h-[10vh] w-full bg-gray-100">
+      <div className="fixed bottom-0 block lg:hidden h-[7vh] w-full bg-gray-100">
         <OrderBottomBar
           setFilterOptions={setFilterOptions}
           filterOptions={filterOptions}

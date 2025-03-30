@@ -595,18 +595,24 @@ const updateOrderStatus = async (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
 
-    const order = await Order.findById(id);
+    if (!status) {
+      return apiResponse(res, false, null, "Status is required", 400);
+    }
+
+    const order = await Order.findByIdAndUpdate(
+      id,
+      { $set: { Status: status } },
+      { new: true, runValidators: true }
+    );
+
     if (!order) {
       return apiResponse(res, false, null, "Order not found", 404);
     }
 
-    order.status = status;
-    const updatedOrder = await order.save();
-
     return apiResponse(
       res,
       true,
-      updatedOrder,
+      order,
       `Order status updated to '${status}' successfully`,
       200
     );

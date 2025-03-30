@@ -43,7 +43,7 @@ const OrderFilter = ({
       Quantity: "",
       FinalCost: "",
       OrderID: "",
-      CustomizeOption: [],
+      CustomizedType: [],
     });
   };
 
@@ -80,7 +80,7 @@ const OrderFilter = ({
                 }
               >
                 ●
-              </span>{" "}
+              </span>
               {data.title}
             </Typography>
           </AccordionSummary>

@@ -1,15 +1,21 @@
-import React from "react";
-import { useApiMutation, useFetchData } from "../utils/apiRequest";
+import React, { useEffect, useState } from "react";
 import ApiURLS from "../Data/ApiURLS";
-import { Button } from "@mui/material";
-import MTable from "../Components/MTable";
+import { useFetchData, useApiMutation } from "../utils/apiRequest";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  IconButton,
+  Button,
+} from "@mui/material";
+import { Block, LockOpen } from "@mui/icons-material";
 
 const AllUsers = () => {
-  const {
-    data: AllUsers = [],
-    isLoading,
-    refetch,
-  } = useFetchData(
+  const { data: usersData, isLoading } = useFetchData(
     "AllUsers",
     ApiURLS.GetAllUser.url,
     ApiURLS.GetAllUser.method,
@@ -19,67 +25,97 @@ const AllUsers = () => {
     }
   );
 
+  const [users, setUsers] = useState([]);
+
+  useEffect(() => {
+    if (usersData) {
+      setUsers(usersData);
+    }
+  }, [usersData]);
+
   const blockUserMutation = useApiMutation(
     ApiURLS.BlockUsers.url,
-    ApiURLS.BlockUsers.method,
-    {
-      onSuccess: () => refetch(),
-    }
+    ApiURLS.BlockUsers.method
   );
 
   const unBlockUserMutation = useApiMutation(
     ApiURLS.UnblockUsers.url,
-    ApiURLS.UnblockUsers.method,
-    {
-      onSuccess: () => refetch(),
-    }
+    ApiURLS.UnblockUsers.method
   );
 
   const handleBlockClick = async (id) => {
-    console.log("Blocking User ID:", id);
     await blockUserMutation.mutateAsync({ userIds: [id] });
+    setUsers((prevUsers) =>
+      prevUsers.map((user) =>
+        user._id === id ? { ...user, isBlocked: true } : user
+      )
+    );
   };
 
   const handleUnBlockClick = async (id) => {
-    console.log("Unblocking User ID:", id);
     await unBlockUserMutation.mutateAsync({ userIds: [id] });
+    setUsers((prevUsers) =>
+      prevUsers.map((user) =>
+        user._id === id ? { ...user, isBlocked: false } : user
+      )
+    );
   };
 
-  const columns = [
-    { field: "FullName", headerName: "FullName", flex: 1 },
-    { field: "Email", headerName: "Email", flex: 1 },
-    { field: "role", headerName: "Role", flex: 1 },
-    {
-      field: "Actions",
-      headerName: "Actions",
-      flex: 1,
-      renderCell: (params) => (
-        <Button
-          variant="contained"
-          color={params.row.isBlocked ? "primary" : "error"}
-          onClick={() =>
-            params.row.isBlocked
-              ? handleUnBlockClick(params.row.id)
-              : handleBlockClick(params.row.id)
-          }
-        >
-          {params.row.isBlocked ? "Unblock" : "Block"}
-        </Button>
-      ),
-    },
-  ];
-
-  const rows = AllUsers.map((user, index) => ({
-    id: user._id || index + 1,
-    FullName: user.FullName,
-    Email: user.Email,
-    role: user.isAdmin ? "Admin" : "Customer",
-    isBlocked: user.isBlocked || false,
-  }));
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   return (
-    <div className="flex-1 flex flex-col">
-      <MTable columns={columns} rows={rows} isLoading={isLoading} />
+    <div className="p-4 ml-[3vw]">
+      <h2 className="text-2xl font-bold mb-4">All Users</h2>
+      <TableContainer component={Paper} className="p-4">
+        <Table size="small">
+          <TableHead>
+            <TableRow>
+              <TableCell>Full Name</TableCell>
+              <TableCell>Email</TableCell>
+              <TableCell>Role</TableCell>
+              <TableCell>Actions</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {users.map((user) => (
+              <TableRow key={user._id}>
+                <TableCell>{user.FullName}</TableCell>
+                <TableCell>{user.Email}</TableCell>
+                <TableCell>{user.isAdmin ? "Admin" : "Customer"}</TableCell>
+                <TableCell>
+                  <div className="block md:hidden">
+                    <IconButton
+                      color={user.isBlocked ? "primary" : "error"}
+                      onClick={() =>
+                        user.isBlocked
+                          ? handleUnBlockClick(user._id)
+                          : handleBlockClick(user._id)
+                      }
+                    >
+                      {user.isBlocked ? <LockOpen /> : <Block />}
+                    </IconButton>
+                  </div>
+                  <div className="hidden md:block">
+                    <Button
+                      variant="contained"
+                      color={user.isBlocked ? "primary" : "error"}
+                      onClick={() =>
+                        user.isBlocked
+                          ? handleUnBlockClick(user._id)
+                          : handleBlockClick(user._id)
+                      }
+                    >
+                      {user.isBlocked ? "Unblock" : "Block"}
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
     </div>
   );
 };

@@ -21,6 +21,7 @@ import {
   setSelectedSize,
 } from "../../Redux/tempProductSlice";
 import LocalSeeIcon from "@mui/icons-material/LocalSee";
+import { Select, MenuItem, FormControl, InputLabel } from "@mui/material";
 
 const Options = () => {
   const dispatch = useDispatch();
@@ -68,16 +69,16 @@ const Options = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleFontChange = (event, newValue) => {
-    dispatch(setFont(newValue?.value || ""));
+  const handleFontChange = (event) => {
+    const newValue = event.target.value;
+    dispatch(setFont(newValue));
 
-    if (newValue) {
-      let newCost =
-        productCustomization.EditingCost -
-        (fontOptions[productCustomization.Font] || 0) +
-        fontOptions[newValue.value];
-      dispatch(setEditingCost(newCost));
-    }
+    let newCost =
+      productCustomization.EditingCost -
+      (fontOptions[productCustomization.Font] || 0) +
+      fontOptions[newValue];
+
+    dispatch(setEditingCost(newCost));
   };
 
   const handleTextChange = (event) => {
@@ -98,8 +99,6 @@ const Options = () => {
   const handleSizeChange = (size) => {
     dispatch(setSelectedSize(size));
   };
-
-  console.log(CustomizedType);
 
   return (
     <div className="w-full">
@@ -149,32 +148,24 @@ const Options = () => {
               className="w-full"
               onChange={handleTextChange}
               value={productCustomization.Text || ""}
-              style={{
-                fontFamily: productCustomization.Font,
-                fontWeight: selectedTextStyles.includes("Bold")
-                  ? "bold"
-                  : "normal",
-                fontStyle: selectedTextStyles.includes("Italic")
-                  ? "italic"
-                  : "normal",
-                textDecoration: selectedTextStyles.includes("Underline")
-                  ? "underline"
-                  : "none",
-                color: productCustomization.Color,
-              }}
             />
           </div>
 
           <div className="p-4 w-full">
-            <Autocomplete
-              disablePortal
-              options={fontList}
-              value={selectedFont}
-              onChange={handleFontChange}
-              sx={{ mb: 3 }}
-              renderInput={(params) => <TextField {...params} label="Font" />}
-            />
-
+            <FormControl fullWidth sx={{ mb: 3 }}>
+              <InputLabel>Font</InputLabel>
+              <Select
+                value={selectedFont}
+                onChange={handleFontChange}
+                label="Font"
+              >
+                {fontList.map((font) => (
+                  <MenuItem key={font.value} value={font.value}>
+                    {font.label}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
             <Accordion>
               <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                 <h2>Select Text Styles</h2>

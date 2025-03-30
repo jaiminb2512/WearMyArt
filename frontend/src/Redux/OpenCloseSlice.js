@@ -20,6 +20,9 @@ const OpenCloseSlice = createSlice({
     },
     toggleFilterBar: (state) => {
       state.FilterBarOpen = !state.FilterBarOpen;
+      if (!state.HideText) {
+        state.HideText = !state.HideText;
+      }
     },
     toggleHideText: (state) => {
       state.HideText = !state.HideText;
