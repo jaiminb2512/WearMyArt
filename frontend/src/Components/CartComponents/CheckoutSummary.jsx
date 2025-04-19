@@ -4,11 +4,15 @@ import MTooltip from "../MTooltip";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import MTooltipButton from "../MTooltipButton";
-import { setActiveStep } from "../../Redux/BuyProductSlice";
+import {
+  resetBuyProductSlice,
+  setActiveStep,
+} from "../../Redux/BuyProductSlice";
 import { useApiMutation } from "../../utils/apiRequest";
 import ApiURLS from "../../Data/ApiURLS";
 import axios from "axios";
 import { showToast } from "../../Redux/ToastSlice";
+import { clearProductData } from "../../Redux/tempProductSlice";
 
 const CheckoutSummary = () => {
   const { TotalCost, activeStep, selectedItems, Products, buyNow } =
@@ -37,6 +41,11 @@ const CheckoutSummary = () => {
     ApiURLS.CartToOrder.method
   );
 
+  const cleanData = () => {
+    dispatch(clearProductData());
+    dispatch(resetBuyProductSlice());
+  };
+
   const cartToOrder = async () => {
     const orderKeys =
       selectedItems.length > 0
@@ -62,14 +71,14 @@ const CheckoutSummary = () => {
       );
 
       if (response.data.success) {
-        //  dispatch(clearProductData());
         dispatch(
           showToast({
             message: response.data.message || "Product added successfully",
             variant: "success",
           })
         );
-        navigate("/products");
+        cleanData();
+        navigate("/dashboard/order-success");
       } else {
         dispatch(
           showToast({
@@ -92,8 +101,10 @@ const CheckoutSummary = () => {
   const handlePayAmount = async () => {
     if (buyNow) {
       addOrder();
+      cleanData();
     } else {
       cartToOrder();
+      cleanData();
     }
   };
 

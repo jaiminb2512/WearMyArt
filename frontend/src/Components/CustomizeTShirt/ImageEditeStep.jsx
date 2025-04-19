@@ -16,7 +16,9 @@ const ImageEditStep = () => {
   useEffect(() => {
     resetTempProduct();
   }, []);
-  const { SelectedLayer, Size } = useSelector((state) => state.tempProduct);
+  const { SelectedLayer, Size, CustomerImg } = useSelector(
+    (state) => state.tempProduct
+  );
 
   const handleAddText = () => {
     if (workspaceRef.current) {
@@ -50,20 +52,20 @@ const ImageEditStep = () => {
   };
 
   return (
-    <div className="flex flex-col sm:flex-col md:flex-row h-ful w-full gap-4 p-4 border">
-      <div className="w-full md:w-1/2 order-1 sm:order-1 md:order-2 overflow-hidden">
-        <div className="md:border md:rounded-lg h-[50vh] md:h-[75vh] overflow-hidden">
+    <div className="flex flex-col lg:flex-row h-full w-full gap-4 lg:gap-6 p-4 border lg:h-[80vh]">
+      <div className="w-full lg:w-1/2 order-1 lg:order-2">
+        <div className="xl:border lg:rounded-lg h-full">
           <Workspace ref={workspaceRef} />
         </div>
       </div>
 
-      <div className="w-full md:w-1/4 order-3 sm:order-3 md:order-3">
+      <div className="w-full lg:w-1/4 order-3">
         <div className="border rounded-lg h-full">
           <Options />
         </div>
       </div>
 
-      <div className="w-full md:w-1/4 order-2 sm:order-2 md:order-1">
+      <div className="w-full lg:w-1/4 order-2 lg:order-1">
         <div className="border rounded-lg h-full">
           <Layers
             addText={handleAddText}

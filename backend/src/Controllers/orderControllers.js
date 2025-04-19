@@ -29,7 +29,7 @@ const addOrder = async (req, res) => {
     }
 
     if (!FinalCost) {
-      return apiResponse(res, false, null, "FinalCost is required", 400);
+      return apiResponse(res, false, null, "FinalCost is required", 404);
     }
 
     const { Email, FullName } = req.user;
@@ -59,17 +59,14 @@ const addOrder = async (req, res) => {
         [FinalProductImg]
       );
 
-      return apiResponse(res, true, newOrder, "Order is Successfully placed");
+      return apiResponse(
+        res,
+        true,
+        newOrder,
+        "Order is Successfully placed",
+        201
+      );
     } else if (CustomizedType === "Photo") {
-      if (!req.files.CustomerImg[0]) {
-        return apiResponse(
-          res,
-          false,
-          null,
-          "Customer Img is not itreble",
-          400
-        );
-      }
       const CustomerImg = `/uploads/${req.files.CustomerImg[0].filename}`;
 
       if (!CustomerImg) {
@@ -100,7 +97,7 @@ const addOrder = async (req, res) => {
         true,
         newOrder,
         "Order is Successfully placed",
-        200
+        201
       );
     } else if (CustomizedType === "Both") {
       const { Font, Text, Color, TextStyle } = req.body;
@@ -159,11 +156,13 @@ const addOrder = async (req, res) => {
         true,
         newOrder,
         "Order is Successfully placed",
-        200
+        201
       );
     }
   } catch (error) {
-    console.log(error.message);
+    if (req.files?.CustomerImg?.[0])
+      deleteFiles([`/uploads/${req.filesCustomerImg?.[0].filename}`]);
+    deleteFiles([`/uploads/${req.files.FinalProductImg?.[0].filename}`]);
     return apiResponse(res, false, null, error.message, 500);
   }
 };
@@ -228,7 +227,7 @@ const addToCartOrder = async (req, res) => {
           FinalProductImg,
         },
         `Order is successfully added to cart`,
-        200
+        201
       );
     } else if (CustomizedType === "Photo") {
       const CustomerImg = `/uploads/${req.files.CustomerImg[0].filename}`;
@@ -262,7 +261,7 @@ const addToCartOrder = async (req, res) => {
           CustomizedType,
         },
         `Order is successfully added to cart`,
-        200
+        201
       );
     } else if (CustomizedType === "Both") {
       const { Font, Text, Color, TextStyle } = req.body;
@@ -340,19 +339,13 @@ const addToCartOrder = async (req, res) => {
           CustomizedType: "Both",
         },
         "Order is Successfully placed",
-        200
+        201
       );
     }
   } catch (error) {
-    // if (req.files?.CustomerImg[0]?.filename) {
-    //   deleteFiles([
-    //     `/uploads/${req.files.FinalProductImg[0].filename}`,
-    //     `/uploads/${req.files.CustomerImg[0].filename}`,
-    //   ]);
-    // } else {
-    //   deleteFiles([`/uploads/${req.files.FinalProductImg[0].filename}`]);
-    // }
-    console.log(error.message);
+    if (req.files?.CustomerImg?.[0])
+      deleteFiles([`/uploads/${req.filesCustomerImg?.[0].filename}`]);
+    deleteFiles([`/uploads/${req.files.FinalProductImg?.[0].filename}`]);
     return apiResponse(res, false, null, error.message, 500);
   }
 };
@@ -553,16 +546,91 @@ const getAllCartOrder = async (req, res) => {
 
 const getAllOrder = async (req, res) => {
   try {
-    const orders = await Order.find({});
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const filter = {};
+
+    const { Status, CustomizedType, Quantity, FinalCost, OrderDate, Duration } =
+      req.body;
+
+    if (Status && Status.length > 0) {
+      filter.Status = { $in: Status };
+    }
+
+    if (CustomizedType && CustomizedType.length > 0) {
+      filter.CustomizedType = { $in: CustomizedType };
+    }
+
+    if (Quantity) {
+      filter.Quantity = Quantity;
+    }
+
+    if (FinalCost && Array.isArray(FinalCost) && FinalCost.length === 2) {
+      filter.FinalCost = {
+        $gte: parseFloat(FinalCost[0]),
+        $lte: parseFloat(FinalCost[1]),
+      };
+    }
+
+    let dateFilter = {};
+
+    if (OrderDate) {
+      const date = new Date(OrderDate);
+      const nextDay = new Date(date);
+      nextDay.setDate(date.getDate() + 1);
+
+      dateFilter = {
+        createdAt: {
+          $gte: date,
+          $lt: nextDay,
+        },
+      };
+    }
+
+    if (Duration && Duration.start && Duration.end) {
+      const startDate = new Date(Duration.start);
+
+      const endDate = new Date(Duration.end);
+      endDate.setDate(endDate.getDate() + 1);
+
+      dateFilter = {
+        createdAt: {
+          $gte: startDate,
+          $lt: endDate,
+        },
+      };
+    }
+
+    if (Object.keys(dateFilter).length > 0) {
+      Object.assign(filter, dateFilter);
+    }
+
+    const orders = await Order.find(filter)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    const totalOrders = await Order.countDocuments(filter);
 
     return apiResponse(
       res,
       true,
-      orders,
-      "All Orders Fetched Successfully",
+      {
+        orders,
+        pagination: {
+          total: totalOrders,
+          page,
+          limit,
+          totalPages: Math.ceil(totalOrders / limit),
+        },
+      },
+      "Orders fetched successfully",
       200
     );
   } catch (error) {
+    console.error("Error in getAllOrder:", error);
     return apiResponse(res, false, null, error.message, 500);
   }
 };
@@ -573,10 +641,7 @@ const getSingleOrder = async (req, res) => {
 
     const SingleOrder = await Order.findById(id);
 
-    const populatedOrder = await Order.findById(SingleOrder._id)
-      .populate("ProductId")
-      .populate("CustomerId")
-      .exec();
+    const populatedOrder = await Order.findById(SingleOrder._id);
 
     return apiResponse(
       res,
@@ -606,7 +671,7 @@ const updateOrderStatus = async (req, res) => {
     );
 
     if (!order) {
-      return apiResponse(res, false, null, "Order not found", 404);
+      return apiResponse(res, false, null, "Order not found", 204);
     }
 
     return apiResponse(
@@ -614,6 +679,240 @@ const updateOrderStatus = async (req, res) => {
       true,
       order,
       `Order status updated to '${status}' successfully`,
+      200
+    );
+  } catch (error) {
+    return apiResponse(res, false, null, error.message, 500);
+  }
+};
+
+const orderData = async (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
+    let dateFilter = {};
+
+    if (startDate || endDate) {
+      dateFilter.createdAt = {};
+      if (startDate) dateFilter.createdAt.$gte = new Date(startDate);
+      if (endDate) {
+        const endDateTime = new Date(endDate);
+        endDateTime.setHours(23, 59, 59, 999);
+        dateFilter.createdAt.$lte = endDateTime;
+      }
+    }
+
+    const metricsResult = await Order.aggregate([
+      { $match: { ...dateFilter } },
+      {
+        $facet: {
+          revenueStats: [
+            {
+              $group: {
+                _id: null,
+                revenue: { $sum: { $multiply: ["$FinalCost", "$Quantity"] } },
+                avgOrderValue: { $avg: "$FinalCost" },
+                totalOrders: { $sum: 1 },
+              },
+            },
+          ],
+
+          activeUsers: [
+            { $group: { _id: "$CustomerId" } },
+            { $count: "activeUsers" },
+          ],
+
+          statusDistribution: [
+            { $group: { _id: "$Status", count: { $sum: 1 } } },
+            { $sort: { count: -1 } },
+          ],
+
+          customizationDistribution: [
+            { $group: { _id: "$CustomizedType", count: { $sum: 1 } } },
+            { $sort: { count: -1 } },
+          ],
+
+          topCustomers: [
+            {
+              $group: {
+                _id: "$CustomerId",
+                totalSpent: {
+                  $sum: { $multiply: ["$FinalCost", "$Quantity"] },
+                },
+                orderCount: { $sum: 1 },
+              },
+            },
+            { $sort: { totalSpent: -1 } },
+            { $limit: 5 },
+            {
+              $lookup: {
+                from: "users",
+                localField: "_id",
+                foreignField: "_id",
+                as: "customerDetails",
+              },
+            },
+            {
+              $unwind: {
+                path: "$customerDetails",
+                preserveNullAndEmptyArrays: true,
+              },
+            },
+            {
+              $project: {
+                _id: 0,
+                customerId: "$_id",
+                customerName: "$customerDetails.FullName",
+                customerEmail: "$customerDetails.Email",
+                totalSpent: 1,
+                orderCount: 1,
+              },
+            },
+          ],
+
+          topProducts: [
+            {
+              $group: {
+                _id: "$ProductId",
+                totalRevenue: {
+                  $sum: { $multiply: ["$FinalCost", "$Quantity"] },
+                },
+                totalQuantity: { $sum: "$Quantity" },
+                orderCount: { $sum: 1 },
+              },
+            },
+            { $sort: { totalRevenue: -1 } },
+            { $limit: 5 },
+            {
+              $lookup: {
+                from: "products",
+                localField: "_id",
+                foreignField: "_id",
+                as: "productDetails",
+              },
+            },
+            {
+              $unwind: {
+                path: "$productDetails",
+                preserveNullAndEmptyArrays: true,
+              },
+            },
+            {
+              $project: {
+                _id: 0,
+                productId: "$_id",
+                productImgURL: "$productDetails.ImgURL",
+                productStock: "$productDetails.Stock",
+                totalRevenue: 1,
+                totalQuantity: 1,
+                orderCount: 1,
+              },
+            },
+          ],
+        },
+      },
+    ]);
+
+    const revenueStats = metricsResult[0].revenueStats[0] || {
+      revenue: 0,
+      avgOrderValue: 0,
+      totalOrders: 0,
+    };
+    const activeUsers = metricsResult[0].activeUsers[0]?.activeUsers || 0;
+
+    let fromDate, toDate;
+
+    if (startDate) {
+      fromDate = new Date(startDate);
+    } else {
+      fromDate = new Date();
+      fromDate.setMonth(fromDate.getMonth() - 11);
+      fromDate.setDate(1);
+      fromDate.setHours(0, 0, 0, 0);
+    }
+
+    if (endDate) {
+      toDate = new Date(endDate);
+      toDate.setHours(23, 59, 59, 999);
+    } else {
+      toDate = new Date();
+    }
+
+    const monthWiseSales = await Order.aggregate([
+      {
+        $match: {
+          createdAt: {
+            $gte: fromDate,
+            $lte: toDate,
+          },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            year: { $year: "$createdAt" },
+            month: { $month: "$createdAt" },
+          },
+          revenue: { $sum: { $multiply: ["$FinalCost", "$Quantity"] } },
+          orderCount: { $sum: 1 },
+        },
+      },
+      {
+        $sort: { "_id.year": 1, "_id.month": 1 },
+      },
+    ]);
+
+    const monthNames = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ];
+
+    const allMonths = [];
+    const currentDate = new Date(fromDate);
+    currentDate.setDate(1);
+
+    while (currentDate <= toDate) {
+      const year = currentDate.getFullYear();
+      const month = currentDate.getMonth() + 1;
+      const existingMonth = monthWiseSales.find(
+        (item) => item._id.year === year && item._id.month === month
+      );
+
+      allMonths.push({
+        monthYear: `${monthNames[month - 1]} ${year}`,
+        month,
+        year,
+        revenue: existingMonth?.revenue || 0,
+        orderCount: existingMonth?.orderCount || 0,
+      });
+
+      currentDate.setMonth(currentDate.getMonth() + 1);
+    }
+
+    return apiResponse(
+      res,
+      true,
+      {
+        revenue: revenueStats.revenue,
+        averageOrderValue: revenueStats.avgOrderValue,
+        totalOrders: revenueStats.totalOrders,
+        activeUsers,
+        monthWiseSales: allMonths,
+        statusDistribution: metricsResult[0].statusDistribution,
+        customizationDistribution: metricsResult[0].customizationDistribution,
+        topCustomers: metricsResult[0].topCustomers,
+        topProducts: metricsResult[0].topProducts,
+      },
+      "Data fetched successfully",
       200
     );
   } catch (error) {
@@ -631,4 +930,5 @@ export {
   updateOrderStatus,
   updateCartQuantity,
   removeCart,
+  orderData,
 };

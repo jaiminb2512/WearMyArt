@@ -7,7 +7,12 @@ import ApiURLS from "../../Data/ApiURLS";
 import { useApiMutation } from "../../utils/apiRequest";
 import MTooltip from "../MTooltip";
 import { useDispatch, useSelector } from "react-redux";
-import { addSelectedItems, addTotalCost } from "../../Redux/BuyProductSlice";
+import {
+  addSelectedItems,
+  addTotalCost,
+  removeProducts,
+  updateQuantity,
+} from "../../Redux/BuyProductSlice";
 const CartListView = () => {
   const dispatch = useDispatch();
   const { selectedItems, Products, activeStep, buyNow } = useSelector(
@@ -37,6 +42,7 @@ const CartListView = () => {
           orderKey,
           Quantity: newQuantity,
         });
+        dispatch(updateQuantity({ key: orderKey, quantity: newQuantity }));
       } catch (error) {
         console.error("Error updating cart quantity:", error);
       }
@@ -44,7 +50,12 @@ const CartListView = () => {
   };
 
   const handleRemoveCartItem = async (orderKeys) => {
-    await removeCartMutation.mutateAsync({ orderKeys });
+    try {
+      await removeCartMutation.mutateAsync({ orderKeys });
+      dispatch(removeProducts(orderKeys));
+    } catch (error) {
+      console.error("Error removing item(s):", error);
+    }
   };
 
   const handleSelectItem = (item) => {

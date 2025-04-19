@@ -24,6 +24,7 @@ const ConfirmOrder = () => {
   const navigate = useNavigate();
   const tempProduct = useSelector((state) => state.tempProduct);
   const [quantity, setQuantity] = useState(1);
+  const { TotalCost } = useSelector((state) => state.BuyProduct);
 
   const incrementQuantity = () => {
     setQuantity((prev) => prev + 1);
@@ -140,10 +141,14 @@ const ConfirmOrder = () => {
   const handleCheckout = async () => {
     const orderDataArray = makeOrderData();
     const orderData = formDataToObject(orderDataArray);
-    dispatch(addProducts([{ orderData }]));
     dispatch(setBuyNow(true));
-    dispatch(clearProductData());
+    dispatch(addProducts([{ orderData }]));
     navigate("/dashboard/checkout");
+  };
+
+  const handleCancelOrder = () => {
+    dispatch(clearProductData());
+    navigate("/products");
   };
 
   return (
@@ -265,6 +270,7 @@ const ConfirmOrder = () => {
               title="Cancel Order"
               variant="outlined"
               color="success"
+              onClick={handleCancelOrder}
             >
               Cancel Order
             </MTooltipButton>

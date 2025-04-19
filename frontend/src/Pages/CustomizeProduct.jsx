@@ -17,7 +17,6 @@ const CustomizeProduct = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const product = useSelector((state) => state.tempProduct);
-  console.log(product);
 
   useEffect(() => {
     if (steps[activeStep]?.label === "Customize Design") {
@@ -72,7 +71,6 @@ const CustomizeProduct = () => {
         return;
       }
       const saved = await handleSaveDesign();
-      // console.log(saved);
       if (saved) {
         setActiveStep((prevStep) => prevStep + 1);
         navigate("/confirm-order");

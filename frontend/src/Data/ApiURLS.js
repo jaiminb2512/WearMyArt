@@ -24,7 +24,7 @@ const ApiURLS = {
   UpdateUser: { url: "/api/user/update-user", method: "PUT" },
   DeleteUser: { url: "/api/user/delete", method: "DELETE" },
   Logout: { url: "/api/user/logout", method: "POST" },
-  GetAllOwnOrders: { url: "/api/user/get-all-own-orders", method: "GET" },
+  GetAllOwnOrders: { url: "/api/user/get-all-own-orders", method: "POST" },
   GetAllUser: { url: "/api/user/get-all-users", method: "GET" },
 
   // Product
@@ -40,15 +40,14 @@ const ApiURLS = {
     method: "PATCH",
   },
   GetLowStockProducts: {
-    // remaining
     url: "/api/product/get-low-stock-products",
     method: "GET",
   },
   GetSingleProduct: { url: "/api/product/single-product", method: "GET" },
-  GetAllProduct: { url: "/api/product/get-all-products", method: "GET" },
+  GetAllProduct: { url: "/api/product/get-all-products", method: "POST" },
   GetAllActiveProducts: {
     url: "/api/product/get-all-active-products",
-    method: "GET",
+    method: "POST",
   },
   GetAllCustomersOfProducts: {
     url: "/api/product/get-all-customers-of-products",
@@ -65,9 +64,9 @@ const ApiURLS = {
   },
   RemoveCart: { url: "/api/order/remove-cart", method: "DELETE" },
   AddOrder: { url: "/api/order/add-order", method: "POST" },
-  UpdateOrderStatus: { url: "/api/order/update-state/:id", method: "PATCH" }, // remains
+  UpdateOrderStatus: { url: "/api/order/update-state/:id", method: "PATCH" },
   GetSingleOrder: { url: "/api/order/single-order/:id", method: "GET" },
-  GetAllOrders: { url: "/api/order/get-all-orders", method: "GET" },
+  GetAllOrders: { url: "/api/order/get-all-orders", method: "POST" },
 
   // Customization Options
   AddCustomizationOptions: {
@@ -81,6 +80,12 @@ const ApiURLS = {
   GetCustomizationOptions: {
     url: "/api/customization-options/get-customization-options",
     method: "GET",
+  },
+
+  // Analysis
+  orderData: {
+    url: "/api/order/order-data",
+    method: "POST",
   },
 };
 

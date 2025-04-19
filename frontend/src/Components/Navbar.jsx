@@ -13,10 +13,10 @@ const Navbar = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { SideBarOpen } = useSelector((state) => state.OpenClose);
-  console.log(NavbarData);
+  const { user } = useSelector((state) => state.user);
 
   return (
-    <div className="fixed top-0 left-0 w-full z-[1000] h-15 shadow-2xl bg-gray-100">
+    <div className="fixed top-0 left-0 w-full z-[1000] h-15 shadow-2xl bg-gradient-to-r from-[#C5F1E1] to-[#dbf1e9]">
       <div className="px-[5vw] flex justify-between sm:justify-end items-center py-2 gap-3">
         <div className="sm:hidden flex justify-center items-center w-12">
           <MTooltip title={SideBarOpen ? "Close Sidebar" : "Open Sidebar"}>
@@ -28,28 +28,51 @@ const Navbar = () => {
             </Button>
           </MTooltip>
         </div>
-        <div className="flex gap-3">
-          {/* <div onClick={() => navigate("/")}>Home</div>
-          <div onClick={() => navigate("/products")} className="cursor-pointer">
-            Products
-          </div>
-          <div
-            onClick={() => navigate("/dashboard/profile")}
-            className="cursor-pointer"
+        <div className="flex gap-3 justify-center items-center">
+          <MTooltipButton
+            variant="text"
+            onClick={() => navigate("/")}
+            title="Home"
           >
-            Dashboard
-          </div> */}
-
-          {NavbarData.map((nav) => (
+            Home
+          </MTooltipButton>
+          {!user?.isAdmin && (
             <MTooltipButton
-              key={nav.name}
               variant="text"
+              title="Products"
+              onClick={() => navigate("/products")}
+            >
+              Products
+            </MTooltipButton>
+          )}
+          {user?.isAdmin ? (
+            <MTooltipButton
+              variant="text"
+              title="Dashboard"
+              onClick={() => navigate("/dashboard")}
+            >
+              Dashboard
+            </MTooltipButton>
+          ) : (
+            <MTooltipButton
+              variant="text"
+              title="Dashboard"
+              onClick={() => navigate("/dashboard/profile")}
+            >
+              Profile
+            </MTooltipButton>
+          )}
+
+          {/* {NavbarData.map((nav) => (
+            <MTooltipButton
+            variant="text"
+              key={nav.name}
               title={nav.name}
               onClick={() => navigate(nav.path)}
             >
               {nav.name}
             </MTooltipButton>
-          ))}
+          ))} */}
         </div>
       </div>
     </div>

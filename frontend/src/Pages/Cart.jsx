@@ -77,7 +77,7 @@ const Cart = () => {
         <div className="w-full rounded-lg">
           <div className="flex flex-col md:flex-row">
             <div className="w-full">
-              <div className="w-[100%] flex md:w-[60%] md:justify-between mb-4">
+              <div className="w-[100%] flex justify-between mb-4 px-4">
                 <Typography variant="h6" className="text-gray-600">
                   Cart
                 </Typography>

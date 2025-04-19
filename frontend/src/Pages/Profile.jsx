@@ -23,6 +23,8 @@ import { useNavigate } from "react-router-dom";
 import { useFetchData } from "../utils/apiRequest";
 import ApiURLS from "../Data/ApiURLS";
 import OrderListView from "../Components/OrderComponents/OrderListView";
+import KeyIcon from "@mui/icons-material/Key";
+import ViewListIcon from "@mui/icons-material/ViewList";
 
 const Profile = () => {
   const { user } = useSelector((state) => state.user);
@@ -190,7 +192,7 @@ const Profile = () => {
               variant="contained"
               color="primary"
               fullWidth
-              startIcon={<Edit />}
+              startIcon={<KeyIcon />}
               onClick={() => navigate("/forgot-password")}
             >
               Change Password
@@ -201,7 +203,7 @@ const Profile = () => {
                 variant="contained"
                 color="primary"
                 fullWidth
-                startIcon={<Edit />}
+                startIcon={<ViewListIcon />}
                 onClick={handleMyOrder}
               >
                 My Orders

@@ -1,5 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { useApiMutation, useFetchData } from "../utils/apiRequest";
+import React, { useEffect, useState } from "react";
 import ApiURLS from "../Data/ApiURLS";
 import { Dialog, DialogContent } from "@mui/material";
 import ProductForm from "../Components/ProductComponents/ProductForm";
@@ -8,161 +7,130 @@ import ProductTopbar from "../Components/ProductComponents/ProductTopbar";
 import ProductGridView from "../Components/ProductComponents/ProductGridView";
 import ProductBottomBar from "../Components/ProductComponents/ProductBottomBar";
 import ProductListView from "../Components/ProductComponents/ProductListView";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { toggleProductFormOpen } from "../Redux/OpenCloseSlice";
+import InfiniteScroll from "react-infinite-scroll-component";
+import { useApiMutation } from "../utils/apiRequest";
 
 const AllProducts = () => {
-  const { FilterBarOpen } = useSelector((state) => state.OpenClose);
-
-  const { data: AllProducts = [], isLoading } = useFetchData(
-    "all-products",
-    ApiURLS.GetAllProduct.url,
-    ApiURLS.GetAllProduct.method,
-    {
-      staleTime: 5 * 60 * 1000, // 5 Minutes
-      cacheTime: 10 * 60 * 1000, // 10 Minutes
-    }
+  const { FilterBarOpen, productFormOpen } = useSelector(
+    (state) => state.OpenClose
   );
 
-  const [allProducts, setAllProducts] = useState([]);
+  const dispatch = useDispatch();
 
-  useEffect(() => {
-    if (AllProducts) {
-      setAllProducts(AllProducts);
-    }
-  }, [AllProducts]);
-
-  const discontinueProductsMutation = useApiMutation(
-    ApiURLS.DiscontinueProducts.url,
-    ApiURLS.DiscontinueProducts.method
-  );
-
-  const reContinueProducts = useApiMutation(
-    ApiURLS.RecontinueProducts.url,
-    ApiURLS.RecontinueProducts.method
-  );
-
-  const handleDiscontinueProducts = async (id) => {
-    try {
-      console.log("Discontinuing product:", id);
-      await discontinueProductsMutation.mutateAsync({ Products: [id] });
-
-      setAllProducts((prevProducts) =>
-        prevProducts.map((product) =>
-          product._id === id ? { ...product, isDiscontinued: true } : product
-        )
-      );
-    } catch (error) {
-      console.error("Error discontinuing product:", error);
-    }
-  };
-
-  const handleReContinueProducts = async (id) => {
-    try {
-      console.log("Recontinuing product:", id);
-      await reContinueProducts.mutateAsync({ Products: [id] });
-
-      setAllProducts((prevProducts) =>
-        prevProducts.map((product) =>
-          product._id === id ? { ...product, isDiscontinued: false } : product
-        )
-      );
-    } catch (error) {
-      console.error("Error recontinuing product:", error);
-    }
-  };
-
-  const [openDialog, setOpenDialog] = useState(false);
+  const [products, setProducts] = useState([]);
+  const [newProduct, setNewProduct] = useState({});
+  const [updatedProduct, setUpdatedProduct] = useState({});
   const [selectedProduct, setSelectedProduct] = useState(null);
 
-  const handleOpenDialog = (product = null) => {
-    setSelectedProduct(product);
-    setOpenDialog(true);
-  };
-
-  const handleCloseDialog = () => {
-    setOpenDialog(false);
-    setSelectedProduct(null);
-  };
-
+  const [listView, setListView] = useState(false);
   const [sortOrder, setSortOrder] = useState("lowToHigh");
+
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [pagination, setPagination] = useState({
+    totalProducts: 0,
+    totalPages: 1,
+    currentPage: 1,
+  });
+
   const [filterOptions, setFilterOptions] = useState({
     Size: [],
     Sleeve: [],
     CustomizeOption: [],
     Color: [],
-    Price: [],
+    Price: [0, 5000],
     Sort: ["Low to High"],
     Avalibility: ["All"],
-    VisibleColumns: [
-      "image",
-      "color",
-      "size",
-      "sleeve",
-      "price",
-      "discountedPrice",
-      "stock",
-      "customizeOption",
-    ],
   });
-  const [listView, setListView] = useState(true);
 
-  const isPriceInRange = (price, range) => {
-    if (!range) return true;
-    if (range === "0-499") return price >= 0 && price <= 499;
-    if (range === "499-999") return price >= 499 && price <= 999;
-    if (range === "999-1999") return price >= 999 && price <= 1999;
-    if (range === "1999+") return price >= 1999;
-    return true;
+  const fetchProductsMutation = useApiMutation(
+    `${ApiURLS.GetAllProduct.url}?page=${page}&limit=10`,
+    ApiURLS.GetAllProduct.method
+  );
+
+  const fetchProducts = async (pageNum, reset = false) => {
+    try {
+      const result = await fetchProductsMutation.mutateAsync({
+        ...filterOptions,
+        sortOrder,
+        showToastMessage: pageNum === 1,
+      });
+
+      const newProducts = result?.products || [];
+
+      if (result?.pagination) {
+        setPagination(result.pagination);
+      }
+
+      if (reset) {
+        setProducts(newProducts);
+      } else {
+        setProducts((prev) => [...prev, ...newProducts]);
+      }
+
+      if (result?.pagination) {
+        setHasMore(pageNum < result.pagination.totalPages);
+      } else {
+        setHasMore(newProducts.length >= 10);
+      }
+    } catch (error) {
+      console.error("Error fetching products:", error);
+      setHasMore(false);
+    }
   };
 
-  const filteredProducts = useMemo(() => {
-    return allProducts
-      .filter((product) => {
-        const sizeMatch =
-          !filterOptions.Size.length ||
-          filterOptions.Size.includes(product.Size);
-        const sleeveMatch =
-          !filterOptions.Sleeve.length ||
-          filterOptions.Sleeve.includes(product.Sleeve);
-        const customizeMatch =
-          !filterOptions.CustomizeOption.length ||
-          filterOptions.CustomizeOption.includes(product.CustomizeOption);
-        const colorMatch =
-          !filterOptions.Color.length ||
-          filterOptions.Color.includes(product.Color);
-        const priceMatch =
-          !filterOptions.Price.length ||
-          filterOptions.Price.some((range) =>
-            isPriceInRange(product.Price, range)
-          );
+  useEffect(() => {
+    fetchProducts(page, page === 1);
+  }, [page]);
 
-        const availabilityMatch =
-          filterOptions.Avalibility.includes("All") ||
-          (filterOptions.Avalibility.includes("Discontinued") &&
-            product.isDiscontinued) ||
-          (filterOptions.Avalibility.includes("Available") &&
-            !product.isDiscontinued);
+  useEffect(() => {
+    setPage(1);
+    setProducts([]);
+    setHasMore(true);
+    fetchProducts(1, true);
+  }, [filterOptions, sortOrder]);
 
-        return (
-          sizeMatch &&
-          sleeveMatch &&
-          customizeMatch &&
-          colorMatch &&
-          priceMatch &&
-          availabilityMatch
-        );
-      })
-      .sort((a, b) =>
-        sortOrder === "lowToHigh" ? a.Price - b.Price : b.Price - a.Price
+  useEffect(() => {
+    if (updatedProduct && Object.keys(updatedProduct).length > 0) {
+      setProducts((prevProducts) =>
+        prevProducts.map((product) =>
+          product._id === updatedProduct._id ? updatedProduct : product
+        )
       );
-  }, [filterOptions, allProducts, sortOrder]);
+    }
+  }, [updatedProduct]);
+
+  useEffect(() => {
+    if (newProduct && Object.keys(newProduct).length > 0) {
+      setProducts((prevProducts) => [newProduct, ...prevProducts]);
+    }
+  }, [newProduct]);
+
+  const loadMore = () => {
+    if (hasMore) {
+      setPage((prev) => prev + 1);
+    }
+  };
+
+  const handleOpenDialog = (product = null) => {
+    setSelectedProduct(product);
+    dispatch(toggleProductFormOpen(true));
+  };
+
+  const handleCloseDialog = () => {
+    dispatch(toggleProductFormOpen(false));
+  };
+
+  const isLoading = fetchProductsMutation.isLoading && products.length === 0;
 
   return (
-    <div className="flex h-screen">
+    <div className="flex h-screen overflow-x-hidden">
       {FilterBarOpen && (
         <div
-          className={`fixed top-15 hidden h-screen overflow-y-auto scrollbar-hide border-r transition-all duration-300
-      ${FilterBarOpen ? "lg:w-[25vw] xl:w-[20vw] lg:block" : "w-0 sm:w-0"}`}
+          className={`fixed top-17 hidden h-screen overflow-y-auto scrollbar-hide border-r transition-all duration-300
+          ${FilterBarOpen ? "lg:w-[25vw] xl:w-[20vw] lg:block" : "w-0 sm:w-0"}`}
         >
           <div className="pl-[2vw] pt-[5vh] pr-5">
             <ProductFilter
@@ -175,43 +143,58 @@ const AllProducts = () => {
           </div>
         </div>
       )}
+
       <div
-        className={`flex-1 flex flex-col overflow-y-scroll scrollbar-hide transition-all duration-300
-      ${FilterBarOpen ? "lg:ml-[25vw] xl:ml-[20vw]" : "ml-0"}`}
+        className={`flex-1 flex flex-col transition-all duration-300
+        ${FilterBarOpen ? "lg:ml-[25vw] xl:ml-[20vw]" : "ml-0"}`}
       >
-        <div className="fixed top-15 z-20 bg-white shadow-2xl w-full transition-all duration-300">
-          <div className="flex gap-1 items-center ml-2 backdrop-blur-3xl pt-3 pb-2 sm:h-15 w-full ">
+        <div className="sticky top-0 z-20 bg-white shadow-2xl w-full transition-all duration-300">
+          <div className="flex gap-1 items-center ml-2 backdrop-blur-3xl pt-3 pb-2 sm:h-15 w-full">
             <ProductTopbar
               listView={listView}
               setListView={setListView}
-              count={filteredProducts.length}
+              count={pagination.totalProducts}
               handleOpenDialog={handleOpenDialog}
             />
           </div>
         </div>
-        <div className="p-4 mt-17 mb-10 ml-3">
-          {listView ? (
-            <ProductGridView
-              products={filteredProducts}
-              loading={isLoading}
-              handleOpenDialog={handleOpenDialog}
-              count={filteredProducts.length}
-              handleDiscontinueProducts={handleDiscontinueProducts}
-              handleReContinueProducts={handleReContinueProducts}
-            />
-          ) : (
-            <ProductListView
-              products={filteredProducts}
-              isLoading={isLoading}
-              handleOpenDialog={handleOpenDialog}
-              count={filteredProducts.length}
-              handleDiscontinueProducts={handleDiscontinueProducts}
-              handleReContinueProducts={handleReContinueProducts}
-            />
-          )}
+
+        <div
+          className="p-4 mb-20 ml-3 overflow-y-auto scrollbar-hide"
+          id="scrollableDiv"
+          style={{ height: "calc(100vh - 100px)" }}
+        >
+          <InfiniteScroll
+            dataLength={products.length}
+            next={loadMore}
+            hasMore={hasMore}
+            loader={
+              <div className="flex justify-center items-center py-4">
+                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-indigo-600"></div>
+              </div>
+            }
+            scrollableTarget="scrollableDiv"
+          >
+            {listView ? (
+              <ProductGridView
+                products={products}
+                loading={isLoading}
+                handleOpenDialog={handleOpenDialog}
+                count={pagination.totalProducts}
+              />
+            ) : (
+              <ProductListView
+                products={products}
+                isLoading={isLoading}
+                handleOpenDialog={handleOpenDialog}
+                count={pagination.totalProducts}
+              />
+            )}
+          </InfiniteScroll>
         </div>
       </div>
-      <div className="fixed bottom-0 block lg:hidden h-[10vh] w-full">
+
+      <div className="fixed bottom-0 block lg:hidden h-[7vh] w-full bg-gray-100 z-30">
         <ProductBottomBar
           setFilterOptions={setFilterOptions}
           filterOptions={filterOptions}
@@ -219,17 +202,14 @@ const AllProducts = () => {
           sortOrder={sortOrder}
         />
       </div>
+
       <Dialog
-        open={openDialog}
+        open={productFormOpen}
         onClose={handleCloseDialog}
         maxWidth="md"
         fullWidth
         aria-labelledby="product-form-dialog"
-        PaperProps={{
-          style: {
-            maxHeight: "95vh",
-          },
-        }}
+        PaperProps={{ style: { maxHeight: "95vh" } }}
       >
         <DialogContent>
           <ProductForm
@@ -237,6 +217,8 @@ const AllProducts = () => {
             onClose={handleCloseDialog}
             handleCloseDialog={handleCloseDialog}
             isEdit={!!selectedProduct}
+            setNewProduct={setNewProduct}
+            setUpdatedProduct={setUpdatedProduct}
             title={selectedProduct ? "Edit Product" : "Add New Product"}
           />
         </DialogContent>

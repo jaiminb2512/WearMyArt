@@ -134,6 +134,7 @@ const Workspace = forwardRef((props, ref) => {
       top: canvasSize.height * 0.15,
       fontFamily: Font,
       fill: Color,
+      // backgroundColor: Color,
       fontWeight: TextStyle.includes("Bold") ? "bold" : "normal",
       fontStyle: TextStyle.includes("Italic") ? "italic" : "normal",
       underline: TextStyle.includes("Underline"),
@@ -290,6 +291,8 @@ const Workspace = forwardRef((props, ref) => {
     objects.forEach((obj) => {
       if (obj.type === "text") {
         obj.set("fontFamily", Font);
+        obj.set("fill", Color);
+        obj.set("text", Text);
 
         obj.set("fontWeight", TextStyle.includes("Bold") ? "bold" : "normal");
         obj.set(
@@ -369,14 +372,14 @@ const Workspace = forwardRef((props, ref) => {
     });
 
     canvas.renderAll();
-  }, [Font, TextStyle]);
+  }, [Font, TextStyle, Color, Text]);
 
   return (
     <div
       ref={containerRef}
-      className="flex flex-col items-center justify-center h-full w-full p-2"
+      className="flex flex-col xl:items-center xl:justify-center h-full w-full p-2"
     >
-      <div className="relative shadow-lg rounded-lg p-2 flex justify-center items-center w-full h-full">
+      <div className="relative rounded-lg p-2 flex justify-center items-center h-full w-full">
         <img
           src={ProductImg}
           alt="T-shirt"
@@ -387,13 +390,14 @@ const Workspace = forwardRef((props, ref) => {
             objectFit: "cover",
             borderRadius: "0.375rem",
             zIndex: -1,
+            padding: "1rem",
           }}
         />
         <canvas
           width={canvasSize.width}
           height={canvasSize.height}
           ref={canvaRef}
-          className="border border-green "
+          className="border border-green rounded-xl"
         ></canvas>
       </div>
     </div>

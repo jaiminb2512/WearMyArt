@@ -6,7 +6,7 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import AssuredWorkloadIcon from "@mui/icons-material/AssuredWorkload";
 import { useSelector } from "react-redux";
 
-const steps = [
+const allSteps = [
   { label: "Shopping Cart", icon: <ShoppingCartIcon /> },
   { label: "Checkout", icon: <CreditCardIcon /> },
   { label: "Order Complete", icon: <AssuredWorkloadIcon /> },
@@ -20,18 +20,27 @@ const CustomStepIcon = ({ active, completed, icon }) => {
   );
 };
 
-const CustomStepper = ({ activeStep }) => {
+const CartTopBar = () => {
+  const { activeStep, buyNow } = useSelector((state) => state.BuyProduct);
+
+  const stepsToShow = buyNow ? allSteps.slice(1) : allSteps;
+  const displayedStep = buyNow ? activeStep - 1 : activeStep;
+
   return (
-    <Stepper activeStep={activeStep} alternativeLabel className="w-full my-2">
-      {steps.map((step, index) => (
-        <Step key={index} completed={index < activeStep}>
+    <Stepper
+      activeStep={displayedStep}
+      alternativeLabel
+      className="w-full my-2"
+    >
+      {stepsToShow.map((step, index) => (
+        <Step key={index} completed={index < displayedStep}>
           <StepLabel
             StepIconComponent={(props) => (
               <CustomStepIcon {...props} icon={step.icon} />
             )}
             sx={{
               "& .MuiStepLabel-label": {
-                color: index < activeStep ? "green" : "inherit",
+                color: index < displayedStep ? "green" : "inherit",
               },
             }}
           >
@@ -43,7 +52,4 @@ const CustomStepper = ({ activeStep }) => {
   );
 };
 
-export default function App() {
-  const { activeStep } = useSelector((state) => state.BuyProduct);
-  return <CustomStepper activeStep={activeStep} />;
-}
+export default CartTopBar;

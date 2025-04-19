@@ -13,7 +13,6 @@ import Footer from "../Components/Footer";
 
 const Home = () => {
   const { isAdmin } = useSelector((state) => state.user);
-  console.log(isAdmin);
   return (
     <>
       <Hero />

@@ -13,7 +13,7 @@ import { toggleSidebar, toggleHideText } from "../Redux/OpenCloseSlice";
 
 const Sidebar = () => {
   const dispatch = useDispatch();
-  const { SideBarOpen, SmScreen, HideText, FilterBarOpen } = useSelector(
+  const { SideBarOpen, SmScreen, HideText } = useSelector(
     (state) => state.OpenClose
   );
   const { user } = useSelector((state) => state.user);
@@ -25,7 +25,7 @@ const Sidebar = () => {
 
   return (
     <div
-      className={`fixed h-[100vh] shadow-lg transition-all duration-300 bg-primary text-primary-contrast z-50 bg-gray-100 ${
+      className={`fixed h-[100vh] shadow-lg transition-all duration-300 bg-primary text-primary-contrast z-[1000] bg-gradient-to-b from-[#C5F1E1] to-white ${
         SideBarOpen
           ? HideText
             ? "w-20"
@@ -34,7 +34,7 @@ const Sidebar = () => {
       } overflow-hidden`}
     >
       <div className="flex flex-col h-full justify-between">
-        <div className="flex items-center justify-center h-15 bg-gray-300">
+        <div className="flex items-center justify-center h-15 bg-green-100">
           <h6 className="font-bold">{HideText ? "WA" : "WearMyArt"}</h6>
         </div>
 

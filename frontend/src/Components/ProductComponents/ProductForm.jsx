@@ -18,7 +18,14 @@ import MTooltipButton from "../MTooltipButton";
 import { useDispatch } from "react-redux";
 import { showToast } from "../../Redux/ToastSlice";
 
-const ProductForm = ({ product, title, handleCloseDialog, onSuccess }) => {
+const ProductForm = ({
+  product,
+  title,
+  handleCloseDialog,
+  onSuccess,
+  setNewProduct = null,
+  setUpdatedProduct = null,
+}) => {
   const dispatch = useDispatch();
 
   const [fileObjects, setFileObjects] = useState([]);
@@ -153,10 +160,6 @@ const ProductForm = ({ product, title, handleCloseDialog, onSuccess }) => {
           productData.append("ProductImages", file);
         });
 
-        for (let pair of productData.entries()) {
-          console.log(pair[0] + ": " + pair[1]);
-        }
-
         let response;
         if (product?._id) {
           const url = `${import.meta.env.VITE_BASE_URL}${
@@ -170,6 +173,8 @@ const ProductForm = ({ product, title, handleCloseDialog, onSuccess }) => {
             data: productData,
             withCredentials: true,
           });
+
+          setUpdatedProduct(response.data.data);
         } else {
           const url = `${import.meta.env.VITE_BASE_URL}${
             ApiURLS.AddProduct.url
@@ -182,6 +187,8 @@ const ProductForm = ({ product, title, handleCloseDialog, onSuccess }) => {
             data: productData,
             withCredentials: true,
           });
+
+          setNewProduct(response.data.data);
         }
 
         if (response.data.success) {
@@ -197,7 +204,9 @@ const ProductForm = ({ product, title, handleCloseDialog, onSuccess }) => {
           );
 
           handleCloseDialog();
-          if (onSuccess) onSuccess();
+          if (onSuccess) {
+            onSuccess();
+          }
         } else {
           throw new Error(response.data.message || "Operation failed");
         }
@@ -219,7 +228,7 @@ const ProductForm = ({ product, title, handleCloseDialog, onSuccess }) => {
   };
 
   return (
-    <div className="flex justify-center items-center h-[85vh] relative">
+    <div className="flex justify-center items-center h-fit relative">
       <Paper
         elevation={0}
         sx={{

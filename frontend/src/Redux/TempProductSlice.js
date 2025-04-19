@@ -93,7 +93,6 @@ const tempProductSlice = createSlice({
 
     setText: (state, action) => {
       state.Text = action.payload;
-      state.TextEditingCost += action.payload;
     },
 
     setSize: (state, action) => {
@@ -141,21 +140,23 @@ const tempProductSlice = createSlice({
     },
 
     setImgActive: (state, action) => {
-      state.ImgActive = action.payload;
-      if (action.payload == true) {
-        state.EditingCost += 50;
-        if (state.TextActive == true) {
-          state.CustomizedType = "Both";
-        } else {
-          state.CustomizedType = "Photo";
-        }
-      } else {
-        if (state.EditingCost > 0) {
-          state.EditingCost -= 50;
+      if (state.CustomerImg) {
+        state.ImgActive = action.payload;
+        if (action.payload == true) {
+          state.EditingCost += 50;
           if (state.TextActive == true) {
-            state.CustomizedType = "Text";
+            state.CustomizedType = "Both";
           } else {
-            state.CustomizedType = "";
+            state.CustomizedType = "Photo";
+          }
+        } else {
+          if (state.EditingCost > 0) {
+            state.EditingCost -= 50;
+            if (state.TextActive == true) {
+              state.CustomizedType = "Text";
+            } else {
+              state.CustomizedType = "";
+            }
           }
         }
       }

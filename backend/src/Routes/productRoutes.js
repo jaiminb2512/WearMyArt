@@ -44,12 +44,12 @@ router.get(
   getLowStockProducts
 );
 router.get("/single-product/:id", tokenVerification, getSingleProduct);
-router.get(
+router.post(
   "/get-all-products",
   (req, res, next) => tokenVerification(req, res, next, true),
   getAllProducts
 );
-router.get("/get-all-active-products", getAllActiveProducts);
+router.post("/get-all-active-products", getAllActiveProducts);
 router.get(
   "/get-all-customers-of-products",
   (req, res, next) => tokenVerification(req, res, next, true),

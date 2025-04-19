@@ -8,29 +8,31 @@ import ModeEditIcon from "@mui/icons-material/ModeEdit";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import Inventory2Icon from "@mui/icons-material/Inventory2";
 import MTooltipButton from "../MTooltipButton";
+import ApiURLS from "../../Data/ApiURLS.js";
+import { useApiMutation } from "../../utils/apiRequest.js";
 import { statusFlow } from "../../Data/Content.js";
-import { useOrderMutations } from "../../utils/useEntityMutations";
+import { useOrderMutations } from "../../utils/useEntityMutations.js";
 
 const SingleOrder = ({
   order,
   handleFetchUser = null,
   handleFetchProduct = null,
+  updateOrderInList, // Make sure this prop is received
 }) => {
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.user);
   const isAdmin = user?.isAdmin || false;
 
   const [localStatus, setLocalStatus] = useState(order?.Status);
+  const { handleMoveToNextStatus } = useOrderMutations((orderId, newStatus) => {
+    setLocalStatus(newStatus);
+    if (updateOrderInList) {
+      updateOrderInList({ ...order, Status: newStatus });
+    }
+  });
 
   const location = useLocation();
   const showOrderDetails = location.pathname.includes("/order-details");
-
-  const updateOrderStatusCallback = (orderId, newStatus) => {
-    setLocalStatus(newStatus);
-  };
-
-  const { handleMoveToNextStatus, isLoading: isStatusUpdateLoading } =
-    useOrderMutations(updateOrderStatusCallback);
 
   if (!order) {
     return (
@@ -84,17 +86,22 @@ const SingleOrder = ({
     navigate("/dashboard/order-details", { state: { order } });
   };
 
-  const orderWithCorrectId = {
-    ...order,
-    id: _id,
-  };
+  const updateOrderStatus = useApiMutation(
+    `${ApiURLS.UpdateOrderStatus.url.replace(":id", _id)}`,
+    ApiURLS.UpdateOrderStatus.method,
+    {
+      onSuccess: (data) => {
+        setLocalStatus(data?.status || localStatus);
+      },
+    }
+  );
 
   const handleNextStage = () => {
     const currentIndex = statusFlow.findIndex((s) => s.name === localStatus);
     if (currentIndex !== -1 && currentIndex < statusFlow.length - 1) {
       const nextStatus = statusFlow[currentIndex + 1].name;
-      console.log(orderWithCorrectId);
-      handleMoveToNextStatus(orderWithCorrectId, localStatus, nextStatus);
+      setLocalStatus(nextStatus);
+      updateOrderStatus.mutate({ status: nextStatus });
     }
   };
 
@@ -188,7 +195,6 @@ const SingleOrder = ({
                 Order Details
               </MTooltipButton>
             )}
-
             {isAdmin &&
               localStatus !== "Completed" &&
               localStatus !== "Rejected" &&
@@ -199,8 +205,9 @@ const SingleOrder = ({
                   color={nextColor}
                   className="min-w-[180px] text-center"
                   startIcon={NextIcon ? <NextIcon /> : null}
-                  onClick={handleNextStage}
-                  disabled={isStatusUpdateLoading}
+                  onClick={() =>
+                    handleMoveToNextStatus(order, localStatus, nextStatus)
+                  }
                 >
                   Move to {nextStatus} State
                 </MTooltipButton>
@@ -214,14 +221,9 @@ const SingleOrder = ({
                   color="success"
                   className="min-w-[180px] text-center"
                   startIcon={<ModeEditIcon />}
-                  onClick={() => {
-                    handleMoveToNextStatus(
-                      orderWithCorrectId,
-                      "Pending",
-                      "Process"
-                    );
-                  }}
-                  disabled={isStatusUpdateLoading}
+                  onClick={() =>
+                    handleMoveToNextStatus(order, localStatus, "Process")
+                  }
                 >
                   Accept Order
                 </MTooltipButton>
@@ -232,14 +234,9 @@ const SingleOrder = ({
                   color="error"
                   className="min-w-[180px] text-center"
                   startIcon={<BlockIcon />}
-                  onClick={() => {
-                    handleMoveToNextStatus(
-                      orderWithCorrectId,
-                      "Pending",
-                      "Rejected"
-                    );
-                  }}
-                  disabled={isStatusUpdateLoading}
+                  onClick={() =>
+                    handleMoveToNextStatus(order, localStatus, "Rejected")
+                  }
                 >
                   Reject Order
                 </MTooltipButton>

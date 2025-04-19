@@ -101,6 +101,11 @@ export const sidebarCustomer = [
 
 export const sidebarAdmin = [
   {
+    name: "Dashboard",
+    path: "",
+    icon: DashboardSharpIcon,
+  },
+  {
     name: "Profile",
     path: "/profile",
     icon: AccountCircleIcon,

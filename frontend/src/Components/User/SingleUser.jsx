@@ -1,6 +1,7 @@
-import React from "react";
-import { Avatar, Button, Typography } from "@mui/material";
-import MTooltip from "../MTooltip";
+import React, { useState } from "react";
+import { Avatar, Typography } from "@mui/material";
+import MTooltipButton from "../MTooltipButton";
+import { useUserMutations } from "../../utils/useEntityMutations";
 
 const SingleUser = ({ user }) => {
   const getInitials = (name) => {
@@ -12,20 +13,31 @@ const SingleUser = ({ user }) => {
       .toUpperCase();
   };
 
-  const handleBlockClick = (id, currentBlockStatus) => {
-    console.log("User ID:", id, "Current Block Status:", currentBlockStatus);
+  const [isBlocked, setIsBlocked] = useState(
+    Array.isArray(user?.isBlocked)
+      ? user.isBlocked.length > 0
+      : Boolean(user?.isBlocked)
+  );
+
+  const { handleBlockUser, handleUnBlockUser, isLoading } = useUserMutations(
+    (userId, isBlocked) => {
+      setIsBlocked(isBlocked);
+    }
+  );
+
+  const handleBlockClick = () => {
+    if (isBlocked) {
+      handleUnBlockUser(user);
+    } else {
+      handleBlockUser(user);
+    }
   };
 
   const initials = user?.FullName ? getInitials(user.FullName) : "U";
 
-  // Determine if isBlocked is iterable and has values
-  const isUserBlocked = Array.isArray(user?.isBlocked)
-    ? user.isBlocked.length > 0
-    : Boolean(user?.isBlocked);
-
   return (
     <div className="flex gap-10 rounded-lg overflow-hidden p-3 flex-col sm:flex-row">
-      <div className="w-full sm:w-1/2 flex justify-end">
+      <div className="w-full sm:w-1/2 flex justify-center md:justify-end">
         <Avatar
           sx={{
             width: 250,
@@ -47,27 +59,34 @@ const SingleUser = ({ user }) => {
           </Typography>
         )}
 
-        <Typography variant="h5">{user?.FullName || "Unknown User"}</Typography>
-        <Typography variant="h6" color="text.secondary">
-          {user?.Email || "No Email Provided"}
-        </Typography>
+        <div className="flex flex-col justify-center items-center md:items-start h-full">
+          <Typography variant="h5">
+            {user?.FullName || "Unknown User"}
+          </Typography>
+          <Typography variant="h6" color="text.secondary">
+            {user?.Email || "No Email Provided"}
+          </Typography>
 
-        {/* Show button only if isBlocked has values */}
-        {isUserBlocked && (
           <div className="w-full">
-            <MTooltip title={isUserBlocked ? "Unblock" : "Block"}>
-              <Button
-                variant="contained"
-                color={isUserBlocked ? "secondary" : "error"}
-                onClick={() => handleBlockClick(user.id, !isUserBlocked)}
-                sx={{ mt: 1 }}
-                className="w-fit"
-              >
-                {isUserBlocked ? "Unblock" : "Block"}
-              </Button>
-            </MTooltip>
+            <MTooltipButton
+              title={isBlocked ? "Unblock" : "Block"}
+              variant="contained"
+              color={isBlocked ? "secondary" : "error"}
+              onClick={handleBlockClick}
+              sx={{ mt: 1 }}
+              className="w-fit"
+              disabled={isLoading}
+            >
+              {isLoading
+                ? isBlocked
+                  ? "Unblocking..."
+                  : "Blocking..."
+                : isBlocked
+                ? "Unblock"
+                : "Block"}
+            </MTooltipButton>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );

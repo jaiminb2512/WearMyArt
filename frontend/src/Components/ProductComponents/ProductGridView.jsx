@@ -1,5 +1,5 @@
-import React from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { FaRupeeSign } from "react-icons/fa";
 import CustomizeBtn from "./CustomizeBtn";
 import ModeEditIcon from "@mui/icons-material/ModeEdit";
@@ -7,25 +7,40 @@ import BlockIcon from "@mui/icons-material/Block";
 import ControlPointIcon from "@mui/icons-material/ControlPoint";
 import { useSelector } from "react-redux";
 import MTooltipButton from "../MTooltipButton";
-import Sidebar from "../Sidebar";
+import { useProductMutations } from "../../utils/useEntityMutations";
 
 const ProductGridView = ({
-  products,
+  products: initialProducts,
   loading,
   handleOpenDialog = null,
   count,
-  handleDiscontinueProducts = null,
-  handleReContinueProducts = null,
 }) => {
   const navigate = useNavigate();
-
   const { user } = useSelector((state) => state.user);
-  const { FilterBarOpen, HideText } = useSelector((state) => state.OpenClose);
-  let isAdmin = user?.isAdmin || false;
+  const { FilterBarOpen } = useSelector((state) => state.OpenClose);
+  const isAdmin = user?.isAdmin || false;
+  const [products, setProducts] = useState(initialProducts);
+
+  // Update local state when props change
+  useEffect(() => {
+    setProducts(initialProducts);
+  }, [initialProducts]);
+
+  // Callback to update local state after mutations
+  const updateProductStatus = (productId, isDiscontinued) => {
+    setProducts((currentProducts) =>
+      currentProducts.map((p) =>
+        p._id === productId ? { ...p, isDiscontinued } : p
+      )
+    );
+  };
+
+  const { handleDiscontinueProducts, handleReContinueProducts, isLoading } =
+    useProductMutations(updateProductStatus);
+
   const redirectToProduct = (id) => {
     navigate(`/product/${id}`);
   };
-  console.log(HideText);
 
   return (
     <div>
@@ -34,15 +49,12 @@ const ProductGridView = ({
         {loading ? (
           <p>Loading products...</p>
         ) : products.length > 0 ? (
-          // <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           <div
-            className={`grid gap-6 grid-cols-1 sm:grid-cols-2
-              ${
-                FilterBarOpen
-                  ? "md:grid-cols-2 lg:grid-cols-3"
-                  : "md:grid-cols-3 lg:grid-cols-4"
-              }  
-                `}
+            className={`grid gap-6 grid-cols-1 sm:grid-cols-2 ${
+              FilterBarOpen
+                ? "md:grid-cols-2 lg:grid-cols-3"
+                : "md:grid-cols-3 lg:grid-cols-4"
+            }`}
           >
             {products.map((product) => (
               <div
@@ -52,6 +64,7 @@ const ProductGridView = ({
                 <img
                   src={`${import.meta.env.VITE_BASE_URL}${product.ImgURL[0]}`}
                   alt={product.name}
+                  loading="lazy"
                   className="w-full h-[350px] object-cover rounded-lg"
                   onClick={() => redirectToProduct(product._id)}
                 />
@@ -80,6 +93,7 @@ const ProductGridView = ({
                         variant="contained"
                         color="primary"
                         onClick={() => handleOpenDialog(product)}
+                        disabled={isLoading}
                       >
                         <ModeEditIcon />
                       </MTooltipButton>
@@ -89,7 +103,8 @@ const ProductGridView = ({
                           title="Recontinue Product"
                           variant="contained"
                           color="secondary"
-                          onClick={() => handleReContinueProducts(product._id)}
+                          onClick={() => handleReContinueProducts(product)}
+                          disabled={isLoading}
                         >
                           <ControlPointIcon />
                         </MTooltipButton>
@@ -98,7 +113,8 @@ const ProductGridView = ({
                           title="Discontinue Product"
                           variant="contained"
                           color="error"
-                          onClick={() => handleDiscontinueProducts(product._id)}
+                          onClick={() => handleDiscontinueProducts(product)}
+                          disabled={isLoading}
                         >
                           <BlockIcon />
                         </MTooltipButton>

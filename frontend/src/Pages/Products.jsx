@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from "react";
-import { useFetchData } from "../utils/apiRequest";
+import React, { useState, useEffect } from "react";
+import { useApiMutation } from "../utils/apiRequest";
 import ApiURLS from "../Data/ApiURLS";
 import { ProductFilterData } from "../Data/FilterData";
 import ProductListView from "../Components/ProductComponents/ProductListView";
@@ -8,84 +8,99 @@ import ProductTopbar from "../Components/ProductComponents/ProductTopbar";
 import ProductGridView from "../Components/ProductComponents/ProductGridView";
 import ProductBottomBar from "../Components/ProductComponents/ProductBottomBar";
 import { useSelector } from "react-redux";
+import InfiniteScroll from "react-infinite-scroll-component";
 
 const Products = () => {
   const { FilterBarOpen } = useSelector((state) => state.OpenClose);
   const [sortOrder, setSortOrder] = useState("lowToHigh");
+  const [listView, setListView] = useState(true);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [pagination, setPagination] = useState({
+    totalProducts: 0,
+    totalPages: 1,
+    currentPage: 1,
+  });
+
   const [filterOptions, setFilterOptions] = useState({
     Size: [],
     Sleeve: [],
     CustomizeOption: [],
     Color: [],
-    Price: [],
+    Price: [0, 5000],
     Sort: ["Low to High"],
-    Avalibility: ["All"],
-    VisibleColumns: [
-      "image",
-      "color",
-      "size",
-      "sleeve",
-      "price",
-      "discountedPrice",
-      "stock",
-      "customizeOption",
-    ],
   });
-  const [listView, setListView] = useState(true);
 
-  const { data: products = [], isLoading } = useFetchData(
-    "Products",
-    ApiURLS.GetAllActiveProducts.url,
+  const [products, setProducts] = useState([]);
+
+  const fetchProductsMutation = useApiMutation(
+    `${ApiURLS.GetAllActiveProducts.url}?page=${page}&limit=5`,
     ApiURLS.GetAllActiveProducts.method,
     {
-      staleTime: 5 * 60 * 1000,
-      cacheTime: 10 * 60 * 1000,
+      showToastMessage: page === 1,
     }
   );
 
-  const isPriceInRange = (price, range) => {
-    if (!range) return true;
-    if (range === "0-499") return price >= 0 && price <= 499;
-    if (range === "499-999") return price >= 499 && price <= 999;
-    if (range === "999-1999") return price >= 999 && price <= 1999;
-    if (range === "1999+") return price >= 1999;
-    return true;
+  const fetchProducts = async (pageNum, reset = false) => {
+    try {
+      const result = await fetchProductsMutation.mutateAsync({
+        ...filterOptions,
+        sortOrder,
+      });
+
+      const newProducts = result?.products || [];
+
+      if (result?.pagination) {
+        setPagination(result.pagination);
+      }
+
+      if (reset) {
+        setProducts(newProducts);
+      } else {
+        setProducts((prev) => [...prev, ...newProducts]);
+      }
+
+      if (result?.pagination) {
+        setHasMore(pageNum < result.pagination.totalPages);
+      } else {
+        setHasMore(newProducts.length >= 5);
+      }
+    } catch (error) {
+      console.error("Error fetching products:", error);
+      setHasMore(false);
+    }
   };
 
-  const filteredProducts = useMemo(() => {
-    return products
-      .filter((product) => {
-        const sizeMatch =
-          !filterOptions.Size.length ||
-          filterOptions.Size.includes(product.Size);
-        const sleeveMatch =
-          !filterOptions.Sleeve.length ||
-          filterOptions.Sleeve.includes(product.Sleeve);
-        const customizeMatch =
-          !filterOptions.CustomizeOption.length ||
-          filterOptions.CustomizeOption.includes(product.CustomizeOption);
-        const colorMatch =
-          !filterOptions.Color.length ||
-          filterOptions.Color.includes(product.Color);
-        const priceMatch =
-          !filterOptions.Price.length ||
-          isPriceInRange(product.Price, filterOptions.Price[0]);
-        return (
-          sizeMatch && sleeveMatch && customizeMatch && colorMatch && priceMatch
-        );
-      })
-      .sort((a, b) =>
-        sortOrder === "lowToHigh" ? a.Price - b.Price : b.Price - a.Price
-      );
-  }, [filterOptions, products, sortOrder]);
+  useEffect(() => {
+    setPage(1);
+    setProducts([]);
+    setHasMore(true);
+    fetchProducts(1, true);
+  }, [filterOptions, sortOrder]);
+
+  useEffect(() => {
+    if (page > 1) {
+      fetchProducts(page, false);
+    }
+  }, [page]);
+
+  const loadMore = () => {
+    if (hasMore) {
+      setPage((prev) => prev + 1);
+    }
+  };
+
+  const isLoading = fetchProductsMutation.isLoading && products.length === 0;
 
   return (
-    <div className="flex h-screen">
+    <div className="flex h-screen overflow-hidden">
       <div
         className={`fixed top-17 h-screen overflow-y-auto scrollbar-hide transition-all duration-300
-      ${
-        FilterBarOpen ? "sm:block w-[35vw] lg:w-[25vw] border-r" : "w-0 sm:w-0"
-      }`}
+        ${
+          FilterBarOpen
+            ? "sm:block w-[35vw] lg:w-[25vw] border-r"
+            : "w-0 sm:w-0"
+        }`}
       >
         {FilterBarOpen && (
           <div className="pl-[2vw] pt-[5vh] pr-5">
@@ -102,32 +117,49 @@ const Products = () => {
       </div>
 
       <div
-        className={`flex-1 flex flex-col overflow-y-scroll scrollbar-hide transition-all duration-300
-      ${FilterBarOpen ? "ml-[35vw] lg:ml-[25vw] xl:ml-[25vw]" : "ml-0"}`}
+        className={`flex-1 flex flex-col transition-all duration-300
+        ${FilterBarOpen ? "ml-[35vw] lg:ml-[25vw] xl:ml-[25vw]" : "ml-0"}`}
       >
-        <div className="fixed top-15 w-full z-20 bg-gray-100 shadow-2xl z-[999]">
-          <div className="flex gap-1 items-center w-full sm:w-[80vw] ml-2 backdrop-blur-3xl pt-3 pb-2 h-15 ">
+        <div className="fixed top-15 w-full bg-gray-100 shadow-2xl z-[999]">
+          <div className="flex gap-1 items-center w-full sm:w-[80vw] ml-2 backdrop-blur-3xl pt-3 pb-2 h-15">
             <ProductTopbar
               listView={listView}
               setListView={setListView}
-              count={filteredProducts.length}
+              count={pagination.totalProducts}
             />
           </div>
         </div>
-        <div className="p-4 mt-17 mb-10 sm:mb-0">
-          {listView ? (
-            <ProductGridView
-              products={filteredProducts}
-              loading={isLoading}
-              count={filteredProducts.length}
-            />
-          ) : (
-            <ProductListView
-              products={filteredProducts}
-              isLoading={isLoading}
-              count={filteredProducts.length}
-            />
-          )}
+
+        <div
+          id="scrollableProductDiv"
+          className="overflow-auto mt-17 mb-10 sm:mb-0 h-full scrollbar-hide"
+        >
+          <InfiniteScroll
+            dataLength={products.length}
+            next={loadMore}
+            hasMore={hasMore}
+            loader={
+              <div className="flex justify-center items-center py-4">
+                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-indigo-600"></div>
+              </div>
+            }
+            scrollableTarget="scrollableProductDiv"
+            className="p-4"
+          >
+            {listView ? (
+              <ProductListView
+                products={products}
+                isLoading={isLoading}
+                count={pagination.totalProducts}
+              />
+            ) : (
+              <ProductGridView
+                products={products}
+                loading={isLoading}
+                count={pagination.totalProducts}
+              />
+            )}
+          </InfiniteScroll>
         </div>
       </div>
 

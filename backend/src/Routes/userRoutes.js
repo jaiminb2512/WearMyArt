@@ -61,10 +61,9 @@ router.get(
   (req, res, next) => tokenVerification(req, res, next, true),
   getAllUsers
 );
-
 router.put("/update-user", tokenVerification, updateUser);
 router.delete("/delete", tokenVerification, deleteUser);
 router.post("/logout", tokenVerification, logoutUser);
-router.get("/get-all-own-orders", tokenVerification, getAllOwnOrder);
+router.post("/get-all-own-orders", tokenVerification, getAllOwnOrder);
 
 export default router;

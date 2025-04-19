@@ -1,5 +1,11 @@
 import React, { useState, useMemo, useEffect } from "react";
-import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
+import {
+  BrowserRouter,
+  Route,
+  Routes,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { ThemeProvider } from "@mui/material/styles";
 import { darkTheme, lightTheme } from "./Theme/theme";
@@ -36,11 +42,14 @@ import CompleteOrder from "./Components/PurchaseComponents/CompleteOrder";
 import ConfirmOrder from "./Components/CustomizeTShirt/ConfirmOrder";
 import CustomizationOptions from "./Pages/CustomizationOptions";
 import AuthRoute from "./Components/AuthRoute";
+import Dashboard from "./Pages/Dashboard";
+import Popup from "./Components/PopUp";
 
 const queryClient = new QueryClient();
 
 const AppLayout = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const autoLoginMutation = useApiMutation(
     ApiURLS.AutoLogin.url,
     ApiURLS.AutoLogin.method
@@ -49,16 +58,33 @@ const AppLayout = () => {
   const { user } = useSelector((state) => state.user);
   const dispatch = useDispatch();
 
+  const [intendedPath, setIntendedPath] = useState(null);
+
+  useEffect(() => {
+    if (
+      !user &&
+      !intendedPath &&
+      location.pathname !== "/login" &&
+      location.pathname !== "/register"
+    ) {
+      setIntendedPath(location.pathname);
+    }
+  }, []);
+
   useEffect(() => {
     const autoLogin = async () => {
       const userData = await autoLoginMutation.mutateAsync({});
       dispatch(login(userData.user));
+
+      if (intendedPath && intendedPath !== "/") {
+        navigate(intendedPath);
+      }
     };
 
     if (!user) {
       autoLogin();
     }
-  }, []);
+  }, [intendedPath]);
 
   const showSidebar = location.pathname.includes("/dashboard");
 
@@ -108,8 +134,10 @@ const AppLayout = () => {
           className={`mt-15 ${
             sidebarWidth === 60
               ? "ml-[60px]"
-              : sidebarWidth === 240 && !FilterBarOpen
-              ? "ml-0 lg:ml-[25vw] xl:ml-[20vw]"
+              : sidebarWidth === 240
+              ? FilterBarOpen
+                ? "ml-0"
+                : "ml-0 lg:ml-[25vw] xl:ml-[20vw]"
               : "ml-0"
           }`}
         >
@@ -117,12 +145,10 @@ const AppLayout = () => {
             <Route element={<AuthRoute role="guest" />}>
               <Route path="/login" element={<Auth />} />
               <Route path="/register" element={<Auth />} />
-              <Route path="/forgot-password" element={<Auth />} />
             </Route>
 
             <Route path="/" element={<Home />} />
             <Route path="/products" element={<Products />} />
-            <Route path="/product/:id" element={<Product />} />
 
             <Route element={<AuthRoute role="customer" />}>
               <Route path="/confirm-order" element={<ConfirmOrder />} />
@@ -135,10 +161,7 @@ const AppLayout = () => {
                 path="/dashboard/order-success"
                 element={<OrderSuccess />}
               />
-              <Route
-                path="/dashboard/order-details"
-                element={<OrderDetails />}
-              />
+
               <Route path="/customize-product" element={<CustomizeProduct />} />
               <Route path="/dashboard/orders" element={<Orders />} />
               <Route path="/dashboard/cart" element={<Cart />} />
@@ -152,18 +175,26 @@ const AppLayout = () => {
                 path="/dashboard/customization-options"
                 element={<CustomizationOptions />}
               />
+              <Route
+                path="/dashboard/order-details"
+                element={<OrderDetails />}
+              />
+              <Route path="/dashboard" element={<Dashboard />} />
             </Route>
 
             <Route element={<AuthRoute />}>
               <Route path="/dashboard/profile" element={<Profile />} />
+
+              <Route path="/product/:id" element={<Product />} />
             </Route>
 
             <Route path="*" element={<Errorpage />} />
+            <Route path="/forgot-password" element={<Auth />} />
           </Routes>
-          ;
         </Box>
       </Box>
       <ToastNotification />
+      <Popup />
       <UserAvatar />
     </>
   );
@@ -183,7 +214,7 @@ function App() {
         <CssBaseline />
         <BrowserRouter>
           <AppLayout />
-          <ReactQueryDevtools />
+          {/* <ReactQueryDevtools /> */}
         </BrowserRouter>
       </ThemeProvider>
     </QueryClientProvider>

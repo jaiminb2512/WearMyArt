@@ -7,8 +7,6 @@ const ProductListView = ({
   handleOpenDialog = null,
   count = null,
   singleProduct = null,
-  handleDiscontinueProducts = null,
-  handleReContinueProducts = null,
 }) => {
   if (isLoading) {
     return (
@@ -31,14 +29,12 @@ const ProductListView = ({
   return (
     <section>
       <h1 className="text-lg font-bold hidden sm:block">{`${count} Products`}</h1>
-      <div className="grid gap-8">
+      <div className="grid gap-8 xl:grid-cols-2">
         {productList.map((product) => (
           <SingleProduct
             key={product._id}
             Product={product}
             handleOpenDialog={handleOpenDialog}
-            handleDiscontinueProducts={handleDiscontinueProducts}
-            handleReContinueProducts={handleReContinueProducts}
           />
         ))}
       </div>

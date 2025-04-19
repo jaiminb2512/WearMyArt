@@ -5,7 +5,6 @@ import SpeedDialAction from "@mui/material/SpeedDialAction";
 import Avatar from "@mui/material/Avatar";
 import { useSelector } from "react-redux";
 import { LoginData, LogoutData } from "../Data/NavigationData";
-import ThemeToggle from "../Theme/ThemeToggle";
 import { useNavigate } from "react-router-dom";
 import useLogOut from "../utils/Logout";
 
@@ -26,14 +25,30 @@ export default function OpenIconSpeedDial() {
     <Box
       sx={{
         position: "fixed",
-        bottom: 100,
+        bottom: 16,
         right: 16,
         zIndex: 1000,
+        display: "flex",
       }}
     >
       <SpeedDial
         ariaLabel="User Actions"
         icon={<Avatar sx={{ bgcolor: "primary.main" }}>{userInitials}</Avatar>}
+        sx={{
+          "& .MuiSpeedDial-fab": {
+            width: 50,
+            height: 50,
+            boxShadow: 1,
+          },
+          "& .MuiSpeedDial-actions": {
+            paddingBottom: 0,
+            marginBottom: 0,
+          },
+          height: "auto",
+          "&.MuiSpeedDial-directionUp": {
+            paddingBottom: 0,
+          },
+        }}
         onClick={(e) => e.stopPropagation()}
       >
         {actions.map((action) => {
@@ -49,16 +64,14 @@ export default function OpenIconSpeedDial() {
                   : navigate(`${action.path}`)
               }
               onMouseEnter={(e) => e.stopPropagation()}
+              sx={{
+                width: 50,
+                height: 50,
+                minHeight: "unset",
+              }}
             />
           );
         })}
-
-        <SpeedDialAction
-          key="theme-toggle"
-          icon={<ThemeToggle />}
-          tooltipTitle="Toggle Theme"
-          onClick={(e) => e.stopPropagation()}
-        />
       </SpeedDial>
     </Box>
   );

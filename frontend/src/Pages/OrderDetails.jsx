@@ -1,27 +1,28 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import SingleOrder from "../Components/OrderComponents/SingleOrder";
 import { useFetchData } from "../utils/apiRequest";
 import ApiURLS from "../Data/ApiURLS";
+import { Dialog, DialogContent } from "@mui/material";
+import { useDispatch, useSelector } from "react-redux";
+import { toggleProductFormOpen } from "../Redux/OpenCloseSlice";
+
+import SingleOrder from "../Components/OrderComponents/SingleOrder";
 import SingleProduct from "../Components/ProductComponents/SingleProduct";
 import SingleUser from "../Components/User/SingleUser";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import ProductForm from "../Components/ProductComponents/ProductForm";
 import MTooltipButton from "../Components/MTooltipButton";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 const OrderDetails = () => {
   const location = useLocation();
-  const order = location.state?.order;
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-  if (!order) {
-    return (
-      <div className="text-center text-gray-500 mt-10">
-        <p>No order details available.</p>
-      </div>
-    );
-  }
+  const order = location.state?.order;
 
   const [showData, setShowData] = useState(null);
+
+  const { productFormOpen } = useSelector((state) => state.OpenClose);
 
   const {
     data: productData,
@@ -37,6 +38,20 @@ const OrderDetails = () => {
       cacheTime: 10 * 60 * 1000,
     }
   );
+
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [updatedProduct, setUpdatedProduct] = useState(productData);
+
+  useEffect(() => {
+    if (updatedProduct && Object.keys(updatedProduct).length > 0) {
+      setSelectedProduct(updatedProduct);
+    }
+  }, [updatedProduct]);
+
+  const handleOpenDialog = (product = null) => {
+    setSelectedProduct(product);
+    dispatch(toggleProductFormOpen(true));
+  };
 
   const {
     data: userData,
@@ -62,6 +77,20 @@ const OrderDetails = () => {
     setShowData("user");
     refetchUser();
   };
+
+  const handleCloseDialog = () => {
+    dispatch(toggleProductFormOpen(false));
+  };
+
+  if (!order) {
+    return (
+      <div className="text-center text-gray-500 mt-10">
+        <p>No order details available.</p>
+      </div>
+    );
+  }
+
+  const Product = updatedProduct ? updatedProduct : productData;
 
   return (
     <div className="ml-[2vw] overflow-hidden max-w-screen">
@@ -92,7 +121,10 @@ const OrderDetails = () => {
               <p className="text-center">Loading product data...</p>
             ) : (
               productData && (
-                <SingleProduct Product={productData} allProducts={true} />
+                <SingleProduct
+                  Product={Product}
+                  handleOpenDialog={handleOpenDialog}
+                />
               )
             )}
           </div>
@@ -101,13 +133,33 @@ const OrderDetails = () => {
         {showData === "user" && (
           <div className="border rounded-2xl w-full max-w-[95%] mx-auto">
             {isUserLoading ? (
-              <p className="text-center">Loading User data...</p>
+              <p className="text-center">Loading user data...</p>
             ) : (
               userData && <SingleUser user={userData} />
             )}
           </div>
         )}
       </div>
+
+      <Dialog
+        open={productFormOpen}
+        onClose={handleCloseDialog}
+        maxWidth="md"
+        fullWidth
+        aria-labelledby="product-form-dialog"
+        PaperProps={{ style: { maxHeight: "95vh" } }}
+      >
+        <DialogContent>
+          <ProductForm
+            product={selectedProduct}
+            onClose={handleCloseDialog}
+            handleCloseDialog={handleCloseDialog}
+            isEdit={!!selectedProduct}
+            setUpdatedProduct={setUpdatedProduct}
+            title={selectedProduct ? "Edit Product" : "Add New Product"}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

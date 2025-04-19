@@ -1,6 +1,7 @@
 import React from "react";
 import { Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import MTooltipButton from "../MTooltipButton";
 
 const Hero = () => {
   const navigate = useNavigate();
@@ -36,14 +37,15 @@ const Hero = () => {
           background. Print shirts for yourself or your online business.
         </p>
         <div className="mt-6 flex gap-4">
-          <Button
+          <MTooltipButton
+            title="Shop Now"
             className="px-6 py-3 text-lg font-medium flex items-center gap-2 shadow-md hover:bg-green-600 transition rounded-4xl"
             variant="contained"
             color="success"
             onClick={() => navigate("/products")}
           >
             Shop Now →
-          </Button>
+          </MTooltipButton>
         </div>
 
         <div className="mt-10 flex gap-12 text-gray-900 font-semibold text-2xl">

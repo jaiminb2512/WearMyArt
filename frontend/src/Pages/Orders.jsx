@@ -1,91 +1,100 @@
-import React, { useMemo, useState } from "react";
-import { useFetchData } from "../utils/apiRequest";
+import React, { useState, useEffect } from "react";
+import { useApiMutation } from "../utils/apiRequest";
 import ApiURLS from "../Data/ApiURLS";
 import OrderListView from "../Components/OrderComponents/OrderListView";
 import OrderBottombar from "../Components/OrderComponents/OrderBottomBar";
 import OrderTopBar from "../Components/OrderComponents/OrderTopBar";
 import OrderFilter from "../Components/OrderComponents/OrderFilter";
 import { useSelector } from "react-redux";
+import InfiniteScroll from "react-infinite-scroll-component";
 
 const Orders = () => {
   const { FilterBarOpen } = useSelector((state) => state.OpenClose);
-  const {
-    data: MyOrders = [],
-    isLoading,
-    refetch,
-  } = useFetchData(
-    "MyOrders",
-    ApiURLS.GetAllOwnOrders.url,
-    ApiURLS.GetAllOwnOrders.method,
-    {
-      staleTime: 5 * 60 * 1000, // 5 Minutes
-      cacheTime: 10 * 60 * 1000, // 10 Minutes
-    }
-  );
+  const [orders, setOrders] = useState([]);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [pagination, setPagination] = useState({
+    total: 0,
+    totalPages: 1,
+    page: 1,
+    limit: 10,
+  });
 
   const [filterOptions, setFilterOptions] = useState({
     Status: [],
-    OrderDate: "",
-    Duration: { start: "", end: "" },
     Quantity: "",
-    FinalCost: "",
-    OrderID: "",
-    CustomizeOption: [],
+    FinalCost: [0, 5000],
+    CustomizedType: [],
+    OrderDate: "",
+    Duration: {
+      start: "",
+      end: "",
+    },
   });
 
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    if (isNaN(date.getTime())) return "";
+  const fetchOrdersMutation = useApiMutation(
+    `${ApiURLS.GetAllOwnOrders.url}?page=${page}&limit=10`,
+    ApiURLS.GetAllOwnOrders.method,
+    {
+      showToastMessage: page === 1,
+    }
+  );
 
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const year = date.getFullYear();
+  const fetchOrders = async (pageNum, reset = false) => {
+    try {
+      const result = await fetchOrdersMutation.mutateAsync(filterOptions);
 
-    return `${day}/${month}/${year}`;
+      const newOrders = result?.orders || [];
+
+      if (result?.pagination) {
+        setPagination(result.pagination);
+      }
+
+      if (reset) {
+        setOrders(newOrders);
+      } else {
+        setOrders((prev) => [...prev, ...newOrders]);
+      }
+
+      if (result?.pagination) {
+        setHasMore(pageNum < result.pagination.totalPages);
+      } else {
+        setHasMore(newOrders.length >= 10);
+      }
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+      setHasMore(false);
+    }
   };
 
-  const filteredOrders = useMemo(() => {
-    if (!Array.isArray(MyOrders)) return [];
-    return MyOrders.filter((order) => {
-      const statusMatch =
-        !filterOptions.Status.length ||
-        filterOptions.Status.includes(order.Status);
+  useEffect(() => {
+    setPage(1);
+    setOrders([]);
+    setHasMore(true);
+    fetchOrders(1, true);
+  }, [filterOptions]);
 
-      const customizeMatch =
-        !filterOptions.CustomizeOption.length ||
-        filterOptions.CustomizeOption.includes(order.CustomizeOption);
+  useEffect(() => {
+    if (page > 1) {
+      fetchOrders(page, false);
+    }
+  }, [page]);
 
-      const orderDateMatch = (() => {
-        if (!filterOptions.OrderDate) return true;
+  const loadMore = () => {
+    if (hasMore) {
+      setPage((prev) => prev + 1);
+    }
+  };
 
-        const inputDate = String(filterOptions.OrderDate).trim();
-        const parsedInputDate = new Date(inputDate);
-
-        if (isNaN(parsedInputDate.getTime())) return false;
-
-        const orderCreatedAt = new Date(order.createdAt);
-        if (isNaN(orderCreatedAt.getTime())) return false;
-
-        const formattedOrderDate = formatDate(orderCreatedAt);
-        const formattedInputDate = formatDate(parsedInputDate);
-
-        return formattedOrderDate === formattedInputDate;
-      })();
-
-      const orderIdMatch =
-        !filterOptions.OrderID ||
-        order.OrderID?.toLowerCase().includes(
-          filterOptions.OrderID.toLowerCase()
-        );
-
-      return statusMatch && orderDateMatch && orderIdMatch && customizeMatch;
-    });
-  }, [filterOptions, MyOrders]);
+  const isLoading = fetchOrdersMutation.isLoading && orders.length === 0;
 
   return (
-    <div className="flex h-screen">
-      {FilterBarOpen && (
-        <div className="fixed top-17 h-screen overflow-y-auto scrollbar-hide border-r transition-all duration-300 w-[20vw]">
+    <div className="flex h-screen overflow-hidden">
+      <div
+        className={`fixed top-17 h-screen hidden xl:block overflow-y-auto scrollbar-hide border-r transition-all duration-300
+        ${FilterBarOpen ? "lg:w-[25vw] xl:w-[20vw] lg:block" : "w-0 sm:w-0"}`}
+      >
+        {FilterBarOpen && (
           <div className="pl-[2vw] pt-[5vh] pr-5">
             <OrderFilter
               setFilterOptions={setFilterOptions}
@@ -93,29 +102,45 @@ const Orders = () => {
               MyOrders={true}
             />
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       <div
-        className={`flex-1 flex flex-col overflow-y-scroll scrollbar-hide transition-all duration-300
-      ${FilterBarOpen ? "sm:ml-[20vw]" : "ml-0"}`}
+        className={`flex-1 flex flex-col transition-all duration-300
+        ${FilterBarOpen ? "lg:ml-[25vw] xl:ml-[20vw]" : "ml-0"}`}
       >
-        <div className="fixed hidden sm:block top-15 z-20 bg-white shadow-2xl w-full transition-all duration-300">
-          <div className="flex gap-1 items-center ml-2 backdrop-blur-3xl pt-3 pb-2 sm:h-15 w-full ">
-            <OrderTopBar count={filteredOrders.length} />
+        <div className="hidden lg:block sticky top-0 z-20 bg-white shadow-2xl w-full transition-all duration-300">
+          <div className="flex gap-1 items-center ml-2 backdrop-blur-3xl pt-3 pb-2 sm:h-15 w-full">
+            <OrderTopBar count={pagination.total} />
           </div>
         </div>
 
-        <div className="p-4 sm:mt-17 mb-10 ml-3">
-          <OrderListView
-            Orders={filteredOrders}
-            loading={isLoading}
-            count={filteredOrders.length}
-          />
+        <div
+          id="scrollableOrdersDiv"
+          className="p-4 mb-20 ml-3 overflow-y-auto scrollbar-hide"
+        >
+          <InfiniteScroll
+            dataLength={orders.length}
+            next={loadMore}
+            hasMore={hasMore}
+            loader={
+              <div className="flex justify-center items-center py-4">
+                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-indigo-600"></div>
+              </div>
+            }
+            scrollableTarget="scrollableOrdersDiv"
+            className="p-4"
+          >
+            <OrderListView
+              Orders={orders}
+              loading={isLoading}
+              count={pagination.total}
+            />
+          </InfiniteScroll>
         </div>
       </div>
 
-      <div className="fixed bottom-0 block sm:hidden h-[10vh] w-full">
+      <div className="fixed bottom-0 block sm:hidden h-[fit-content] w-full">
         <OrderBottombar
           setFilterOptions={setFilterOptions}
           filterOptions={filterOptions}

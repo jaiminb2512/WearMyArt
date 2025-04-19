@@ -5,9 +5,10 @@ import Modal from "@mui/material/Modal";
 import { Box, Button } from "@mui/material";
 import { setSelectedLayer } from "../../Redux/TempProductSlice";
 import { AddCircleOutline, UploadFile, Delete } from "@mui/icons-material";
+import { showToast } from "../../Redux/ToastSlice";
 
 const Layers = ({ addText, deleteSelected, saveDesign, addImage }) => {
-  const { SelectedLayer, CustomizeOption } = useSelector(
+  const { SelectedLayer, CustomizeOption, CustomerImg } = useSelector(
     (state) => state.tempProduct
   );
   const dispatch = useDispatch();
@@ -31,6 +32,19 @@ const Layers = ({ addText, deleteSelected, saveDesign, addImage }) => {
     setOpenModal(true);
   };
   const handleCloseModal = () => setOpenModal(false);
+
+  const handleAddImg = () => {
+    if (CustomerImg) {
+      addImage();
+    } else {
+      dispatch(
+        showToast({
+          message: "Please upload image",
+          variant: "error",
+        })
+      );
+    }
+  };
 
   return (
     <div className="flex flex-col w-full  p-4">
@@ -90,7 +104,7 @@ const Layers = ({ addText, deleteSelected, saveDesign, addImage }) => {
             </div>
             <div
               className="w-full flex items-center gap-5 cursor-pointer"
-              onClick={addImage}
+              onClick={handleAddImg}
             >
               <div className="w-[50px] h-[50px] bg-gray-200 border flex justify-center items-center rounded-xl">
                 <h1 className="text-3xl">📷 </h1>

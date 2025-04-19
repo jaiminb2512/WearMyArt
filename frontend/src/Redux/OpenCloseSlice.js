@@ -6,6 +6,7 @@ const initialState = {
   TopBarOpen: false,
   SmScreen: false,
   HideText: false,
+  productFormOpen: false,
 };
 
 const OpenCloseSlice = createSlice({
@@ -33,6 +34,9 @@ const OpenCloseSlice = createSlice({
       state.FilterBarOpen = !action.payload;
       state.HideText = !action.payload;
     },
+    toggleProductFormOpen: (state, action) => {
+      state.productFormOpen = action.payload;
+    },
   },
 });
 
@@ -42,5 +46,6 @@ export const {
   toggleFilterBar,
   toggleSmScreen,
   toggleHideText,
+  toggleProductFormOpen,
 } = OpenCloseSlice.actions;
 export default OpenCloseSlice.reducer;

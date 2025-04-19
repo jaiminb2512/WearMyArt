@@ -12,6 +12,7 @@ const generateOTP = () => {
 
   return { OTP, OTPExpiry };
 };
+
 const validatePassword = (password) => {
   const minLength = 8;
   const maxLength = 16;
@@ -50,14 +51,49 @@ const validatePassword = (password) => {
   return { success: true };
 };
 
+const validateUserCredentials = ({ FullName, Email, Password }) => {
+  if (!FullName || typeof FullName !== "string" || FullName.trim().length < 3) {
+    return {
+      success: false,
+      message: "Full name must be at least 3 characters long.",
+    };
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!Email || !emailRegex.test(Email)) {
+    return {
+      success: false,
+      message: "Invalid email address.",
+    };
+  }
+
+  const passwordValidation = validatePassword(Password);
+  if (!passwordValidation.success) {
+    return passwordValidation;
+  }
+
+  return { success: true };
+};
+
 // Register and verify
 const registerUser = async (req, res) => {
   try {
     const { FullName, Email, Password } = req.body;
 
-    const passwordValidation = validatePassword(Password);
-    if (!passwordValidation.success) {
-      return apiResponse(res, false, null, passwordValidation.message, 400);
+    const userCredentialsValidation = validateUserCredentials({
+      FullName,
+      Email,
+      Password,
+    });
+    if (!userCredentialsValidation.success) {
+      // console.log(userCredentialsValidation);
+      return apiResponse(
+        res,
+        false,
+        null,
+        userCredentialsValidation.message,
+        400
+      );
     }
 
     const existedUser = await User.findOne({ Email });
@@ -102,7 +138,7 @@ const registerUser = async (req, res) => {
       return apiResponse(res, false, null, otpResponse.message, 500);
     }
 
-    await newUser.save();
+    // await newUser.save();
     return apiResponse(
       res,
       true,
@@ -211,7 +247,6 @@ const sendingMailForLoginUser = async (req, res) => {
 
     return apiResponse(res, true, null, "OTP Sent Successfully", 200);
   } catch (error) {
-    console.log(error);
     return apiResponse(res, false, null, error.message, 500);
   }
 };
@@ -373,7 +408,6 @@ const sendingMailForForgotPassword = async (req, res) => {
 
     return apiResponse(res, true, null, "OTP Sent Successfully", 200);
   } catch (error) {
-    console.log(error);
     return apiResponse(res, false, null, error.message, 500);
   }
 };
@@ -400,7 +434,6 @@ const otpVerifyForForgotPassword = async (req, res) => {
 
     return apiResponse(res, true, null, "OTP is Verified", 200);
   } catch (error) {
-    console.log(error);
     return apiResponse(res, false, null, error.message, 500);
   }
 };
@@ -469,52 +502,126 @@ const getAllOwnOrder = async (req, res) => {
       return apiResponse(res, false, null, "Invalid user ID", 400);
     }
 
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
     const customerObjectId = new mongoose.Types.ObjectId(customerId);
 
-    const pipeline = [
-      {
-        $match: {
-          CustomerId: customerObjectId,
-        },
-      },
-      {
-        $sort: {
-          orderDate: -1,
-        },
-      },
-      {
-        $project: {
-          orderId: 1,
-          CustomerImg: 1,
-          FinalProductImg: 1,
-          Font: 1,
-          Text: 1,
-          Color: 1,
-          Quantity: 1,
-          FinalCost: 1,
-          Status: 1,
-        },
-      },
-    ];
+    const filter = {
+      CustomerId: customerObjectId,
+    };
 
-    const result = await Order.aggregate(pipeline);
+    const { Status, CustomizedType, Quantity, FinalCost, OrderDate, Duration } =
+      req.body;
 
-    if (result.length > 0) {
-      apiResponse(res, true, result, "Orders fetched successfully", 200);
-    } else {
-      apiResponse(res, true, null, "No orders found", 200);
+    if (Status && Status.length > 0) {
+      filter.Status = { $in: Status };
     }
+
+    if (CustomizedType && CustomizedType.length > 0) {
+      filter.CustomizedType = { $in: CustomizedType };
+    }
+
+    if (Quantity) {
+      filter.Quantity = Quantity;
+    }
+
+    if (FinalCost && Array.isArray(FinalCost) && FinalCost.length === 2) {
+      filter.FinalCost = {
+        $gte: parseFloat(FinalCost[0]),
+        $lte: parseFloat(FinalCost[1]),
+      };
+    }
+
+    let dateFilter = {};
+
+    if (OrderDate) {
+      const date = new Date(OrderDate);
+      const nextDay = new Date(date);
+      nextDay.setDate(date.getDate() + 1);
+
+      dateFilter = {
+        createdAt: {
+          $gte: date,
+          $lt: nextDay,
+        },
+      };
+    }
+
+    if (Duration && Duration.start && Duration.end) {
+      const startDate = new Date(Duration.start);
+      const endDate = new Date(Duration.end);
+      endDate.setDate(endDate.getDate() + 1);
+
+      dateFilter = {
+        createdAt: {
+          $gte: startDate,
+          $lt: endDate,
+        },
+      };
+    }
+
+    if (Object.keys(dateFilter).length > 0) {
+      Object.assign(filter, dateFilter);
+    }
+
+    const orders = await Order.find(filter)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    const totalOrders = await Order.countDocuments(filter);
+
+    return apiResponse(
+      res,
+      true,
+      {
+        orders,
+        pagination: {
+          total: totalOrders,
+          page,
+          limit,
+          totalPages: Math.ceil(totalOrders / limit),
+        },
+      },
+      "Orders fetched successfully",
+      200
+    );
   } catch (error) {
-    apiResponse(res, false, null, `Error: ${error.message}`, 500);
+    console.error("Error in getAllOwnOrder:", error);
+    return apiResponse(res, false, null, `Error: ${error.message}`, 500);
   }
 };
 const getAllUsers = async (req, res) => {
   try {
-    const AllUser = await User.find({}).select(
-      "_id FullName Email isAdmin isBlocked"
-    );
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
 
-    return apiResponse(res, true, AllUser, "Users Fetched Successfully", 200);
+    const totalUsers = await User.countDocuments();
+
+    const AllUser = await User.find({ isAdmin: false })
+      .select("_id FullName Email isActive isBlocked createdAt")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    return apiResponse(
+      res,
+      true,
+      {
+        AllUser,
+        pagination: {
+          total: totalUsers,
+          page,
+          limit,
+          totalPages: Math.ceil(totalUsers / limit),
+        },
+      },
+      "Users Fetched Successfully",
+      200
+    );
   } catch (error) {
     return apiResponse(res, false, null, error.message, 500);
   }

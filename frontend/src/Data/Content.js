@@ -60,7 +60,7 @@ export const TshirtPrintingStepsData = [
     number: 1,
     title: "Upload Your Design",
     description:
-      "Start by uploading your custom artwork or choose from our design templates to create a unique T-shirt.",
+      "Start by uploading your image or choose from our design templates to create a unique T-shirt.",
   },
   {
     number: 2,

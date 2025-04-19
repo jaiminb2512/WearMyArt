@@ -12,6 +12,7 @@ const ProductImages = ({ imgs = [], altNames = [] }) => {
               key={index}
               src={`${import.meta.env.VITE_BASE_URL}${img}`}
               alt={altNames[index] || "Image"}
+              loading="lazy"
               className={`w-[80px] h-[80px] object-cover cursor-pointer border-2 rounded-md transition-all hover:opacity-75 ${
                 mainImage === img ? "border-blue-500" : "border-transparent"
               }`}
@@ -24,6 +25,7 @@ const ProductImages = ({ imgs = [], altNames = [] }) => {
         <img
           src={`${import.meta.env.VITE_BASE_URL}${mainImage}`}
           alt={altNames[0] || "Image"}
+          loading="lazy"
           className="h-full w-full sm:w-[300px] sm:h-[40vh] object-cover rounded-lg shadow-lg"
         />
       ) : (

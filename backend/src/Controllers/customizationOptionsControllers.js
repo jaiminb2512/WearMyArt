@@ -41,10 +41,10 @@ const addCustomizationOptions = async (req, res) => {
       res,
       true,
       customizationOptions,
-      "Customization options updated successfully"
+      "Customization options updated successfully",
+      201
     );
   } catch (error) {
-    console.error(error);
     return apiResponse(res, false, null, error.message, 500);
   }
 };
@@ -61,7 +61,7 @@ const deleteCustomizationOptions = async (req, res) => {
         false,
         null,
         "Customization options not found",
-        404
+        204
       );
     }
 
@@ -83,7 +83,8 @@ const deleteCustomizationOptions = async (req, res) => {
       res,
       true,
       customizationOptions,
-      "Customization options deleted successfully"
+      "Customization options deleted successfully",
+      200
     );
   } catch (error) {
     return apiResponse(res, false, null, error.message, 500);
@@ -98,7 +99,8 @@ const getCustomizationOptions = async (req, res) => {
       res,
       true,
       customizationOptions,
-      "Customization options Fetched successfully"
+      "Customization options Fetched successfully",
+      200
     );
   } catch (error) {
     return apiResponse(res, false, null, error.message, 500);

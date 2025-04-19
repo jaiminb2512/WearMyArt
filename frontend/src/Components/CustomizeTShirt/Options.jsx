@@ -3,7 +3,6 @@ import { useState, useEffect, useRef } from "react";
 import { HexColorPicker } from "react-colorful";
 import { useDispatch, useSelector } from "react-redux";
 import TextField from "@mui/material/TextField";
-import Autocomplete from "@mui/material/Autocomplete";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
@@ -27,16 +26,12 @@ const Options = () => {
   const dispatch = useDispatch();
 
   const tempProduct = useSelector((state) => state.tempProduct);
-  const { CustomerImg, SelectedLayer, SelectedSize, CustomizedType } =
-    tempProduct;
+  const { CustomerImg, SelectedLayer, SelectedSize } = tempProduct;
 
-  const productCustomization = useSelector((state) => state.tempProduct);
-  const [color, setColorState] = useState(
-    productCustomization.Color || "#aabbcc"
-  );
+  const [color, setColorState] = useState(tempProduct.Color || "#000000");
   const [showPicker, setShowPicker] = useState(false);
-  const selectedFont = productCustomization.Font;
-  const selectedTextStyles = productCustomization.TextStyle || [];
+  const selectedFont = tempProduct.Font;
+  const selectedTextStyles = tempProduct.TextStyle || [];
 
   const pickerRef = useRef(null);
   const { data: fetchedCustomizationOptions = [] } = useFetchData(
@@ -74,8 +69,8 @@ const Options = () => {
     dispatch(setFont(newValue));
 
     let newCost =
-      productCustomization.EditingCost -
-      (fontOptions[productCustomization.Font] || 0) +
+      tempProduct.EditingCost -
+      (fontOptions[tempProduct.Font] || 0) +
       fontOptions[newValue];
 
     dispatch(setEditingCost(newCost));
@@ -96,13 +91,9 @@ const Options = () => {
 
   const sizeOptions = ["Original", "1:2", "9:16", "2:3", "2:4", "4:5", "1:1"];
 
-  const handleSizeChange = (size) => {
-    dispatch(setSelectedSize(size));
-  };
-
   return (
     <div className="w-full">
-      <p>EditingCost : {productCustomization.EditingCost}</p>
+      <p>EditingCost : {tempProduct.EditingCost}</p>
 
       {SelectedLayer === "Photo" && (
         <div className="p-4">
@@ -120,7 +111,7 @@ const Options = () => {
               </p>
             )}
           </div>
-          <h2 className="font-bold text-lg mb-2">Size</h2>
+          {/* <h2 className="font-bold text-lg mb-2">Size</h2>
           <div className="flex gap-2 flex-wrap">
             {sizeOptions.map((size) => (
               <button
@@ -135,7 +126,7 @@ const Options = () => {
                 {size}
               </button>
             ))}
-          </div>
+          </div> */}
         </div>
       )}
 
@@ -147,7 +138,7 @@ const Options = () => {
               variant="standard"
               className="w-full"
               onChange={handleTextChange}
-              value={productCustomization.Text || ""}
+              value={tempProduct.Text || ""}
             />
           </div>
 
@@ -199,7 +190,11 @@ const Options = () => {
                   className="absolute bg-white p-3 border rounded-lg shadow-lg z-50"
                   style={{ marginTop: "10px" }}
                 >
-                  <HexColorPicker color={color} onChange={handleColorChange} />
+                  <HexColorPicker
+                    defaultValue="#000"
+                    color={color}
+                    onChange={handleColorChange}
+                  />
                 </div>
               )}
             </div>

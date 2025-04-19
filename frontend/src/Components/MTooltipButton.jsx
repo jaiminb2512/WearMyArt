@@ -18,7 +18,7 @@ const MTooltipButton = ({
       <Button
         variant={variant}
         color={color}
-        className={className}
+        className={`${className}`}
         onClick={onClick}
         startIcon={startIcon}
       >

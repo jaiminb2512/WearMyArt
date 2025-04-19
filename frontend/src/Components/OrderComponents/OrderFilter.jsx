@@ -9,6 +9,7 @@ import {
   RadioGroup,
   Radio,
   FormControlLabel,
+  Slider,
 } from "@mui/material";
 import Autocomplete from "@mui/material/Autocomplete";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
@@ -38,11 +39,8 @@ const OrderFilter = ({
   const clearFilters = () => {
     setFilterOptions({
       Status: [],
-      OrderDate: "",
-      Duration: { start: "", end: "" },
       Quantity: "",
-      FinalCost: "",
-      OrderID: "",
+      FinalCost: [0, 5000],
       CustomizedType: [],
     });
   };
@@ -98,6 +96,35 @@ const OrderFilter = ({
                   <TextField {...params} label={data.title} />
                 )}
               />
+            ) : data.type === "range slider" ? (
+              <div className="flex flex-col gap-3 px-2">
+                <Slider
+                  getAriaLabel={() => "Minimum distance shift"}
+                  value={filterOptions.FinalCost || [data?.min, data?.max]}
+                  onChange={(e, newValue) => {
+                    if (newValue[1] - newValue[0] >= 100) {
+                      handleInputChange("FinalCost", newValue);
+                    }
+                  }}
+                  onChangeCommitted={(e, newValue) => {
+                    if (newValue[1] - newValue[0] < 100) {
+                      handleInputChange("FinalCost", [
+                        newValue[0],
+                        newValue[0] + 100,
+                      ]);
+                    }
+                  }}
+                  valueLabelDisplay="auto"
+                  min={data?.min || 0}
+                  max={data?.max || 5000}
+                  step={data?.step || 100}
+                  disableSwap
+                />
+                <div className="flex justify-between text-sm text-gray-600">
+                  <span>{data?.min || 0}</span>
+                  <span>{data?.max || 5000}</span>
+                </div>
+              </div>
             ) : data.type === "radio" ? (
               <RadioGroup
                 value={filterOptions[data.title] || ""}
@@ -119,7 +146,7 @@ const OrderFilter = ({
                   fullWidth
                   label="Start Date"
                   InputLabelProps={{ shrink: true }}
-                  value={filterOptions.Duration.start || ""}
+                  value={filterOptions.Duration?.start || ""}
                   onChange={(e) =>
                     handleDurationChange("start", e.target.value)
                   }
@@ -129,7 +156,7 @@ const OrderFilter = ({
                   fullWidth
                   label="End Date"
                   InputLabelProps={{ shrink: true }}
-                  value={filterOptions.Duration.end || ""}
+                  value={filterOptions.Duration?.end || ""}
                   onChange={(e) => handleDurationChange("end", e.target.value)}
                 />
               </div>

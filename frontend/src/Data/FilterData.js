@@ -17,8 +17,10 @@ export const ProductFilterData = [
   },
   {
     title: "Price",
-    Options: ["0-499", "499-999", "999-1999", "1999+"],
-    type: "radio",
+    min: 0,
+    max: 5000,
+    step: 100,
+    type: "range slider",
   },
   {
     title: "Sort",
@@ -50,20 +52,22 @@ export const OrderFilterData = [
   },
   {
     title: "FinalCost",
-    Options: ["0-499", "499-999", "999-1999", "1999+"],
-    type: "radio",
+    min: 0,
+    max: 5000,
+    step: 100,
+    type: "range slider",
   },
 ];
 
 export const AdminOrderFilterData = [
-  // {
-  //   title: "Order Date",
-  //   type: "date",
-  // },
-  // {
-  //   title: "Duration",
-  //   type: "date",
-  // },
+  {
+    title: "OrderDate",
+    type: "date",
+  },
+  {
+    title: "Duration",
+    type: "date",
+  },
   {
     title: "Quantity",
     type: "input",

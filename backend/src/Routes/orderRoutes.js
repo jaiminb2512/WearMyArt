@@ -9,6 +9,7 @@ import {
   updateOrderStatus,
   updateCartQuantity,
   removeCart,
+  orderData,
 } from "../controllers/orderControllers.js";
 import tokenVerification from "../middleware/tokenVerification.js";
 import { upload } from "../middleware/multer.middleware.js";
@@ -46,10 +47,15 @@ router.get(
   (req, res, next) => tokenVerification(req, res, next, true),
   getSingleOrder
 );
-router.get(
+router.post(
   "/get-all-orders",
   (req, res, next) => tokenVerification(req, res, next, true),
   getAllOrder
+);
+router.post(
+  "/order-data",
+  (req, res, next) => tokenVerification(req, res, next, true),
+  orderData
 );
 
 export default router;

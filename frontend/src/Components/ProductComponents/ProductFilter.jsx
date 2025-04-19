@@ -9,6 +9,7 @@ import {
   RadioGroup,
   Radio,
   Button,
+  Slider,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import HighlightOffIcon from "@mui/icons-material/HighlightOff";
@@ -27,11 +28,20 @@ const ProductFilter = ({
 }) => {
   const { user } = useSelector((state) => state.user);
   const isAdmin = user?.isAdmin || false;
+
+  const handleInputChange = (category, value) => {
+    setFilterOptions((prev) => ({
+      ...prev,
+      [category]: value,
+    }));
+  };
+
   const handleCheckboxChange = (category, option) => {
     setFilterOptions((prevFilters) => {
-      const updatedOptions = prevFilters[category].includes(option)
+      const updatedOptions = prevFilters[category]?.includes(option)
         ? prevFilters[category].filter((opt) => opt !== option)
-        : [...prevFilters[category], option];
+        : [...(prevFilters[category] || []), option];
+
       return { ...prevFilters, [category]: updatedOptions };
     });
   };
@@ -39,16 +49,11 @@ const ProductFilter = ({
   const handleRadioChange = (category, option) => {
     if (category === "Sort") {
       setSortOrder(option === "Low to High" ? "lowToHigh" : "highToLow");
-      setFilterOptions((prevFilters) => ({
-        ...prevFilters,
-        [category]: [option],
-      }));
-    } else {
-      setFilterOptions((prevFilters) => ({
-        ...prevFilters,
-        [category]: [option],
-      }));
     }
+    setFilterOptions((prevFilters) => ({
+      ...prevFilters,
+      [category]: [option],
+    }));
   };
 
   const clearFilters = () => {
@@ -57,7 +62,7 @@ const ProductFilter = ({
       Sleeve: [],
       CustomizeOption: [],
       Color: [],
-      Price: [],
+      Price: [0, 2000],
       Sort: ["Low to High"],
       Avalibility: ["All"],
     });
@@ -80,6 +85,7 @@ const ProductFilter = ({
           </Button>
         </div>
       )}
+
       {ProductFilterData.map((data) => {
         const isActive = filterOptions[data.title]?.length > 0;
         return (
@@ -109,6 +115,36 @@ const ProductFilter = ({
                     />
                   ))}
                 </RadioGroup>
+              ) : data.type === "range slider" ? (
+                <div className="flex flex-col gap-3 px-2">
+                  <Slider
+                    value={
+                      filterOptions.Price || [data?.min || 0, data?.max || 2000]
+                    }
+                    onChange={(e, newValue) => {
+                      if (newValue[1] - newValue[0] >= 100) {
+                        handleInputChange("Price", newValue);
+                      }
+                    }}
+                    onChangeCommitted={(e, newValue) => {
+                      if (newValue[1] - newValue[0] < 100) {
+                        handleInputChange("Price", [
+                          newValue[0],
+                          newValue[0] + 100,
+                        ]);
+                      }
+                    }}
+                    valueLabelDisplay="auto"
+                    min={data?.min || 0}
+                    max={data?.max || 2000}
+                    step={data?.step || 100}
+                    disableSwap
+                  />
+                  <div className="flex justify-between text-sm text-gray-600">
+                    <span>{filterOptions.Price?.[0] || data?.min || 0}</span>
+                    <span>{filterOptions.Price?.[1] || data?.max || 2000}</span>
+                  </div>
+                </div>
               ) : (
                 <div className="flex flex-col gap-1">
                   {data.Options.map((option, idx) => (
@@ -131,6 +167,7 @@ const ProductFilter = ({
           </Accordion>
         );
       })}
+
       {isAdmin &&
         AdminProductFilterData.map((data) => {
           const isActive = filterOptions[data.title]?.length > 0;
@@ -187,6 +224,7 @@ const ProductFilter = ({
             </Accordion>
           );
         })}
+
       {BottomBar && (
         <div className="mt-2 w-full flex gap-2">
           <Button variant="outlined" className="w-full" color="success">

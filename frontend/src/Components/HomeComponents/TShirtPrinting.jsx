@@ -2,8 +2,12 @@ import React from "react";
 import HeroImage from "/img/Image 4.png";
 import LaptopImage from "/img/Laptop.png";
 import { TShirtPrintingData } from "../../Data/Content";
+import MTooltipButton from "../MTooltipButton";
+import { useNavigate } from "react-router-dom";
 
 const TShirtPrinting = () => {
+  const navigate = useNavigate();
+
   return (
     <div className="bg-white min-h-screen py-12 px-4 sm:px-[10vw] overflow-x-hidden">
       <div className="flex flex-col sm:flex-row items-center justify-center">
@@ -20,9 +24,15 @@ const TShirtPrinting = () => {
             Create stunning t-shirt designs with our easy-to-use tools.
             Customize your prints and enjoy high-quality results.
           </p>
-          <button className="bg-green-500 text-white py-2 px-6 rounded-lg hover:bg-green-600 transition">
+          <MTooltipButton
+            title="Get Started"
+            className="bg-green-500 text-white py-2 px-6 rounded-lg hover:bg-green-600 transition"
+            variant="contained"
+            color="success"
+            onClick={() => navigate("/products")}
+          >
             Get Started
-          </button>
+          </MTooltipButton>
         </div>
       </div>
 
