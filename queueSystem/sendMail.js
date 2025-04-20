@@ -30,7 +30,6 @@ const sendMail = async (email, name, subject, htmlContent) => {
         },
       }
     );
-    console.log(response);
     return { success: true, message: "OTP sent successfully" };
   } catch (error) {
     return {

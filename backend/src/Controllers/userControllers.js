@@ -5,7 +5,14 @@ import mongoose from "mongoose";
 import { generateAndSetTokens } from "../utils/generateAndSetTokens.js";
 import { sendMail } from "../utils/sendMail.js";
 import bcrypt from "bcrypt";
+import pkg from "bullmq";
+const { Queue } = pkg;
 
+const notificationQueue = new Queue("email-queue", {
+  connection: {
+    url: process.env.REDIS_URL,
+  },
+});
 const generateOTP = () => {
   const OTP = Math.floor(1000 + Math.random() * 9000);
   const OTPExpiry = new Date(Date.now() + 10 * 60 * 1000);
@@ -75,7 +82,6 @@ const validateUserCredentials = ({ FullName, Email, Password }) => {
   return { success: true };
 };
 
-// Register and verify
 const registerUser = async (req, res) => {
   try {
     const { FullName, Email, Password } = req.body;
@@ -86,7 +92,6 @@ const registerUser = async (req, res) => {
       Password,
     });
     if (!userCredentialsValidation.success) {
-      // console.log(userCredentialsValidation);
       return apiResponse(
         res,
         false,
@@ -138,7 +143,6 @@ const registerUser = async (req, res) => {
       return apiResponse(res, false, null, otpResponse.message, 500);
     }
 
-    // await newUser.save();
     return apiResponse(
       res,
       true,
@@ -208,7 +212,6 @@ const activateUser = async (req, res) => {
   }
 };
 
-// Login user
 const sendingMailForLoginUser = async (req, res) => {
   try {
     const { Email } = req.body;
@@ -373,7 +376,6 @@ const makeAdmin = async (req, res) => {
   }
 };
 
-// Forgot password
 const sendingMailForForgotPassword = async (req, res) => {
   try {
     const { Email } = req.body;
@@ -743,7 +745,6 @@ const deleteUser = async (req, res) => {
   }
 };
 
-// Blocking and unblocking users by admin only
 const blockUsers = async (req, res) => {
   try {
     const { userIds } = req.body;
@@ -780,8 +781,19 @@ const blockUsers = async (req, res) => {
         <p>Thank you,</p>
         <p>WearMyArt Team</p>
       `;
-
-      await sendMail(user.Email, senderName, subject, htmlContent);
+      await notificationQueue.add(
+        "send-email",
+        {
+          to: user.Email,
+          subject,
+          senderName,
+          body: htmlContent,
+        },
+        {
+          removeOnComplete: true,
+          removeOnFail: true,
+        }
+      );
     }
 
     return apiResponse(
@@ -833,7 +845,19 @@ const unblockUsers = async (req, res) => {
         <p>WearMyArt Team</p>
       `;
 
-      await sendMail(user.Email, senderName, subject, htmlContent);
+      await notificationQueue.add(
+        "send-email",
+        {
+          to: user.Email,
+          subject,
+          senderName,
+          body: htmlContent,
+        },
+        {
+          removeOnComplete: true,
+          removeOnFail: true,
+        }
+      );
     }
 
     return apiResponse(
