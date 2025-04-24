@@ -8,7 +8,6 @@ import {
   getSingleProduct,
   updateProduct,
   getAllActiveProducts,
-  getLowStockProducts,
 } from "../controllers/productControllers.js";
 import tokenVerification from "../middleware/tokenVerification.js";
 import { upload } from "../middleware/multer.middleware.js";
@@ -37,11 +36,6 @@ router.patch(
   "/recontinue-products",
   (req, res, next) => tokenVerification(req, res, next, true),
   reContinueProducts
-);
-router.get(
-  "/get-low-stock-products",
-  (req, res, next) => tokenVerification(req, res, next, true),
-  getLowStockProducts
 );
 router.get("/single-product/:id", tokenVerification, getSingleProduct);
 router.post(

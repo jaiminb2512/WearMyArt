@@ -4,21 +4,24 @@ import apiResponse from "../utils/apiResponse.js";
 import productValidate from "../utils/productValidate.js";
 import { sendOrderConfirmationEmail } from "../utils/sendMail.js";
 import deleteFiles from "../utils/deleteFiles.js";
+import notificationQueue from "../queues/notificationQueue.js";
 
 const addOrder = async (req, res) => {
   try {
     const { CustomizedType, Quantity, FinalCost, ProductId } = req.body;
-
-    const FinalProductImg = `/uploads/${req.files.FinalProductImg[0].filename}`;
-
+    const { Email, FullName } = req.user;
     const CustomerId = req.user._id;
 
     if (!CustomizedType) {
       return apiResponse(res, false, null, "CustomizedType is required", 400);
     }
-    const { Size } = productValidate(ProductId, res, Quantity);
+    if (!FinalCost) {
+      return apiResponse(res, false, null, "FinalCost is required", 400);
+    }
 
-    if (!FinalProductImg) {
+    productValidate(ProductId, res, Quantity);
+
+    if (!req.files?.FinalProductImg?.[0]) {
       return apiResponse(
         res,
         false,
@@ -27,142 +30,120 @@ const addOrder = async (req, res) => {
         400
       );
     }
+    const FinalProductImg = `/uploads/${req.files.FinalProductImg[0].filename}`;
 
-    if (!FinalCost) {
-      return apiResponse(res, false, null, "FinalCost is required", 404);
+    const orderBase = {
+      ProductId,
+      CustomerId,
+      Quantity,
+      FinalCost,
+      FinalProductImg,
+      CustomizedType,
+    };
+
+    let newOrder;
+    const senderName = "WearMyArt";
+    const subject = "Add Order";
+    const emailData = {
+      to: Email,
+      name: FullName,
+      subject,
+      senderName,
+      topic: "addOrder",
+    };
+
+    switch (CustomizedType) {
+      case "Text":
+        const { Font, Text, Color, TextStyle } = req.body;
+
+        let parsedTextStyle = TextStyle;
+        if (typeof TextStyle === "string") {
+          try {
+            parsedTextStyle = JSON.parse(TextStyle);
+          } catch (err) {
+            console.error("Failed to parse TextStyle:", TextStyle);
+          }
+        }
+        console.log(parsedTextStyle);
+        newOrder = new Order({
+          ...orderBase,
+          Font,
+          Text,
+          Color,
+          TextStyle: parsedTextStyle,
+        });
+        break;
+
+      case "Photo":
+        if (!req.files?.CustomerImg?.[0]) {
+          return apiResponse(res, false, null, "Customer Img is required", 400);
+        }
+        const CustomerImg = `/uploads/${req.files.CustomerImg[0].filename}`;
+        newOrder = new Order({
+          ...orderBase,
+          CustomerImg,
+        });
+        break;
+
+      case "Both":
+        const {
+          Font: bothFont,
+          Text: bothText,
+          Color: bothColor,
+          TextStyle: bothTextStyle,
+        } = req.body;
+        if (!req.files?.CustomerImg?.[0]) {
+          return apiResponse(res, false, null, "Customer Img is required", 400);
+        }
+        const BothCustomerImg = `/uploads/${req.files.CustomerImg[0].filename}`;
+        newOrder = new Order({
+          ...orderBase,
+          CustomerImg: BothCustomerImg,
+          Font: bothFont,
+          Text: bothText,
+          Color: bothColor,
+          TextStyle: bothTextStyle,
+        });
+        break;
+
+      default:
+        return apiResponse(res, false, null, "Invalid CustomizedType", 400);
     }
 
-    const { Email, FullName } = req.user;
-
-    if (CustomizedType === "Text") {
-      const { Font, Text, Color, TextStyle } = req.body;
-
-      const newOrder = new Order({
-        ProductId,
-        CustomerId,
-        Font,
-        TextStyle,
-        Text,
-        Color,
-        Quantity,
-        FinalCost,
-        FinalProductImg,
-        CustomizedType: "Text",
-      });
-
-      await newOrder.save();
-
-      await sendOrderConfirmationEmail(
-        Email,
-        FullName,
-        [newOrder],
-        [FinalProductImg]
-      );
-
-      return apiResponse(
-        res,
-        true,
-        newOrder,
-        "Order is Successfully placed",
-        201
-      );
-    } else if (CustomizedType === "Photo") {
-      const CustomerImg = `/uploads/${req.files.CustomerImg[0].filename}`;
-
-      if (!CustomerImg) {
-        return apiResponse(res, false, null, "Customer Img is required", 400);
+    const savedOrder = await newOrder.save();
+    await notificationQueue.add(
+      "send-email",
+      {
+        ...emailData,
+        data: {
+          newOrder: [newOrder],
+          FinalProductImg: [FinalProductImg],
+        },
+      },
+      {
+        removeOnComplete: true,
+        removeOnFail: true,
       }
+    );
 
-      const newOrder = new Order({
-        ProductId,
-        CustomerImg,
-        CustomerId,
-        Quantity,
-        FinalCost,
-        FinalProductImg,
-        CustomizedType: "Photo",
-      });
-
-      await newOrder.save();
-
-      await sendOrderConfirmationEmail(
-        Email,
-        FullName,
-        [newOrder],
-        [FinalProductImg]
-      );
-
-      return apiResponse(
-        res,
-        true,
-        newOrder,
-        "Order is Successfully placed",
-        201
-      );
-    } else if (CustomizedType === "Both") {
-      const { Font, Text, Color, TextStyle } = req.body;
-      const CustomerImg = `/uploads/${req.files.CustomerImg[0].filename}`;
-
-      if (!CustomerImg && !FinalProductImg) {
-        return apiResponse(
-          res,
-          false,
-          null,
-          "Customer Img and Final Product Image is required",
-          400
-        );
-      }
-
-      if (!CustomerImg && FinalProductImg) {
-        return apiResponse(res, false, null, "Customer Img is required", 400);
-      }
-
-      if (!FinalProductImg) {
-        deleteFiles([`/uploads/${req.files["CustomerImg"][0].filename}`]);
-        return apiResponse(
-          res,
-          false,
-          null,
-          "Final Product Image is required",
-          400
-        );
-      }
-
-      const newOrder = new Order({
-        ProductId,
-        CustomerImg,
-        CustomerId,
-        Quantity,
-        FinalCost,
-        FinalProductImg,
-        Font,
-        TextStyle,
-        Text,
-        Color,
-        CustomizedType: "Both",
-      });
-
-      await newOrder.save();
-
-      await sendOrderConfirmationEmail(
-        Email,
-        FullName,
-        [newOrder],
-        [FinalProductImg]
-      );
-
-      return apiResponse(
-        res,
-        true,
-        newOrder,
-        "Order is Successfully placed",
-        201
-      );
-    }
+    return apiResponse(
+      res,
+      true,
+      savedOrder,
+      "Order is Successfully placed",
+      201
+    );
   } catch (error) {
-    if (req.files?.CustomerImg?.[0])
-      deleteFiles([`/uploads/${req.filesCustomerImg?.[0].filename}`]);
-    deleteFiles([`/uploads/${req.files.FinalProductImg?.[0].filename}`]);
+    const filesToDelete = [];
+    if (req.files?.CustomerImg?.[0]) {
+      filesToDelete.push(`/uploads/${req.files.CustomerImg[0].filename}`);
+    }
+    if (req.files?.FinalProductImg?.[0]) {
+      filesToDelete.push(`/uploads/${req.files.FinalProductImg[0].filename}`);
+    }
+    if (filesToDelete.length) {
+      deleteFiles(filesToDelete);
+    }
     return apiResponse(res, false, null, error.message, 500);
   }
 };
@@ -668,11 +649,34 @@ const updateOrderStatus = async (req, res) => {
       id,
       { $set: { Status: status } },
       { new: true, runValidators: true }
-    );
+    ).populate({
+      path: "CustomerId",
+      model: "User",
+      select: "FullName Email",
+    });
 
     if (!order) {
-      return apiResponse(res, false, null, "Order not found", 204);
+      return apiResponse(res, false, null, "Order not found", 404);
     }
+
+    const senderName = "WearMyArt";
+    const subject = "Order Status Update";
+
+    await notificationQueue.add(
+      "send-email",
+      {
+        to: order.CustomerId.Email,
+        name: order.CustomerId.FullName,
+        subject,
+        senderName,
+        data: order,
+        topic: "orderStatusChanged",
+      },
+      {
+        removeOnComplete: true,
+        removeOnFail: true,
+      }
+    );
 
     return apiResponse(
       res,

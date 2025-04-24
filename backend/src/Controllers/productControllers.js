@@ -391,41 +391,6 @@ const reContinueProducts = async (req, res) => {
   }
 };
 
-const getLowStockProducts = async (req, res) => {
-  try {
-    const { Stock } = req.body;
-
-    if (!Stock) {
-      return apiResponse(res, false, null, "Stock value is required", 400);
-    }
-
-    const Products = await Product.find({
-      Stock: { $lt: Stock },
-      isDiscontinued: false,
-    });
-
-    if (Products.length === 0) {
-      return apiResponse(
-        res,
-        true,
-        [],
-        "No products found with stock less than " + Stock,
-        204
-      );
-    }
-
-    return apiResponse(
-      res,
-      true,
-      Products,
-      "Products retrieved successfully",
-      200
-    );
-  } catch (error) {
-    return apiResponse(res, false, null, error.message, 500);
-  }
-};
-
 export {
   addProduct,
   getAllCustomersOfProduct,
@@ -435,5 +400,4 @@ export {
   updateProduct,
   disContinueProducts,
   reContinueProducts,
-  getLowStockProducts,
 };

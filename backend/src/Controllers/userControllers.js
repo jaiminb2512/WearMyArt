@@ -5,16 +5,10 @@ import mongoose from "mongoose";
 import { generateAndSetTokens } from "../utils/generateAndSetTokens.js";
 import { sendMail } from "../utils/sendMail.js";
 import bcrypt from "bcrypt";
-import pkg from "bullmq";
-const { Queue } = pkg;
+import notificationQueue from "../queues/notificationQueue.js";
 
-const notificationQueue = new Queue("email-queue", {
-  connection: {
-    url: process.env.REDIS_URL,
-  },
-});
 const generateOTP = () => {
-  const OTP = Math.floor(1000 + Math.random() * 9000);
+  const OTP = Math.floor(100000 + Math.random() * 900000);
   const OTPExpiry = new Date(Date.now() + 10 * 60 * 1000);
 
   return { OTP, OTPExpiry };
@@ -126,6 +120,8 @@ const registerUser = async (req, res) => {
       OTPExpiry,
     });
 
+    await newUser.save();
+
     const htmlContent = `
       <p>Hello, ${FullName}</p>
       <p>Thank you for registering with WearMyArt!</p>
@@ -148,63 +144,6 @@ const registerUser = async (req, res) => {
       true,
       null,
       "User created successfully and OTP sent",
-      200
-    );
-  } catch (error) {
-    return apiResponse(res, false, null, error.message, 500);
-  }
-};
-const activateUser = async (req, res) => {
-  try {
-    const { Email, OTP } = req.body;
-    const existedUser = await User.findOne({ Email });
-
-    if (!existedUser) {
-      return apiResponse(
-        res,
-        false,
-        null,
-        "User does not exist with this email",
-        401
-      );
-    }
-
-    if (OTP != existedUser.OTP || existedUser.OTPExpiry < Date.now()) {
-      return apiResponse(
-        res,
-        false,
-        null,
-        "Invalid OTP or OTP has expired, please try again",
-        401
-      );
-    }
-
-    existedUser.isActive = true;
-    await existedUser.save();
-
-    const htmlContent = `
-      <p>Hello, ${existedUser.FullName}</p>
-      <p>Congratulations! Your account has been successfully activated.</p>
-      <p>You can now access all the features available to activated users. Thank you for being a part of our community!</p>
-    `;
-
-    const name = "WearMyArt Email Verification Successful";
-    const subject = "Email verification successfully completed on WearMyArt";
-    const otpResponse = await sendMail(Email, name, subject, htmlContent);
-
-    const { RefreshToken } = generateAndSetTokens(existedUser._id, res);
-
-    const userResponse = {
-      FullName: existedUser.FullName,
-      Email,
-      isAdmin: existedUser.isAdmin,
-    };
-
-    return apiResponse(
-      res,
-      true,
-      { user: userResponse, RefreshToken },
-      "User activated successfully",
       200
     );
   } catch (error) {
@@ -272,7 +211,7 @@ const loginUser = async (req, res) => {
     }
 
     if (!user.isActive) {
-      return apiResponse(res, false, null, "User is not verified", 400);
+      return apiResponse(res, false, null, "User is not verified", 403);
     }
 
     if (Password) {
@@ -591,7 +530,6 @@ const getAllOwnOrder = async (req, res) => {
       200
     );
   } catch (error) {
-    console.error("Error in getAllOwnOrder:", error);
     return apiResponse(res, false, null, `Error: ${error.message}`, 500);
   }
 };
@@ -673,31 +611,23 @@ const updateUser = async (req, res) => {
       Email: updatedUser.Email,
     };
 
-    const htmlContent = `
-      <p>Hello, ${updatedUser.FullName}</p>
-      <p>Your profile details have been updated successfully on WearMyArt.</p>
-      <p>If you did not make these changes, please contact our support team immediately.</p>
-      <p>Thank you for being a part of WearMyArt!</p>
-    `;
-
-    const name = "WearMyArt Support";
+    const senderName = "WearMyArt Support";
     const subject = "Your Profile Has Been Updated";
-    const emailResponse = await sendMail(
-      updatedUser.Email,
-      name,
-      subject,
-      htmlContent
-    );
 
-    if (!emailResponse.success) {
-      return apiResponse(
-        res,
-        true,
-        { user: userResponse },
-        "User updated, but email notification failed",
-        200
-      );
-    }
+    await notificationQueue.add(
+      "send-email",
+      {
+        to: updatedUser.Email,
+        name: updatedUser.FullName,
+        subject,
+        senderName,
+        topic: "nameChanged",
+      },
+      {
+        removeOnComplete: true,
+        removeOnFail: true,
+      }
+    );
 
     return apiResponse(
       res,
@@ -726,20 +656,163 @@ const logoutUser = async (req, res) => {
   }
 };
 
-const deleteUser = async (req, res) => {
+// Activate - deactivate user
+const deActivateUser = async (req, res) => {
   try {
     const { _id } = req.user;
-    const DeleteUser = await User.findById(_id);
 
-    if (!DeleteUser) {
+    const deActivatedUser = await User.findByIdAndUpdate(
+      _id,
+      { isActive: false },
+      { new: true }
+    );
+
+    if (!deActivatedUser) {
       return apiResponse(res, false, null, "User not found", 400);
     }
 
-    DeleteUser.isActive = false;
+    const options = {
+      httpOnly: true,
+      secure: true,
+    };
 
-    await DeleteUser.save();
+    res.clearCookie("RefreshToken", options);
 
-    return apiResponse(res, true, null, "User is succesfully Deleted", 200);
+    const senderName = "WearMyArt Support";
+    const subject = "Account deactivation Notification";
+
+    notificationQueue.add(
+      "send-email",
+      {
+        to: req.user.Email,
+        name: req.user.FullName,
+        subject,
+        senderName,
+        topic: "deActivateUser",
+      },
+      {
+        removeOnComplete: true,
+        removeOnFail: true,
+      }
+    );
+
+    return apiResponse(
+      res,
+      true,
+      null,
+      "User is successfully deactivated",
+      200
+    );
+  } catch (error) {
+    return apiResponse(res, false, null, error.message, 500);
+  }
+};
+const sendingMailForActivate = async (req, res) => {
+  try {
+    const { Email } = req.body;
+
+    const user = await User.findOne({ Email });
+
+    if (!user) {
+      return apiResponse(res, false, null, "Invalid Email", 400);
+    }
+
+    if (user.isBlocked) {
+      return apiResponse(res, false, null, "User is blocked", 403);
+    }
+
+    if (user.isActive) {
+      return apiResponse(res, false, null, "User is already activated", 400);
+    }
+
+    const { OTP, OTPExpiry } = generateOTP();
+
+    user.OTP = OTP;
+    user.OTPExpiry = OTPExpiry;
+
+    const htmlContent = `
+      <p>Hello, ${user.FullName}</p>
+      <p>You’ve requested to activate your WearMyArt account. Your One-Time Password (OTP) is: <strong>${OTP}</strong></p>
+      <p>This OTP will expire in 10 minutes. Please use it to verify your account and activate access.</p>
+      <p>If you did not request this activation, please ignore this message or contact our support team.</p>
+      <p>Thank you,<br/>The WearMyArt Team</p>
+    `;
+
+    const senderName = "WearMyArt";
+    const subject = "WearMyArt Account Activation OTP";
+
+    await sendMail(Email, senderName, subject, htmlContent);
+    await user.save();
+
+    return apiResponse(
+      res,
+      true,
+      null,
+      "OTP sent successfully for account activation",
+      200
+    );
+  } catch (error) {
+    return apiResponse(res, false, null, error.message, 500);
+  }
+};
+const verifyActivationOTP = async (req, res) => {
+  try {
+    const { Email, OTP } = req.body;
+
+    const user = await User.findOne({ Email });
+
+    if (!user) {
+      return apiResponse(res, false, null, "User not found", 404);
+    }
+
+    if (user.isActive) {
+      return apiResponse(res, false, null, "Account is already active", 400);
+    }
+
+    if (user.OTP != OTP) {
+      return apiResponse(res, false, null, "Invalid OTP", 400);
+    }
+
+    if (new Date() > user.OTPExpiry) {
+      return apiResponse(res, false, null, "OTP has expired", 400);
+    }
+
+    user.isActive = true;
+    await user.save();
+
+    const senderName = "WearMyArt Support";
+    const subject = "Account activation Notification";
+
+    await notificationQueue.add(
+      "send-email",
+      {
+        to: user.Email,
+        name: user.FullName,
+        subject,
+        senderName,
+        topic: "activateUser",
+      },
+      {
+        removeOnComplete: true,
+        removeOnFail: true,
+      }
+    );
+
+    const { RefreshToken } = generateAndSetTokens(user._id, res);
+
+    const userResponse = {
+      FullName: user.FullName,
+      Email,
+      isAdmin: user.isAdmin,
+    };
+
+    return apiResponse(
+      res,
+      true,
+      { user: userResponse, RefreshToken },
+      "User activated successfully",
+      200
+    );
   } catch (error) {
     return apiResponse(res, false, null, error.message, 500);
   }
@@ -749,13 +822,13 @@ const blockUsers = async (req, res) => {
   try {
     const { userIds } = req.body;
 
-    if (!userIds || !Array.isArray(userIds) || userIds.length === 0) {
+    if (!Array.isArray(userIds) || userIds.length === 0) {
       return apiResponse(res, false, null, "User IDs array is required", 400);
     }
 
-    const users = await User.find({ _id: { $in: userIds } });
+    const foundUsers = await User.find({ _id: { $in: userIds } });
 
-    if (users.length === 0) {
+    if (foundUsers.length === 0) {
       return apiResponse(
         res,
         false,
@@ -773,28 +846,24 @@ const blockUsers = async (req, res) => {
     const senderName = "WearMyArt Support";
     const subject = "Account Blocked Notification";
 
-    for (const user of users) {
-      const htmlContent = `
-        <p>Hello, ${user.FullName}</p>
-        <p>Your account has been temporarily blocked due to policy violations or security concerns.</p>
-        <p>If you believe this was a mistake, please contact our support team.</p>
-        <p>Thank you,</p>
-        <p>WearMyArt Team</p>
-      `;
-      await notificationQueue.add(
+    const emailJobs = foundUsers.map((user) =>
+      notificationQueue.add(
         "send-email",
         {
           to: user.Email,
+          name: user.FullName,
           subject,
           senderName,
-          body: htmlContent,
+          topic: "blockUser",
         },
         {
           removeOnComplete: true,
           removeOnFail: true,
         }
-      );
-    }
+      )
+    );
+
+    await Promise.all(emailJobs);
 
     return apiResponse(
       res,
@@ -816,9 +885,9 @@ const unblockUsers = async (req, res) => {
       return apiResponse(res, false, null, "User IDs array is required", 400);
     }
 
-    const users = await User.find({ _id: { $in: userIds } });
+    const foundUsers = await User.find({ _id: { $in: userIds } });
 
-    if (users.length === 0) {
+    if (foundUsers.length === 0) {
       return apiResponse(
         res,
         false,
@@ -836,29 +905,24 @@ const unblockUsers = async (req, res) => {
     const senderName = "WearMyArt Support";
     const subject = "Account Unblocked Notification";
 
-    for (const user of users) {
-      const htmlContent = `
-        <p>Hello, ${user.FullName}</p>
-        <p>We are pleased to inform you that your account has been unblocked and restored.</p>
-        <p>You can now log in and continue using our services.</p>
-        <p>Thank you,</p>
-        <p>WearMyArt Team</p>
-      `;
-
-      await notificationQueue.add(
+    const emailJobs = foundUsers.map((user) =>
+      notificationQueue.add(
         "send-email",
         {
           to: user.Email,
+          name: user.FullName,
           subject,
           senderName,
-          body: htmlContent,
+          topic: "unblockUser",
         },
         {
           removeOnComplete: true,
           removeOnFail: true,
         }
-      );
-    }
+      )
+    );
+
+    await Promise.all(emailJobs);
 
     return apiResponse(
       res,
@@ -874,7 +938,6 @@ const unblockUsers = async (req, res) => {
 
 export {
   registerUser,
-  activateUser,
   sendingMailForLoginUser,
   loginUser,
   sendingMailForForgotPassword,
@@ -883,7 +946,9 @@ export {
   getSingleUser,
   updateUser,
   logoutUser,
-  deleteUser,
+  deActivateUser,
+  sendingMailForActivate,
+  verifyActivationOTP,
   makeAdmin,
   blockUsers,
   unblockUsers,

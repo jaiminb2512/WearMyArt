@@ -1,17 +1,55 @@
 import "dotenv/config";
 import pkg from "bullmq";
 import { sendMail } from "./sendMail.js";
+import {
+  generateAddOrderEmailContent,
+  generateBlockUserEmailContent,
+  generateStatusChangeOfOrderEmailContent,
+  generateUnBlockUserEmailContent,
+  generateUpdateUserEmailContent,
+  generateActivateUserEmailContent,
+  generateDeActivateUserEmailContent,
+} from "./emailTemplate.js";
 
 const { Worker } = pkg;
 
 const emailWorker = new Worker(
   "email-queue",
   async (job) => {
-    const { to, senderName, subject, body } = job.data;
+    const { to, senderName, name, subject, topic } = job.data;
+
+    let body = "";
+    if (topic == "blockUser") {
+      body = generateBlockUserEmailContent(name);
+    } else if (topic == "unblockUser") {
+      body = generateUnBlockUserEmailContent(name);
+    } else if (topic == "nameChanged") {
+      body = generateUpdateUserEmailContent(name);
+    } else if (topic == "orderStatusChanged") {
+      const { data } = job.data;
+      body = generateStatusChangeOfOrderEmailContent(name, data);
+    } else if (topic == "addOrder") {
+      const { data } = job.data;
+
+      const orderDetailsArray = data.newOrder;
+      const finalProductImgs = data.FinalProductImg;
+
+      body = generateAddOrderEmailContent(
+        name,
+        orderDetailsArray,
+        finalProductImgs
+      );
+    } else if (topic == "activateUser") {
+      body = generateActivateUserEmailContent(name);
+    } else if (topic == "deActivateUser") {
+      body = generateDeActivateUserEmailContent(name);
+    } else {
+      console.log(`Invalid Topic ${topic}`);
+      return;
+    }
 
     await sendMail(to, senderName, subject, body);
-
-    return "Email sent successfully!";
+    return;
   },
   {
     connection: {
