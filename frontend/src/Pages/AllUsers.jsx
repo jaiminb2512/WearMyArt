@@ -65,7 +65,6 @@ const AllUsers = () => {
     };
   }, []);
 
-  // Use the user mutations hook with a callback to update local state
   const {
     handleBlockUser,
     handleUnBlockUser,

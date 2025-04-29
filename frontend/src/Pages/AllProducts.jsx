@@ -129,10 +129,10 @@ const AllProducts = () => {
     <div className="flex h-screen overflow-x-hidden">
       {FilterBarOpen && (
         <div
-          className={`fixed top-17 hidden h-screen overflow-y-auto scrollbar-hide border-r transition-all duration-300
+          className={`fixed hidden h-screen overflow-y-auto scrollbar-hide border-r transition-all duration-300
           ${FilterBarOpen ? "lg:w-[25vw] xl:w-[20vw] lg:block" : "w-0 sm:w-0"}`}
         >
-          <div className="pl-[2vw] pt-[5vh] pr-5">
+          <div className="pl-[2vw] pt-[2vh] pr-5">
             <ProductFilter
               setFilterOptions={setFilterOptions}
               filterOptions={filterOptions}

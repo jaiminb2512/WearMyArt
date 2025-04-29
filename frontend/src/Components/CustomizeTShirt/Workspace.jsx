@@ -9,6 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 import * as fabric from "fabric";
 import { clearProductData, setSize } from "../../Redux/tempProductSlice";
 import { showToast } from "../../Redux/ToastSlice";
+import { useNavigate } from "react-router-dom";
 
 const Workspace = forwardRef((props, ref) => {
   useEffect(() => {
@@ -33,9 +34,9 @@ const Workspace = forwardRef((props, ref) => {
     height: 300,
   });
 
-  const ProductImg =
-    // `${import.meta.env.VITE_BASE_URL}${tempProduct?.ProductImg}` ||
-    "http://localhost:3000/uploads/ProductImages-1740638255560-756813806.jpg";
+  const ProductImg = `${import.meta.env.VITE_BASE_URL}${
+    tempProduct?.ProductImg
+  }`;
 
   const canvaRef = useRef(null);
   const fabricRef = useRef(null);

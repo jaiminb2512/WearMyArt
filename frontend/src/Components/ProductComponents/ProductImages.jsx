@@ -10,7 +10,7 @@ const ProductImages = ({ imgs = [], altNames = [] }) => {
           imgs.map((img, index) => (
             <img
               key={index}
-              src={`${import.meta.env.VITE_BASE_URL}${img}`}
+              src={`${import.meta.env.VITE_BASE_URL}/${img}`}
               alt={altNames[index] || "Image"}
               loading="lazy"
               className={`w-[80px] h-[80px] object-cover cursor-pointer border-2 rounded-md transition-all hover:opacity-75 ${
@@ -26,7 +26,7 @@ const ProductImages = ({ imgs = [], altNames = [] }) => {
           src={`${import.meta.env.VITE_BASE_URL}${mainImage}`}
           alt={altNames[0] || "Image"}
           loading="lazy"
-          className="h-full w-full sm:w-[300px] sm:h-[40vh] object-cover rounded-lg shadow-lg"
+          className="h-full w-full sm:w-[300px] sm:h-[40vh] object-fit rounded-lg shadow-lg"
         />
       ) : (
         <div className="flex items-center justify-center h-[40vh] w-[300px] bg-gray-200 rounded-lg shadow-lg">

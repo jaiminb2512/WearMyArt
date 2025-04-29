@@ -30,9 +30,7 @@ const CustomizeProduct = () => {
     const canvas = document.querySelector("canvas");
     if (!canvas) return false;
 
-    // const ProductImg = `${import.meta.env.VITE_BASE_URL}${product?.ProductImg}`;
-    const ProductImg =
-      "http://localhost:3000/uploads/ProductImages-1740638255560-756813806.jpg";
+    const ProductImg = `${import.meta.env.VITE_BASE_URL}${product?.ProductImg}`;
 
     const tempCanvas = document.createElement("canvas");
     tempCanvas.width = product.size;

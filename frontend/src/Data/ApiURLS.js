@@ -22,10 +22,20 @@ const ApiURLS = {
   BlockUsers: { url: "/api/user/block-users", method: "PATCH" },
   UnblockUsers: { url: "/api/user/unblock-users", method: "PATCH" },
   UpdateUser: { url: "/api/user/update-user", method: "PUT" },
-  DeleteUser: { url: "/api/user/delete", method: "DELETE" },
   Logout: { url: "/api/user/logout", method: "POST" },
   GetAllOwnOrders: { url: "/api/user/get-all-own-orders", method: "POST" },
   GetAllUser: { url: "/api/user/get-all-users", method: "GET" },
+
+  // Activate - deactivate user
+  DeActivateUser: { url: "/api/user/deactivate-user", method: "PUT" },
+  SendingMailForActivate: {
+    url: "/api/user/sending-mail-for-activation",
+    method: "POST",
+  },
+  VerifyActivationOTP: {
+    url: "/api/user/verify-activation-otp",
+    method: "PUT",
+  },
 
   // Product
   AddProduct: { url: "/api/product/add-product", method: "POST" },
@@ -38,10 +48,6 @@ const ApiURLS = {
   RecontinueProducts: {
     url: "/api/product/recontinue-products",
     method: "PATCH",
-  },
-  GetLowStockProducts: {
-    url: "/api/product/get-low-stock-products",
-    method: "GET",
   },
   GetSingleProduct: { url: "/api/product/single-product", method: "GET" },
   GetAllProduct: { url: "/api/product/get-all-products", method: "POST" },

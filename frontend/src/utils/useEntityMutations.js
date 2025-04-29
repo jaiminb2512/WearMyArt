@@ -2,7 +2,6 @@ import { useDispatch } from "react-redux";
 import { showPopup } from "../Redux/popupSlice";
 import ApiURLS from "../Data/ApiURLS";
 import { useApiMutation } from "./apiRequest";
-import { useState } from "react";
 
 export const useConfirmationPopup = () => {
   const dispatch = useDispatch();
@@ -13,6 +12,7 @@ export const useConfirmationPopup = () => {
     confirmText = "Confirm",
     confirmColor = "primary",
     cancelText = "Cancel",
+    cancelClick = null,
   }) => {
     dispatch(
       showPopup({
@@ -22,6 +22,7 @@ export const useConfirmationPopup = () => {
           {
             text: cancelText,
             color: "secondary",
+            cancelClick: cancelClick,
           },
           {
             text: confirmText,

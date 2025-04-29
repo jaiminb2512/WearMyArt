@@ -105,12 +105,12 @@ const SingleOrder = ({
   const nextColor = statusFlow[currentIndex + 1]?.color || "default";
 
   return (
-    <div className="w-full h-full mx-auto p-4 rounded-lg flex flex-col gap-6">
+    <div className="w-full h-full mx-auto p-4 rounded-lg flex flex-col gap-2">
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="w-full sm:w-1/2">
           <ProductImages imgs={imgs} altNames={altNames} />
         </div>
-        <div className="w-full sm:w-2/3 flex flex-col gap-2 justify-center">
+        <div className="p-4 w-full sm:w-1/2 flex flex-col gap-2 justify-center">
           <p className="text-lg font-light">Order ID: {_id}</p>
           <p>
             <span className="font-medium">Status:</span>

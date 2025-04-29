@@ -48,7 +48,7 @@ const Sidebar = () => {
                   : ""
               }`}
               onClick={() => {
-                navigate(`/dashboard${menu.path}`);
+                navigate(`${menu.path}`);
                 if (SmScreen) dispatch(toggleSidebar(false));
               }}
             >

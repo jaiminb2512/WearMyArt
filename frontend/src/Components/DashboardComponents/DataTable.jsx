@@ -123,13 +123,13 @@ const DataTable = ({ data, columns, title, type }) => {
       }
       if (column.key === "totalRevenue") {
         return (
-          <span className="font-medium">${formatNumber(item[column.key])}</span>
+          <span className="font-medium">₹{formatNumber(item[column.key])}</span>
         );
       }
     } else if (type === "customer") {
       if (column.key === "totalSpent") {
         return (
-          <span className="font-medium">${formatNumber(item[column.key])}</span>
+          <span className="font-medium">₹{formatNumber(item[column.key])}</span>
         );
       }
     }
@@ -162,7 +162,7 @@ const DataTable = ({ data, columns, title, type }) => {
     } else if (type === "customer") {
       if (column.key === "totalSpent") {
         return (
-          <span className="font-medium">${formatNumber(item[column.key])}</span>
+          <span className="font-medium">₹{formatNumber(item[column.key])}</span>
         );
       }
     }

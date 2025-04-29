@@ -158,7 +158,12 @@ const Popup = () => {
               key={index}
               variant={button.variant || "contained"}
               onClick={() => {
-                if (button.onClick) button.onClick();
+                // Check if it's a cancel button with cancelClick handler
+                if (index === 0 && button.cancelClick) {
+                  button.cancelClick();
+                } else if (button.onClick) {
+                  button.onClick();
+                }
                 if (!button.keepOpen) handleClose();
               }}
               color={button.color || "primary"}

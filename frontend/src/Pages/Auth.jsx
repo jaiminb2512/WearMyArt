@@ -7,6 +7,7 @@ import LockOpenIcon from "@mui/icons-material/LockOpen";
 import LoginForm from "../Components/Auth/LoginForm";
 import RegisterForm from "../Components/Auth/RegisterForm";
 import ForgotPasswordForm from "../Components/Auth/ForgotPasswordForm";
+import ActivationForm from "../Components/Auth/ActivationForm";
 
 export default function AuthPage() {
   const location = useLocation();
@@ -15,6 +16,7 @@ export default function AuthPage() {
   const isLogin = location.pathname === "/login";
   const isRegister = location.pathname === "/register";
   const isForgotPassword = location.pathname === "/forgot-password";
+  const isActivateUser = location.pathname === "/activate-user";
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gradient-to-b from-[#C5F1E1] to-white p-4">
@@ -40,16 +42,20 @@ export default function AuthPage() {
                 ? "New to Our Platform?"
                 : isRegister
                 ? "Already a member?"
-                : "Reset Your Password"}
+                : isForgotPassword
+                ? "Reset Your Password"
+                : "Account Activation"}
             </h2>
             <p className="text-md mb-4">
               {isLogin
                 ? "Join us today and explore exclusive features tailored just for you. Create an account in seconds and start your journey!"
                 : isRegister
                 ? "Welcome back! Log in to access your account and continue enjoying our services with ease."
-                : "Enter your email and we’ll send you instructions to reset your password."}
+                : isForgotPassword
+                ? "Enter your email and we'll send you instructions to reset your password."
+                : "Enter your email to receive an activation OTP and verify your account."}
             </p>
-            {!isForgotPassword && (
+            {!isForgotPassword && !isActivateUser && (
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -78,6 +84,7 @@ export default function AuthPage() {
           {isLogin && <LoginForm />}
           {isRegister && <RegisterForm />}
           {isForgotPassword && <ForgotPasswordForm />}
+          {isActivateUser && <ActivationForm />}
         </div>
       </div>
     </div>

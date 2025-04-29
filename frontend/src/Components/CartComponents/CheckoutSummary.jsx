@@ -1,6 +1,4 @@
 import React from "react";
-import { Button, TextField } from "@mui/material";
-import MTooltip from "../MTooltip";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import MTooltipButton from "../MTooltipButton";
@@ -128,21 +126,6 @@ const CheckoutSummary = () => {
           <span className="font-medium">₹{TotalCost + 50.0}</span>
         </div>
       </div>
-
-      {activeStep < 2 && (
-        <div className="flex items-center gap-2 mb-4 justify-between">
-          <TextField
-            placeholder="Coupon code"
-            variant="outlined"
-            className="w-2/3 p-1"
-          />
-          <MTooltip title="Apply Coupon">
-            <Button variant="contained" color="success" className="py-2">
-              Apply Coupon
-            </Button>
-          </MTooltip>
-        </div>
-      )}
 
       <div className="flex flex-wrap gap-3">
         {activeStep == 0 && (

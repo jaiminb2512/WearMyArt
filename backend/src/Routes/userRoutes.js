@@ -2,7 +2,6 @@ import { Router } from "express";
 import tokenVerification from "../middleware/tokenVerification.js";
 import {
   registerUser,
-  activateUser,
   sendingMailForLoginUser,
   loginUser,
   sendingMailForForgotPassword,
@@ -11,7 +10,9 @@ import {
   getSingleUser,
   updateUser,
   logoutUser,
-  deleteUser,
+  deActivateUser,
+  sendingMailForActivate,
+  verifyActivationOTP,
   makeAdmin,
   blockUsers,
   unblockUsers,
@@ -24,16 +25,21 @@ const router = Router();
 
 // Registration
 router.post("/register", registerUser);
-router.post("/activate-user", activateUser);
 
 // Login
 router.post("/sending-mail-for-login", sendingMailForLoginUser);
 router.post("/login", loginUser);
 router.post("/auto-login", tokenVerification, autoLogin);
 
+// Forgot Password
 router.post("/sending-mail-for-forgot-password", sendingMailForForgotPassword);
 router.post("/otp-verify-for-forgot-password", otpVerifyForForgotPassword);
 router.post("/forgot-password", forgotPassword);
+
+// Activate - deactivate user
+router.put("/deactivate-user", tokenVerification, deActivateUser);
+router.post("/sending-mail-for-activation", sendingMailForActivate);
+router.put("/verify-activation-otp", verifyActivationOTP);
 
 // Admin Requests
 router.get(
@@ -62,7 +68,6 @@ router.get(
   getAllUsers
 );
 router.put("/update-user", tokenVerification, updateUser);
-router.delete("/delete", tokenVerification, deleteUser);
 router.post("/logout", tokenVerification, logoutUser);
 router.post("/get-all-own-orders", tokenVerification, getAllOwnOrder);
 

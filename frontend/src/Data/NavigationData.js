@@ -84,17 +84,17 @@ export const isCustomer = [
 export const sidebarCustomer = [
   {
     name: "Profile",
-    path: "/profile",
+    path: "/dashboard/profile",
     icon: AccountCircleIcon,
   },
   {
     name: "Cart",
-    path: "/cart",
+    path: "/dashboard/cart",
     icon: ShoppingCartIcon,
   },
   {
     name: "Orders",
-    path: "/orders",
+    path: "/dashboard/orders",
     icon: ListAltIcon,
   },
 ];
@@ -102,32 +102,32 @@ export const sidebarCustomer = [
 export const sidebarAdmin = [
   {
     name: "Dashboard",
-    path: "",
+    path: "/dashboard",
     icon: DashboardSharpIcon,
   },
   {
     name: "Profile",
-    path: "/profile",
+    path: "/dashboard/profile",
     icon: AccountCircleIcon,
   },
   {
     name: "All Products",
-    path: "/all-products",
+    path: "/dashboard/all-products",
     icon: InventoryIcon,
   },
   {
     name: "Users",
-    path: "/all-users",
+    path: "/dashboard/all-users",
     icon: SupervisorAccountIcon,
   },
   {
     name: "Orders",
-    path: "/all-orders",
+    path: "/dashboard/all-orders",
     icon: ListAltIcon,
   },
   {
     name: "Customize Options",
-    path: "/customization-options",
+    path: "/dashboard/customization-options",
     icon: DashboardCustomizeIcon,
   },
 ];

@@ -1,18 +1,22 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import {
-  Switch,
   Avatar,
   Box,
   Typography,
   Stack,
   Divider,
   TextField,
+  Switch,
+  CircularProgress,
+  Alert,
+  Paper,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import {
   Email,
   Person,
-  Lock,
   Edit,
   Save,
   Block,
@@ -20,34 +24,77 @@ import {
 } from "@mui/icons-material";
 import MTooltipButton from "../Components/MTooltipButton";
 import { useNavigate } from "react-router-dom";
-import { useFetchData } from "../utils/apiRequest";
+import { useApiMutation } from "../utils/apiRequest";
 import ApiURLS from "../Data/ApiURLS";
-import OrderListView from "../Components/OrderComponents/OrderListView";
 import KeyIcon from "@mui/icons-material/Key";
 import ViewListIcon from "@mui/icons-material/ViewList";
+import { useConfirmationPopup } from "../utils/useEntityMutations";
+import useLogOut from "../utils/Logout";
 
 const Profile = () => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const { user } = useSelector((state) => state.user);
-  const [isTwoStepEnabled, setIsTwoStepEnabled] = useState(false);
   const [isUserActive, setIsUserActive] = useState(user?.isActive ?? true);
-  const [orderOpen, setOrderOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [fullName, setFullName] = useState(user?.FullName || "Unknown User");
+  const [error, setError] = useState(null);
 
-  const handleToggleTwoStep = () => {
-    setIsTwoStepEnabled((prev) => !prev);
-  };
+  const showConfirmation = useConfirmationPopup();
+  const { logOut } = useLogOut();
+
+  const deactivateUserMutation = useApiMutation(
+    ApiURLS.DeActivateUser.url,
+    ApiURLS.DeActivateUser.method
+  );
 
   const handleToggleUserStatus = () => {
-    setIsUserActive((prev) => !prev);
+    if (isUserActive) {
+      showConfirmation({
+        title: "Deactivate Account",
+        message:
+          "Are you sure you want to deactivate your account? You won't be able to use the service until it's reactivated.",
+        onConfirm: handleDeactivateUser,
+        confirmText: "Deactivate",
+        confirmColor: "error",
+      });
+    } else {
+      setIsUserActive(true);
+    }
+  };
+
+  const handleDeactivateUser = async () => {
+    try {
+      await deactivateUserMutation.mutateAsync({});
+      setIsUserActive(false);
+      logOut();
+    } catch (err) {
+      setError("Failed to deactivate account. Please try again.");
+    }
   };
 
   const handleEdit = () => {
     setIsEditing(true);
   };
 
-  const handleSave = () => {
+  const handleCancelEdit = () => {
     setIsEditing(false);
+    setFullName(user?.FullName || "Unknown User");
+  };
+
+  const UpdateUserMutation = useApiMutation(
+    ApiURLS.UpdateUser.url,
+    ApiURLS.UpdateUser.method
+  );
+
+  const handleSave = async () => {
+    try {
+      await UpdateUserMutation.mutateAsync({ FullName: fullName });
+      setIsEditing(false);
+      setError(null);
+    } catch (err) {
+      setError("Failed to update profile. Please try again.");
+    }
   };
 
   const getInitials = (name) => {
@@ -63,161 +110,235 @@ const Profile = () => {
 
   const navigate = useNavigate();
 
-  const { data: MyOrders = [], isLoading } = useFetchData(
-    "MyOrders",
-    ApiURLS.GetAllOwnOrders.url,
-    ApiURLS.GetAllOwnOrders.method,
-    {
-      staleTime: 5 * 60 * 1000,
-      cacheTime: 10 * 60 * 1000,
-    }
-  );
-
   const handleMyOrder = () => {
-    setOrderOpen(true);
+    navigate("/dashboard/orders");
   };
 
+  const handleChangePassword = () => {
+    navigate("/change-password");
+  };
+
+  useEffect(() => {
+    if (user) {
+      setIsUserActive(user.isActive ?? true);
+      setFullName(user.FullName || "Unknown User");
+    }
+  }, [user]);
+
+  if (!user) {
+    return (
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        minHeight="60vh"
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
+
   return (
-    <div className="flex flex-col gap-2 justify-center items-center w-full px-[5vw] mt-15 h-full">
-      <div className="w-full p-3 shadow-md flex flex-col xl:flex-row justify-center items-center h-full">
-        <div className="w-1/3 h-full flex justify-center items-center">
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        width: "100%",
+        p: isMobile ? 2 : 4,
+        maxWidth: 1200,
+        mx: "auto",
+      }}
+    >
+      {error && (
+        <Alert severity="error" sx={{ width: "100%", mb: 3 }}>
+          {error}
+        </Alert>
+      )}
+
+      <Paper
+        elevation={3}
+        sx={{
+          width: "100%",
+          p: 3,
+          display: "flex",
+          flexDirection: isMobile ? "column" : "row",
+          gap: 3,
+        }}
+      >
+        <Box
+          sx={{
+            width: isMobile ? "100%" : "30%",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
           <Avatar
             sx={{
-              width: 200,
-              height: 200,
+              width: 150,
+              height: 150,
               bgcolor: "primary.main",
               fontSize: 48,
               fontWeight: "bold",
+              mb: 2,
             }}
           >
             {initials}
           </Avatar>
-        </div>
-
-        <div className="w-2/3">
           {user?.isAdmin && (
-            <Typography variant="h6" color="error" fontWeight="bold">
-              Admin
+            <Typography variant="subtitle1" color="error" fontWeight="bold">
+              Administrator
             </Typography>
           )}
+        </Box>
 
-          <Stack spacing={2}>
-            <Box display="flex" alignItems="center" gap={1}>
+        <Box sx={{ width: isMobile ? "100%" : "70%" }}>
+          <Stack spacing={3}>
+            <Box>
+              <Typography variant="h6" gutterBottom>
+                Personal Information
+              </Typography>
+              <Divider />
+            </Box>
+
+            <Box display="flex" alignItems="center" gap={2}>
               <Person color="primary" />
               {isEditing ? (
-                <TextField
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  variant="outlined"
-                  size="small"
-                />
+                <Box display="flex" alignItems="center" gap={1} width="100%">
+                  <TextField
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    variant="outlined"
+                    size="small"
+                    fullWidth
+                    label="Full Name"
+                  />
+                </Box>
               ) : (
-                <Typography variant="h6">{fullName}</Typography>
+                <Typography variant="subtitle1">{fullName}</Typography>
               )}
-              {isEditing && (
+            </Box>
+
+            <Box display="flex" alignItems="center" gap={2}>
+              <Email color="primary" />
+              <Typography variant="body1" color="text.secondary">
+                {user?.Email || "No email provided"}
+              </Typography>
+            </Box>
+
+            {isEditing && (
+              <Box display="flex" gap={2} justifyContent="flex-end">
+                <MTooltipButton
+                  title="Cancel"
+                  variant="outlined"
+                  color="secondary"
+                  onClick={handleCancelEdit}
+                >
+                  Cancel
+                </MTooltipButton>
                 <MTooltipButton
                   title="Save"
                   variant="contained"
-                  color="success"
-                  size="small"
-                  startIcon={<Save />}
+                  color="primary"
+                  startIcon={
+                    UpdateUserMutation.isPending ? (
+                      <CircularProgress size={20} color="inherit" />
+                    ) : (
+                      <Save />
+                    )
+                  }
                   onClick={handleSave}
+                  disabled={UpdateUserMutation.isPending}
                 >
                   Save
                 </MTooltipButton>
-              )}
+              </Box>
+            )}
+
+            <Box>
+              <Typography variant="h6" gutterBottom>
+                Account Status
+              </Typography>
+              <Divider />
             </Box>
 
-            <Box display="flex" alignItems="center" gap={1}>
-              <Email color="primary" />
-              <Typography variant="body1" color="text.secondary">
-                {user?.Email || "No Email Provided"}
+            <Box
+              display="flex"
+              alignItems="center"
+              justifyContent="space-between"
+            >
+              <Stack direction="row" alignItems="center" spacing={1}>
+                {isUserActive ? (
+                  <CheckCircle color="success" />
+                ) : (
+                  <Block color="error" />
+                )}
+                <Typography variant="body1">
+                  {isUserActive ? "Active" : "Deactivated"}
+                </Typography>
+              </Stack>
+              <Switch
+                checked={isUserActive}
+                onChange={handleToggleUserStatus}
+                disabled={deactivateUserMutation.isPending}
+                color={isUserActive ? "success" : "error"}
+              />
+            </Box>
+
+            <Box>
+              <Typography variant="h6" gutterBottom>
+                Actions
               </Typography>
+              <Divider />
+            </Box>
+
+            <Box
+              display="flex"
+              gap={2}
+              flexDirection={isMobile ? "column" : "row"}
+              flexWrap="wrap"
+            >
+              {!isEditing && (
+                <MTooltipButton
+                  title="Edit Profile"
+                  variant="outlined"
+                  color="primary"
+                  fullWidth={isMobile}
+                  startIcon={<Edit />}
+                  onClick={handleEdit}
+                >
+                  Edit Profile
+                </MTooltipButton>
+              )}
+              <MTooltipButton
+                title="Change Password"
+                variant="outlined"
+                color="primary"
+                fullWidth={isMobile}
+                startIcon={<KeyIcon />}
+                onClick={handleChangePassword}
+              >
+                Change Password
+              </MTooltipButton>
+              {!user?.isAdmin && (
+                <MTooltipButton
+                  title="My Orders"
+                  variant="outlined"
+                  color="primary"
+                  fullWidth={isMobile}
+                  startIcon={<ViewListIcon />}
+                  onClick={handleMyOrder}
+                >
+                  My Orders
+                </MTooltipButton>
+              )}
             </Box>
           </Stack>
-
-          <Divider sx={{ my: 2 }} />
-
-          <Box
-            display="flex"
-            alignItems="center"
-            justifyContent="space-between"
-          >
-            <Stack direction="row" alignItems="center" spacing={1}>
-              <Lock color="warning" />
-              <Typography variant="body1">
-                {isTwoStepEnabled
-                  ? "Two-Step Verification Enabled"
-                  : "Two-Step Verification Disabled"}
-              </Typography>
-            </Stack>
-            <Switch checked={isTwoStepEnabled} onChange={handleToggleTwoStep} />
-          </Box>
-
-          <Divider sx={{ my: 2 }} />
-
-          <Box
-            display="flex"
-            alignItems="center"
-            justifyContent="space-between"
-          >
-            <Stack direction="row" alignItems="center" spacing={1}>
-              {isUserActive ? (
-                <CheckCircle color="success" />
-              ) : (
-                <Block color="error" />
-              )}
-              <Typography variant="body1">
-                {isUserActive ? "User is Active" : "User is Deactivated"}
-              </Typography>
-            </Stack>
-            <Switch checked={isUserActive} onChange={handleToggleUserStatus} />
-          </Box>
-
-          <Divider sx={{ my: 2 }} />
-
-          <div className="flex gap-3 items-center flex-wrap">
-            <MTooltipButton
-              title="Edit Profile"
-              variant="contained"
-              color="primary"
-              fullWidth
-              startIcon={<Edit />}
-              onClick={handleEdit}
-            >
-              Edit Profile
-            </MTooltipButton>
-            <MTooltipButton
-              title="Change Password"
-              variant="contained"
-              color="primary"
-              fullWidth
-              startIcon={<KeyIcon />}
-              onClick={() => navigate("/forgot-password")}
-            >
-              Change Password
-            </MTooltipButton>
-            {!user?.isAdmin && (
-              <MTooltipButton
-                title="My Orders"
-                variant="contained"
-                color="primary"
-                fullWidth
-                startIcon={<ViewListIcon />}
-                onClick={handleMyOrder}
-              >
-                My Orders
-              </MTooltipButton>
-            )}
-          </div>
-        </div>
-      </div>
-      {orderOpen && (
-        <div className="w-full mt-[5vh]">
-          <OrderListView Orders={MyOrders} loading={isLoading} />
-        </div>
-      )}
-    </div>
+        </Box>
+      </Paper>
+    </Box>
   );
 };
 

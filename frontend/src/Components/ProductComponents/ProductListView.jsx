@@ -29,7 +29,7 @@ const ProductListView = ({
   return (
     <section>
       <h1 className="text-lg font-bold hidden sm:block">{`${count} Products`}</h1>
-      <div className="grid gap-8 xl:grid-cols-2">
+      <div className="grid gap-4 xl:grid-cols-2">
         {productList.map((product) => (
           <SingleProduct
             key={product._id}

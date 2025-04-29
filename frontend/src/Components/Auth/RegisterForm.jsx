@@ -47,8 +47,8 @@ const RegisterForm = () => {
     ApiURLS.Register.method
   );
   const activateUserMutation = useApiMutation(
-    ApiURLS.ActivateUser.url,
-    ApiURLS.ActivateUser.method
+    ApiURLS.VerifyActivationOTP.url,
+    ApiURLS.VerifyActivationOTP.method
   );
 
   const onChange = (e) => {
@@ -82,7 +82,7 @@ const RegisterForm = () => {
     };
 
     if (activeStep === 0) {
-      if (registerData.FullName.length < 6) {
+      if (registerData.FullName.length < 3) {
         newErrors.FullName = "FullName must be at least 6 characters long";
         formValid = false;
       }

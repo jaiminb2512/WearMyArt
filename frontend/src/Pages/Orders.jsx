@@ -91,11 +91,11 @@ const Orders = () => {
   return (
     <div className="flex h-screen overflow-hidden">
       <div
-        className={`fixed top-17 h-screen hidden xl:block overflow-y-auto scrollbar-hide border-r transition-all duration-300
+        className={`fixed h-screen hidden xl:block overflow-y-auto scrollbar-hide border-r transition-all duration-300
         ${FilterBarOpen ? "lg:w-[25vw] xl:w-[20vw] lg:block" : "w-0 sm:w-0"}`}
       >
         {FilterBarOpen && (
-          <div className="pl-[2vw] pt-[5vh] pr-5">
+          <div className="pl-[2vw] pt-[2vh] pr-5">
             <OrderFilter
               setFilterOptions={setFilterOptions}
               filterOptions={filterOptions}
@@ -117,7 +117,7 @@ const Orders = () => {
 
         <div
           id="scrollableOrdersDiv"
-          className="p-4 mb-20 ml-3 overflow-y-auto scrollbar-hide"
+          className="pt-4 md:p-4 mb-20 ml-3 overflow-y-auto scrollbar-hide"
         >
           <InfiniteScroll
             dataLength={orders.length}
@@ -129,7 +129,6 @@ const Orders = () => {
               </div>
             }
             scrollableTarget="scrollableOrdersDiv"
-            className="p-4"
           >
             <OrderListView
               Orders={orders}

@@ -16,6 +16,7 @@ import {
 } from "@mui/material";
 import { login } from "../../Redux/UserSlice.js";
 import { useApiMutation } from "../../utils/apiRequest.js";
+import { useConfirmationPopup } from "../../utils/useEntityMutations.js";
 
 const LoginForm = () => {
   const [loginData, setLoginData] = useState({
@@ -30,6 +31,7 @@ const LoginForm = () => {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const showConfirmation = useConfirmationPopup();
 
   const loginMutation = useApiMutation(ApiURLS.Login.url, ApiURLS.Login.method);
   const sendOtpMutation = useApiMutation(
@@ -79,10 +81,27 @@ const LoginForm = () => {
       requestData.Password = loginData.Password;
     }
 
-    const userData = await loginMutation.mutateAsync(requestData);
-    if (userData) {
-      dispatch(login(userData.user));
-      navigate("/");
+    try {
+      const userData = await loginMutation.mutateAsync(requestData);
+      if (userData) {
+        dispatch(login(userData.user));
+        navigate("/");
+      }
+    } catch (error) {
+      if (error.response && error.response.status === 403) {
+        showConfirmation({
+          title: "Activate Account",
+          message:
+            "Your account has been deactivated. Would you like to reactivate your account or login with a different account?",
+          onConfirm: handleActivateAccount,
+          confirmText: "Activate User",
+          confirmColor: "success",
+          cancelText: "Use Different Account",
+          cancelClick: handleDifferentAccount,
+        });
+      } else {
+        console.error("Login failed", error);
+      }
     }
   };
 
@@ -102,8 +121,37 @@ const LoginForm = () => {
       setIsOtpButtonDisabled(false);
     } catch (error) {
       setIsOtpButtonDisabled(false);
-      console.error("Send OTP failed", error);
+
+      if (error.response && error.response.status === 403) {
+        showConfirmation({
+          title: "Activate Account",
+          message:
+            "Your account has been deactivated. Would you like to reactivate your account or login with a different account?",
+          onConfirm: handleActivateAccount,
+          confirmText: "Activate User",
+          confirmColor: "success",
+          cancelText: "Use Different Account",
+          cancelClick: handleDifferentAccount,
+        });
+      } else {
+        console.error("Send OTP failed", error);
+      }
     }
+  };
+
+  const handleActivateAccount = () => {
+    sessionStorage.setItem("activationEmail", loginData.Email);
+    navigate("/activate-user");
+  };
+
+  const handleDifferentAccount = () => {
+    setLoginData({
+      Email: "",
+      Password: "",
+      OTP: "",
+    });
+    setErrors({ Email: "", Password: "", OTP: "" });
+    setIsOtpSent(false);
   };
 
   return (
@@ -196,7 +244,7 @@ const LoginForm = () => {
             color="success"
             fullWidth
             sx={{ mt: 2 }}
-            disabled={loginMutation.isLoading}
+            disabled={loginMutation.isPending}
           >
             {isOtpSent ? "Verify OTP & Login" : "Login"}
           </Button>
@@ -207,7 +255,7 @@ const LoginForm = () => {
               color="success"
               fullWidth
               onClick={handleSendOtp}
-              disabled={isOtpButtonDisabled || sendOtpMutation.isLoading}
+              disabled={isOtpButtonDisabled || sendOtpMutation.isPending}
               sx={{ mt: 2 }}
             >
               Login Using OTP

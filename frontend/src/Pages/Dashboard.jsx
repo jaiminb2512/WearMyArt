@@ -22,10 +22,9 @@ export const DataBox = ({ title, value }) => {
 const Dashboard = () => {
   const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const currentYear = new Date().getFullYear();
 
-  const [startDate, setStartDate] = useState(dayjs(`${currentYear}-01-01`));
-  const [endDate, setEndDate] = useState(dayjs(`${currentYear}-12-31`));
+  const [endDate, setEndDate] = useState(dayjs()); // today
+  const [startDate, setStartDate] = useState(dayjs().subtract(6, "month")); // 6 months ago
 
   const formatApiDate = (date) => date.format("YYYY-MM-DD");
 
@@ -103,18 +102,24 @@ const Dashboard = () => {
                 label="Start Date"
                 value={startDate}
                 onChange={(newValue) => setStartDate(newValue)}
+                maxDate={dayjs()}
+                format="DD-MM-YYYY"
                 slotProps={{
                   textField: { size: "small" },
                 }}
               />
+
               <DatePicker
                 label="End Date"
                 value={endDate}
                 onChange={(newValue) => setEndDate(newValue)}
+                maxDate={dayjs()}
+                format="DD-MM-YYYY"
                 slotProps={{
                   textField: { size: "small" },
                 }}
               />
+
               <MTooltipButton
                 title="Apply Filter"
                 color="success"

@@ -93,9 +93,9 @@ const Products = () => {
   const isLoading = fetchProductsMutation.isLoading && products.length === 0;
 
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div className="flex h-screen">
       <div
-        className={`fixed top-17 h-screen overflow-y-auto scrollbar-hide transition-all duration-300
+        className={`fixed h-screen overflow-y-auto scrollbar-hide transition-all duration-300
         ${
           FilterBarOpen
             ? "sm:block w-[35vw] lg:w-[25vw] border-r"
@@ -103,7 +103,7 @@ const Products = () => {
         }`}
       >
         {FilterBarOpen && (
-          <div className="pl-[2vw] pt-[5vh] pr-5">
+          <div className="pl-[2vw] pt-[2vh] pr-5">
             <ProductFilter
               setFilterOptions={setFilterOptions}
               filterOptions={filterOptions}
@@ -120,7 +120,7 @@ const Products = () => {
         className={`flex-1 flex flex-col transition-all duration-300
         ${FilterBarOpen ? "ml-[35vw] lg:ml-[25vw] xl:ml-[25vw]" : "ml-0"}`}
       >
-        <div className="fixed top-15 w-full bg-gray-100 shadow-2xl z-[999]">
+        <div className="fixed w-full bg-gray-100 shadow-2xl z-[999]">
           <div className="flex gap-1 items-center w-full sm:w-[80vw] ml-2 backdrop-blur-3xl pt-3 pb-2 h-15">
             <ProductTopbar
               listView={listView}

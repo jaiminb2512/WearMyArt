@@ -2,9 +2,8 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import SingleOrder from "./SingleOrder";
 import ShoppingBagIcon from "@mui/icons-material/ShoppingBag";
-import Button from "@mui/material/Button";
-import MTooltip from "../MTooltip";
 import { useSelector } from "react-redux";
+import MTooltipButton from "../MTooltipButton";
 
 const OrderListView = ({ Orders, loading, count = null, setOrders }) => {
   const navigate = useNavigate();
@@ -18,37 +17,35 @@ const OrderListView = ({ Orders, loading, count = null, setOrders }) => {
   );
 
   const renderEmptyState = () => (
-    <div>
+    <div className="w-full">
       {isAdmin ? (
         <div className="flex flex-col items-center justify-center gap-4 h-[70vh]">
-          <MTooltip title="No Order Found">
-            <Button
-              variant="outlined"
-              color="success"
-              className="mt-4 bg-green-500 hover:bg-green-600 text-white px-8 py-3 rounded-xl shadow-md transition-all duration-300"
-            >
-              No Order Found
-            </Button>
-          </MTooltip>
+          <MTooltipButton
+            title="No Order Found"
+            variant="outlined"
+            color="success"
+            className="mt-4 bg-green-500 hover:bg-green-600 text-white px-8 py-3 rounded-xl shadow-md transition-all duration-300"
+          >
+            No Order Found
+          </MTooltipButton>
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center gap-4 h-[70vh]">
           <div className="bg-gray-100 rounded-full p-8 flex items-center justify-center">
-            <ShoppingBagIcon className="w-64 h-64 text-gray-500" />
+            <ShoppingBagIcon className="w-16 h-16 md:w-32 md:h-32 lg:w-64 lg:h-64 text-gray-500" />
           </div>
-          <p className="text-gray-600 text-lg font-medium">
+          <p className="text-gray-600 text-lg font-medium text-center px-4">
             Your order list is empty. Start shopping now!
           </p>
-          <MTooltip title="Start shopping">
-            <Button
-              variant="contained"
-              color="success"
-              className="mt-4 bg-green-500 hover:bg-green-600 text-white px-8 py-3 rounded-xl shadow-md transition-all duration-300"
-              onClick={() => navigate("/products")}
-            >
-              Start shopping
-            </Button>
-          </MTooltip>
+          <MTooltipButton
+            title="Start shopping"
+            variant="contained"
+            color="success"
+            className="mt-4 bg-green-500 hover:bg-green-600 text-white px-8 py-3 rounded-xl shadow-md transition-all duration-300"
+            onClick={() => navigate("/products")}
+          >
+            Start shopping
+          </MTooltipButton>
         </div>
       )}
     </div>
@@ -63,13 +60,13 @@ const OrderListView = ({ Orders, loading, count = null, setOrders }) => {
   }
 
   return (
-    <section>
+    <section className="w-full overflow-hidden">
       {count && (
-        <h1 className="relative text-lg font-bold hidden sm:block">{`${count} Orders`}</h1>
+        <h1 className="relative text-lg font-bold my-4">{`${count} Orders`}</h1>
       )}
-      <div className="grid gap-3 xl:grid-cols-2">
+      <div className="grid gap-4 xl:grid-cols-2">
         {Orders.map((order) => (
-          <div className="border rounded-2xl" key={order._id}>
+          <div className="border rounded-2xl overflow-hidden" key={order._id}>
             <SingleOrder
               order={order}
               updateOrderInList={(updatedOrder) => {

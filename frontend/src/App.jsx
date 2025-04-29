@@ -19,7 +19,6 @@ import ToastNotification from "./Components/ToastNotification";
 import Home from "./Pages/Home";
 import Products from "./Pages/Products";
 import CustomizeProduct from "./Pages/CustomizeProduct";
-import Product from "./Pages/Product";
 import Profile from "./Pages/Profile";
 import AllProducts from "./Pages/AllProducts";
 import Errorpage from "./Pages/Errorpage";
@@ -52,7 +51,8 @@ const AppLayout = () => {
   const navigate = useNavigate();
   const autoLoginMutation = useApiMutation(
     ApiURLS.AutoLogin.url,
-    ApiURLS.AutoLogin.method
+    ApiURLS.AutoLogin.method,
+    { showToastMessage: false }
   );
 
   const { user } = useSelector((state) => state.user);
@@ -145,6 +145,8 @@ const AppLayout = () => {
             <Route element={<AuthRoute role="guest" />}>
               <Route path="/login" element={<Auth />} />
               <Route path="/register" element={<Auth />} />
+              <Route path="/activate-user" element={<Auth />} />
+              <Route path="/forgot-password" element={<Auth />} />
             </Route>
 
             <Route path="/" element={<Home />} />
@@ -184,12 +186,9 @@ const AppLayout = () => {
 
             <Route element={<AuthRoute />}>
               <Route path="/dashboard/profile" element={<Profile />} />
-
-              <Route path="/product/:id" element={<Product />} />
             </Route>
 
             <Route path="*" element={<Errorpage />} />
-            <Route path="/forgot-password" element={<Auth />} />
           </Routes>
         </Box>
       </Box>

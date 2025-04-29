@@ -15,18 +15,15 @@ const ProductGridView = ({
   handleOpenDialog = null,
   count,
 }) => {
-  const navigate = useNavigate();
   const { user } = useSelector((state) => state.user);
   const { FilterBarOpen } = useSelector((state) => state.OpenClose);
   const isAdmin = user?.isAdmin || false;
   const [products, setProducts] = useState(initialProducts);
 
-  // Update local state when props change
   useEffect(() => {
     setProducts(initialProducts);
   }, [initialProducts]);
 
-  // Callback to update local state after mutations
   const updateProductStatus = (productId, isDiscontinued) => {
     setProducts((currentProducts) =>
       currentProducts.map((p) =>
@@ -37,10 +34,6 @@ const ProductGridView = ({
 
   const { handleDiscontinueProducts, handleReContinueProducts, isLoading } =
     useProductMutations(updateProductStatus);
-
-  const redirectToProduct = (id) => {
-    navigate(`/product/${id}`);
-  };
 
   return (
     <div>
@@ -59,14 +52,13 @@ const ProductGridView = ({
             {products.map((product) => (
               <div
                 key={product._id}
-                className="p-4 rounded-lg cursor-pointer shadow-xl hover:shadow-lg transition duration-300"
+                className="p-4 rounded-lg shadow-xl hover:shadow-lg transition duration-300"
               >
                 <img
                   src={`${import.meta.env.VITE_BASE_URL}${product.ImgURL[0]}`}
                   alt={product.name}
                   loading="lazy"
                   className="w-full h-[350px] object-cover rounded-lg"
-                  onClick={() => redirectToProduct(product._id)}
                 />
                 <div className="flex flex-col gap-2">
                   <div className="mt-2">
