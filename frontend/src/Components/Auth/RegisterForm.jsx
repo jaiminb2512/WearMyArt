@@ -1,30 +1,27 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { showToast } from "../Redux/toastSlice";
-import { login } from "../Redux/UserSlice";
-import ApiURLS from "../Data/ApiURLS";
-import axios from "axios";
+import { login } from "../../Redux/UserSlice";
+import ApiURLS from "../../Data/ApiURLS";
+import { useApiMutation } from "../../utils/apiRequest";
 import {
   Button,
   TextField,
   IconButton,
   Container,
-  Paper,
-  Typography,
-  Box,
-  InputAdornment,
   Stepper,
   Step,
   StepLabel,
+  InputAdornment,
+  Checkbox,
+  FormControlLabel,
 } from "@mui/material";
 import { IoEyeOutline } from "react-icons/io5";
 import { FaEyeSlash } from "react-icons/fa6";
-import { apiRequest } from "../utils/apiRequest.js";
 
 const steps = ["Register", "OTP Verification"];
 
-const Register = () => {
+const RegisterForm = () => {
   const [activeStep, setActiveStep] = useState(0);
   const [registerData, setRegisterData] = useState({
     FullName: "",
@@ -33,15 +30,26 @@ const Register = () => {
     OTP: "",
   });
   const [showPassword, setShowPassword] = useState(false);
+  const [agreeTerms, setAgreeTerms] = useState(false);
   const [errors, setErrors] = useState({
     FullName: "",
     Email: "",
     Password: "",
     OTP: "",
+    Terms: "",
   });
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
+  const registerMutation = useApiMutation(
+    ApiURLS.Register.url,
+    ApiURLS.Register.method
+  );
+  const activateUserMutation = useApiMutation(
+    ApiURLS.VerifyActivationOTP.url,
+    ApiURLS.VerifyActivationOTP.method
+  );
 
   const onChange = (e) => {
     const { name, value } = e.target;
@@ -49,14 +57,32 @@ const Register = () => {
       ...prevData,
       [name]: value,
     }));
+    setErrors((prevData) => ({
+      ...prevData,
+      [name]: "",
+    }));
+  };
+
+  const handleCheckbox = (e) => {
+    setErrors((prevData) => ({
+      ...prevData,
+      Terms: "",
+    }));
+    setAgreeTerms(e.target.checked);
   };
 
   const validateForm = () => {
     let formValid = true;
-    const newErrors = { FullName: "", Email: "", Password: "", OTP: "" };
+    const newErrors = {
+      FullName: "",
+      Email: "",
+      Password: "",
+      OTP: "",
+      Terms: "",
+    };
 
     if (activeStep === 0) {
-      if (registerData.FullName.length < 6) {
+      if (registerData.FullName.length < 3) {
         newErrors.FullName = "FullName must be at least 6 characters long";
         formValid = false;
       }
@@ -65,8 +91,17 @@ const Register = () => {
         newErrors.Email = "Invalid Email format";
         formValid = false;
       }
-      if (registerData.Password.length < 6) {
-        newErrors.Password = "Password must be at least 6 characters long";
+
+      const passwordRegex =
+        /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,16}$/;
+
+      if (!passwordRegex.test(registerData.Password)) {
+        newErrors.Password =
+          "Password must be 8-16 characters, include 1 uppercase letter, 1 number, and 1 special character";
+        formValid = false;
+      }
+      if (!agreeTerms) {
+        newErrors.Terms = "You must agree to the terms and conditions";
         formValid = false;
       }
     } else {
@@ -79,50 +114,39 @@ const Register = () => {
     return formValid;
   };
 
-  const triggerToast = (message, variant) => {
-    dispatch(showToast({ message, variant }));
-  };
-
   const handleNext = async () => {
     if (!validateForm()) return;
-    if (activeStep === 0) {
-      const response = await apiRequest(
-        ApiURLS.Register.url,
-        ApiURLS.Register.method,
-        registerData,
-        dispatch
-      );
-      if (response.success) {
-        dispatch(showToast({ message: response.message, variant: "success" }));
-        setActiveStep(1);
-      }
-    } else {
-      const otpNumber = parseInt(registerData.OTP, 10);
-      if (isNaN(otpNumber)) {
-        setErrors((prevErrors) => ({
-          ...prevErrors,
-          OTP: "Invalid OTP format",
-        }));
-        return;
-      }
 
-      const response = await apiRequest(
-        ApiURLS.ActivateUser.url,
-        ApiURLS.ActivateUser.method,
-        { Email: registerData.Email, OTP: registerData.OTP },
-        dispatch
-      );
-      if (response.success) {
-        dispatch(showToast({ message: response.message, variant: "success" }));
-        dispatch(login(response.data.user));
+    try {
+      if (activeStep === 0) {
+        await registerMutation.mutateAsync(registerData);
+        setActiveStep(1);
+      } else {
+        const otpNumber = parseInt(registerData.OTP, 10);
+        if (isNaN(otpNumber)) {
+          setErrors((prevErrors) => ({
+            ...prevErrors,
+            OTP: "Invalid OTP format",
+          }));
+          return;
+        }
+
+        const response = await activateUserMutation.mutateAsync({
+          Email: registerData.Email,
+          OTP: registerData.OTP,
+        });
+
+        dispatch(login(response.user));
         navigate("/");
       }
+    } catch (error) {
+      console.error("Registration or OTP verification error:", error);
     }
   };
 
   return (
-    <Container component="main" maxWidth="xs">
-      <Paper elevation={6} sx={{ padding: 4, marginTop: 8 }}>
+    <Container component="main">
+      <div className="w-full">
         <Stepper activeStep={activeStep} alternativeLabel>
           {steps.map((label) => (
             <Step key={label}>
@@ -131,16 +155,12 @@ const Register = () => {
           ))}
         </Stepper>
 
-        <Box
-          component="form"
-          className="mt-[25px]"
-          sx={{ display: "flex", flexDirection: "column", gap: 2 }}
-        >
+        <form className="mt-[25px] flex flex-col gap-2">
           {activeStep === 0 ? (
             <>
               <TextField
                 label="FullName"
-                variant="outlined"
+                variant="standard"
                 name="FullName"
                 value={registerData.FullName}
                 onChange={onChange}
@@ -150,7 +170,7 @@ const Register = () => {
               />
               <TextField
                 label="Email"
-                variant="outlined"
+                variant="standard"
                 name="Email"
                 type="Email"
                 value={registerData.Email}
@@ -161,7 +181,7 @@ const Register = () => {
               />
               <TextField
                 label="Password"
-                variant="outlined"
+                variant="standard"
                 name="Password"
                 type={showPassword ? "text" : "Password"}
                 value={registerData.Password}
@@ -181,11 +201,21 @@ const Register = () => {
                   ),
                 }}
               />
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={agreeTerms}
+                    onChange={(e) => handleCheckbox(e)}
+                  />
+                }
+                label="I agree to the Terms and Conditions"
+              />
+              {errors.Terms && <p style={{ color: "red" }}>{errors.Terms}</p>}
             </>
           ) : (
             <TextField
               label="Enter OTP"
-              variant="outlined"
+              variant="standard"
               name="OTP"
               value={registerData.OTP}
               onChange={onChange}
@@ -198,15 +228,18 @@ const Register = () => {
           <Button
             onClick={handleNext}
             variant="contained"
-            color="primary"
+            color="success"
             fullWidth
+            disabled={
+              registerMutation.isLoading || activateUserMutation.isLoading
+            }
           >
             {activeStep === 0 ? "Next" : "Verify & Register"}
           </Button>
-        </Box>
-      </Paper>
+        </form>
+      </div>
     </Container>
   );
 };
 
-export default Register;
+export default RegisterForm;
