@@ -196,7 +196,8 @@ const sendingMailForLoginUser = async (req, res) => {
 const loginUser = async (req, res) => {
   try {
     const { Email, OTP, Password } = req.body;
-    const user = await User.findOne({ Email });
+    const user = await User.findOne({ Email }).select("+password");
+    console.log(user);
 
     if (!user) {
       return apiResponse(res, false, null, "Invalid Email", 400);
@@ -244,6 +245,7 @@ const loginUser = async (req, res) => {
       200
     );
   } catch (error) {
+    console.log(error.message);
     return apiResponse(res, false, null, error.message, 500);
   }
 };
