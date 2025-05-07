@@ -196,8 +196,7 @@ const sendingMailForLoginUser = async (req, res) => {
 const loginUser = async (req, res) => {
   try {
     const { Email, OTP, Password } = req.body;
-    const user = await User.findOne({ Email }).select("+password");
-    console.log(user);
+    const user = await User.findOne({ Email });
 
     if (!user) {
       return apiResponse(res, false, null, "Invalid Email", 400);

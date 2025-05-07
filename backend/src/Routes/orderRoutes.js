@@ -38,7 +38,7 @@ router.post(
   addOrder
 );
 router.patch(
-  "/update-status/:id",
+  "/update-status",
   (req, res, next) => tokenVerification(req, res, next, true),
   updateOrderStatus
 );
