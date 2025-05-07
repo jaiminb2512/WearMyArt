@@ -651,6 +651,8 @@ const updateOrderStatus = async (req, res) => {
       { new: true, runValidators: true }
     )
 
+    
+
     await addNotification({
       res,
       userId: order.CustomerId._id,

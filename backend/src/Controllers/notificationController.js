@@ -7,9 +7,9 @@ const getAllNotification = async (req, res) => {
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
 
-   const userId = req.user._id
+    const userId = req.user._id;
 
-    const notifications = await Notification.find({ userId })
+    const notifications = await Notification.find({ userId, read: false })
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);
@@ -36,5 +36,52 @@ const getAllNotification = async (req, res) => {
   }
 };
 
+const markAsRead = async (req, res) => {
+  try {
+    const { notificationId } = req.body;
+    const userId = req.user._id;
 
-export { getAllNotification };
+    const notification = await Notification.findOneAndUpdate(
+      { _id: notificationId, userId, read: false },
+      { $set: { read: true } },
+      { new: true }
+    );
+
+    if (!notification) {
+      return apiResponse(res, false, null, "Notification not found", 404);
+    }
+
+    return apiResponse(
+      res,
+      true,
+      null,
+      "Notification marked as read",
+      200
+    );
+  } catch (error) {
+    return apiResponse(res, false, null, error.message, 500);
+  }
+};
+
+const markAllAsRead = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    const result = await Notification.updateMany(
+      { userId, read: false },
+      { $set: { read: true } }
+    );
+
+    return apiResponse(
+      res,
+      true,
+      { modifiedCount: result.modifiedCount },
+      "All notifications marked as read",
+      200
+    );
+  } catch (error) {
+    return apiResponse(res, false, null, error.message, 500);
+  }
+};
+
+export { getAllNotification, markAsRead, markAllAsRead };
