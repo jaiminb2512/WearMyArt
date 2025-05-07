@@ -244,6 +244,7 @@ const loginUser = async (req, res) => {
       200
     );
   } catch (error) {
+    console.log(error.message);
     return apiResponse(res, false, null, error.message, 500);
   }
 };

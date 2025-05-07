@@ -5,6 +5,7 @@ import productValidate from "../utils/productValidate.js";
 import { sendOrderConfirmationEmail } from "../utils/sendMail.js";
 import deleteFiles from "../utils/deleteFiles.js";
 import notificationQueue from "../queues/notificationQueue.js";
+import addNotification from "../utils/addNotification.js";
 
 const addOrder = async (req, res) => {
   try {
@@ -638,8 +639,7 @@ const getSingleOrder = async (req, res) => {
 
 const updateOrderStatus = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { status } = req.body;
+    const { status, id } = req.body;
 
     if (!status) {
       return apiResponse(res, false, null, "Status is required", 400);
@@ -649,39 +649,24 @@ const updateOrderStatus = async (req, res) => {
       id,
       { $set: { Status: status } },
       { new: true, runValidators: true }
-    ).populate({
-      path: "CustomerId",
-      model: "User",
-      select: "FullName Email",
+    )
+
+    
+
+    await addNotification({
+      res,
+      userId: order.CustomerId._id,
+      title: "Order Status updated",
+      message: `Your order status has been updated to '${status}'.`,
+      type: "product",
+      relatedOrderId: order._id,
     });
 
-    if (!order) {
-      return apiResponse(res, false, null, "Order not found", 404);
-    }
-
-    const senderName = "WearMyArt";
-    const subject = "Order Status Update";
-
-    await notificationQueue.add(
-      "send-email",
-      {
-        to: order.CustomerId.Email,
-        name: order.CustomerId.FullName,
-        subject,
-        senderName,
-        data: order,
-        topic: "orderStatusChanged",
-      },
-      {
-        removeOnComplete: true,
-        removeOnFail: true,
-      }
-    );
 
     return apiResponse(
       res,
       true,
-      order,
+      null,
       `Order status updated to '${status}' successfully`,
       200
     );
