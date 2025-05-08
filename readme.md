@@ -1,12 +1,8 @@
-# **Project Definition: Product Customization Platform**
-
 **Technology Stack:** MERN (MongoDB, Express.js, React.js, Node.js)
 
 ## **Project Overview**
 
 Develop a web application that allows users to customize products(t-shirts) with basic customization options such as colors, text, and simple image uploads. The project will include both customer-facing and admin interfaces.
-
-## **Core Features**
 
 ### **Customer Interface**
 
@@ -36,8 +32,6 @@ Develop a web application that allows users to customize products(t-shirts) with
     - View all orders
     - Update order status
     - Basic order analytics
-
-## **Technical Requirements**
 
 ### **Frontend (React.js)**
 
