@@ -1,4 +1,4 @@
-import { model, Schema } from "mongoose";
+import { model, Schema, Types } from "mongoose";
 
 const ProductSchema = new Schema(
   {
@@ -6,10 +6,25 @@ const ProductSchema = new Schema(
       type: [String],
       required: false,
     },
-    Size: {
-      type: String,
-      enum: ["XXL", "XL", "L", "M", "S"],
-      required: true,
+    SizeStock: {
+      type: Map,
+      of: Number, // value is stock number
+      default: {},
+      validate: {
+        validator: function (value) {
+          // Ensure only allowed sizes are used
+          const validSizes = ["S", "M", "L", "XL", "XXL"];
+          return Array.from(value.keys()).every((size) =>
+            validSizes.includes(size)
+          );
+        },
+        message: (props) =>
+          `Invalid size key detected in SizeStock: ${Array.from(
+            props.value.keys()
+          )
+            .filter((k) => !["S", "M", "L", "XL", "XXL"].includes(k))
+            .join(", ")}`,
+      },
     },
     Price: {
       type: Number,
@@ -23,10 +38,6 @@ const ProductSchema = new Schema(
       enum: ["Full Sleeve", "Half Sleeve", "Sleeveless"],
       required: true,
     },
-    Stock: {
-      type: Number,
-      required: true,
-    },
     Color: {
       type: String,
       required: true,
@@ -36,9 +47,41 @@ const ProductSchema = new Schema(
       enum: ["Photo", "Text", "Both"],
       required: true,
     },
+    description: {
+      type: String,
+      required: true,
+    },
+    maxEditingCost: {
+      type: Number,
+      required: true,
+    },
+    otherDetails: {
+      type: Map,
+      of: Number,
+      default: {},
+    },
     isDiscontinued: {
       type: Boolean,
       default: false,
+    },
+    comments: [
+      {
+        type: Types.ObjectId,
+        ref: "Comment",
+      },
+    ],
+    ratingRef: {
+      type: Types.ObjectId,
+      ref: "Ratings",
+    },
+    rating: {
+      type: Number,
+      min: 1,
+      max: 5,
+      default: null,
+    },
+    noOfRatings: {
+      type: Number,
     },
   },
   { timestamps: true }
