@@ -5,7 +5,7 @@ const CommentSchema = new Schema(
       ref: "Product",
       required: true,
     },
-    user: {
+    userId: {
       type: Types.ObjectId,
       ref: "User",
       required: true,
@@ -35,6 +35,10 @@ const CommentSchema = new Schema(
     disLikes: {
       type: Number,
       default: 0,
+    },
+    isBlock : {
+      type: Boolean,
+      default: false,
     },
     likedBy: [
       {

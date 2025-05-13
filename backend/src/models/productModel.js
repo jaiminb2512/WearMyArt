@@ -2,17 +2,16 @@ import { model, Schema, Types } from "mongoose";
 
 const ProductSchema = new Schema(
   {
-    ImgURL: {
+    imgURL: {
       type: [String],
       required: false,
     },
-    SizeStock: {
+    sizeStock: {
       type: Map,
-      of: Number, // value is stock number
+      of: Number, 
       default: {},
       validate: {
         validator: function (value) {
-          // Ensure only allowed sizes are used
           const validSizes = ["S", "M", "L", "XL", "XXL"];
           return Array.from(value.keys()).every((size) =>
             validSizes.includes(size)
@@ -26,23 +25,23 @@ const ProductSchema = new Schema(
             .join(", ")}`,
       },
     },
-    Price: {
+    price: {
       type: Number,
       required: true,
     },
-    DiscountedPrice: {
+    discountedPrice: {
       type: Number,
     },
-    Sleeve: {
+    sleeve: {
       type: String,
       enum: ["Full Sleeve", "Half Sleeve", "Sleeveless"],
       required: true,
     },
-    Color: {
+    color: {
       type: String,
       required: true,
     },
-    CustomizeOption: {
+    customizeOption: {
       type: String,
       enum: ["Photo", "Text", "Both"],
       required: true,

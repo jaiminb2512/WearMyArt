@@ -24,11 +24,11 @@ const notificationSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    relatedOrderId: {
+    orderId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Order",
     },
-    relatedProductId: {
+    productId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Product",
     },

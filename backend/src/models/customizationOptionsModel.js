@@ -1,12 +1,12 @@
 import { Schema, model } from "mongoose";
 
 const CustomizationOptionsSchema = new Schema({
-  FontOptions: {
+  fontOptions: {
     type: Map,
     of: Number,
     required: true,
   },
-  TextStyles: {
+  textStyles: {
     type: Map,
     of: Number,
     // Bold, Italic, Underline, Regular
