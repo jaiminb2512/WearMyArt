@@ -7,6 +7,7 @@ const UserSchema = new Schema(
     },
     fullName: {
       type: String,
+      lowercase: true,
       required: true,
     },
     email: {
@@ -19,6 +20,7 @@ const UserSchema = new Schema(
     password: {
       type: String,
       required: true,
+      select: false,
     },
     isAdmin: {
       type: Boolean,
@@ -35,9 +37,11 @@ const UserSchema = new Schema(
     OTP: {
       type: Number,
       required: true,
+      select: false,
     },
     OTPExpiry: {
       type: Date,
+      select: false,
     },
     wishlist: [
       {
