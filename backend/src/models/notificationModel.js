@@ -1,9 +1,9 @@
-import mongoose from "mongoose";
+import { model, Schema, Types } from "mongoose";
 
-const notificationSchema = new mongoose.Schema(
+const notificationSchema = new Schema(
   {
     userId: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Types.ObjectId,
       ref: "User",
       required: true,
     },
@@ -25,18 +25,19 @@ const notificationSchema = new mongoose.Schema(
       default: false,
     },
     orderId: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Types.ObjectId,
       ref: "Order",
+      select: false,
     },
     productId: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Types.ObjectId,
       ref: "Product",
+      select: false,
     },
   },
   { timestamps: true }
 );
 
-const Notification =
-  mongoose.models.Notification ||
-  mongoose.model("Notification", notificationSchema);
+const Notification = model("Notification", notificationSchema);
+
 export default Notification;

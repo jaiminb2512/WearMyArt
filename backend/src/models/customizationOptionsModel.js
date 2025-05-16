@@ -4,11 +4,12 @@ const CustomizationOptionsSchema = new Schema({
   fontOptions: {
     type: Map,
     of: Number,
-    required: true,
+    require: true,
   },
   textStyles: {
     type: Map,
     of: Number,
+    require: true,
     // Bold, Italic, Underline, Regular
   },
 });

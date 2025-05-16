@@ -1,3 +1,5 @@
+import { model, Schema, Types } from "mongoose";
+
 const CommentSchema = new Schema(
   {
     productId: {
@@ -26,7 +28,12 @@ const CommentSchema = new Schema(
     },
     images: {
       type: [String],
-      required: false,
+      validate: {
+        validator: function (value) {
+          return value.length <= 5;
+        },
+        message: "You can upload a maximum of 5 images.",
+      },
     },
     likes: {
       type: Number,
@@ -36,22 +43,32 @@ const CommentSchema = new Schema(
       type: Number,
       default: 0,
     },
-    isBlock : {
+    isBlock: {
       type: Boolean,
       default: false,
     },
-    likedBy: [
-      {
-        type: Types.ObjectId,
-        ref: "User",
-      },
-    ],
-    dislikedBy: [
-      {
-        type: Types.ObjectId,
-        ref: "User",
-      },
-    ],
+    likedBy: {
+      type: [
+        {
+          type: Types.ObjectId,
+          ref: "User",
+        },
+      ],
+      select: false,
+    },
+    dislikedBy: {
+      type: [
+        {
+          type: Types.ObjectId,
+          ref: "User",
+        },
+      ],
+      select: false,
+    },
   },
   { timestamps: true }
 );
+
+const Comment = new model("Comment", CommentSchema);
+
+export default Comment;

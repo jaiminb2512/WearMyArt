@@ -4,11 +4,17 @@ const ProductSchema = new Schema(
   {
     imgURL: {
       type: [String],
-      required: false,
+      required: true,
+      validate: {
+        validator: function (value) {
+          return value.length <= 5;
+        },
+        message: "You can upload a maximum of 5 images.",
+      },
     },
     sizeStock: {
       type: Map,
-      of: Number, 
+      of: Number,
       default: {},
       validate: {
         validator: function (value) {
@@ -49,6 +55,7 @@ const ProductSchema = new Schema(
     description: {
       type: String,
       required: true,
+      select: false,
     },
     maxEditingCost: {
       type: Number,
@@ -56,22 +63,22 @@ const ProductSchema = new Schema(
     },
     otherDetails: {
       type: Map,
-      of: Number,
+      of: String,
       default: {},
+      select: false,
     },
     isDiscontinued: {
       type: Boolean,
       default: false,
     },
-    comments: [
-      {
-        type: Types.ObjectId,
-        ref: "Comment",
-      },
-    ],
+    comments: {
+      type: [ { type: Types.ObjectId, ref: "Comment" } ],
+      select: false
+    },    
     ratingRef: {
       type: Types.ObjectId,
       ref: "Ratings",
+      select: false,
     },
     rating: {
       type: Number,
@@ -81,6 +88,7 @@ const ProductSchema = new Schema(
     },
     noOfRatings: {
       type: Number,
+      select: false,
     },
   },
   { timestamps: true }

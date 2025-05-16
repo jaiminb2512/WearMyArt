@@ -13,13 +13,17 @@ const ratingsSchema = Schema({
     4: { type: Number, default: 0 },
     5: { type: Number, default: 0 },
   },
-  ratedBy: [
-    {
-      type: Types.ObjectId,
-      ref: "User",
-    },
-  ],
+  ratedBy: {
+    type: [
+      {
+        type: Types.ObjectId,
+        ref: "User",
+      },
+    ],
+    select: false,
+  },
 });
 
-const Ratings = model("Ratings", ratingsSchema)
-export default Ratings
+const Ratings = model("Ratings", ratingsSchema);
+
+export default Ratings;

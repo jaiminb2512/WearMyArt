@@ -556,7 +556,7 @@ const getAllUsers = async (req, res) => {
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
 
-    const totalUsers = await User.countDocuments();
+    const totalUsers = await User.countDocuments({ isAdmin: false });
 
     const AllUser = await User.find({ isAdmin: false })
       .select("_id fullName email isActive isBlocked createdAt")
